@@ -33,5 +33,6 @@
 	<classpathentry kind="lib" path="lib/jME3_2013-05-26/lib/stack-alloc.jar"/>
 	<classpathentry kind="lib" path="lib/jME3_2013-05-26/lib/vecmath.jar"/>
 	<classpathentry kind="lib" path="lib/jME3_2013-05-26/lib/xmlpull-xpp3.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
