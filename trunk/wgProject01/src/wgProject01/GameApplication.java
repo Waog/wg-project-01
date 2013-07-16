@@ -18,12 +18,7 @@ import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 
 /** Sample 5 - how to map keys and mousebuttons to actions */
-public class HelloInput extends SimpleApplication {
-
-	public static void main(String[] args) {
-		HelloInput app = new HelloInput();
-		app.start();
-	}
+public class GameApplication extends SimpleApplication {
 
 	protected Geometry player;
 	Boolean isRunning = true;
