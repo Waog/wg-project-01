@@ -16,11 +16,20 @@ import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
+import com.jme3.light.PointLight;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
+import com.jme3.scene.shape.Sphere;
+import com.jme3.texture.Texture;
+import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.TangentBinormalGenerator;
 
 /** Sample 5 - how to map keys and mousebuttons to actions */
@@ -40,20 +49,35 @@ public class GameApplication extends SimpleApplication implements
 
 	private CharacterControl playerPhys;
 	private BulletAppState bulletAppState;
+	private double sunPosition = 0.0f;
 
 	// Temporary vectors used on each frame.
 	// They here to avoid instanciating new vectors on each frame
 	private Vector3f camDir = new Vector3f();
 	private Vector3f camLeft = new Vector3f();
+	private Node sunNode;
+	private PointLight sunLight;
 
 	@Override
 	public void simpleInitApp() {
 		assetManager.registerLocator(".", FileLocator.class);
+		
+		Mesh sphereMesh = new Sphere(5, 5, 2f);
+		Spatial sphereSpacial = new Geometry("Sphere", sphereMesh);
+		Material sphereMat = new Material(assetManager,
+				"Common/MatDefs/Misc/Unshaded.j3md");
+		sphereMat.setColor("Color", ColorRGBA.Red);
+		sphereSpacial.setMaterial(sphereMat);
+		rootNode.attachChild(sphereSpacial);
+		sphereSpacial.setLocalTranslation(0, 10, 0);
+		sphereSpacial.addControl(new RotationControl(10, 10, 1));
+		
 
 		initCrossHairs();
 		initPhysics();
-//		initFloor();
+		// initFloor();
 		initOneBlockFloor();
+		initSun();
 
 		viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 		flyCam.setMoveSpeed(25);
@@ -69,20 +93,58 @@ public class GameApplication extends SimpleApplication implements
 		/** Must add a light to make the lit object visible! */
 		DirectionalLight sun = new DirectionalLight();
 		sun.setDirection(new Vector3f(1, 0, -1).normalizeLocal());
-		sun.setColor(ColorRGBA.White);
+		sun.setColor(ColorRGBA.DarkGray);
 		rootNode.addLight(sun);
 
 		/** Must add a light to make the lit object visible! */
 		DirectionalLight sun2 = new DirectionalLight();
 		sun2.setDirection(new Vector3f(-1, 1, 0).normalizeLocal());
-		sun2.setColor(ColorRGBA.Yellow);
+		sun2.setColor(ColorRGBA.DarkGray);
 		rootNode.addLight(sun2);
 
 		/** Must add a light to make the lit object visible! */
 		DirectionalLight sun3 = new DirectionalLight();
 		sun3.setDirection(new Vector3f(0, -1, 1).normalizeLocal());
-		sun3.setColor(ColorRGBA.LightGray);
+		sun3.setColor(ColorRGBA.DarkGray);
 		rootNode.addLight(sun3);
+	}
+
+	private void initSun() {
+			sunNode = new Node("sun");
+			
+			// a visible point light source:
+			Vector3f sunPos = new Vector3f(3, 2, 20);
+			sunNode.setLocalTranslation(sunPos);
+			ColorRGBA lightColor = ColorRGBA.Orange;
+			ColorRGBA lightColorSemiTransparent = lightColor.clone();
+			lightColorSemiTransparent.a = 0.5f;
+
+			Sphere sphere = new Sphere(20, 20, 20f);
+			Spatial aSun = new Geometry("Sphere", sphere);
+			aSun.setQueueBucket(Bucket.Transparent);
+			Material mat_aSun = new Material(assetManager,
+					"Common/MatDefs/Misc/Unshaded.j3md");
+			mat_aSun.setColor("Color", lightColor);
+			mat_aSun.getAdditionalRenderState().setBlendMode(BlendMode.Alpha); // !
+			aSun.setMaterial(mat_aSun);
+			sunNode.attachChild(aSun);
+
+			Sphere sphere2 = new Sphere(20, 20, 30f);
+			Spatial aSun2 = new Geometry("Sphere", sphere2);
+			aSun2.setQueueBucket(Bucket.Transparent);
+			Material mat_aSun2 = new Material(assetManager,
+					"Common/MatDefs/Misc/Unshaded.j3md");
+			mat_aSun2.setColor("Color", lightColorSemiTransparent);
+			mat_aSun2.getAdditionalRenderState().setBlendMode(BlendMode.Alpha); // !
+			aSun2.setMaterial(mat_aSun2);
+			sunNode.attachChild(aSun2);
+			rootNode.attachChild(sunNode);
+
+			sunLight = new PointLight();
+			sunLight.setPosition(sunPos);
+			sunLight.setColor(lightColor);
+//			pointlight.setRadius(300);
+			rootNode.addLight(sunLight);		
 	}
 
 	/**
@@ -191,6 +253,24 @@ public class GameApplication extends SimpleApplication implements
 		}
 		playerPhys.setWalkDirection(walkDirection);
 		cam.setLocation(playerPhys.getPhysicsLocation());
+		
+		updateSun(tpf);
+	}
+
+	private void updateSun(float tpf) {
+		double radius = 100;
+				
+		this.sunPosition += tpf;
+		if (this.sunPosition > Math.PI * 2) {
+			this.sunPosition -= Math.PI * 2;
+		}
+		float newSunPosX = (float) (radius * Math.sin(this.sunPosition));
+		float newSunPosY = (float) (radius * Math.cos(this.sunPosition));
+		
+		Vector3f newSunPos = new Vector3f(newSunPosX, newSunPosY, 0);
+		
+		sunNode.setLocalTranslation(newSunPos);
+		sunLight.setPosition(newSunPos);
 	}
 
 	/** Custom Keybinding: Map named actions to inputs. */
@@ -215,8 +295,10 @@ public class GameApplication extends SimpleApplication implements
 		TangentBinormalGenerator.generate(shape);
 		Material sphereMat = new Material(assetManager,
 				"assets/Materials/Lighting/Lighting.j3md");
-		sphereMat.setTexture("DiffuseMap",
-				assetManager.loadTexture("Textures/Pond/Pond.jpg"));
+
+		Texture texture = assetManager.loadTexture("Textures/Pond/Pond.jpg");
+		texture.setWrap(WrapMode.Repeat);
+		sphereMat.setTexture("DiffuseMap", texture);
 		sphereMat.setTexture("NormalMap",
 				assetManager.loadTexture("Textures/Pond/Pond_normal.png"));
 		sphereMat.setBoolean("UseMaterialColors", true);
@@ -235,7 +317,7 @@ public class GameApplication extends SimpleApplication implements
 
 		rootNode.attachChild(geometry);
 	}
-	
+
 	private void addBlockAt(int x, int y, int z) {
 		Box shape = new Box(0.5f, 0.5f, 0.5f);
 		Geometry geometry = new Geometry("Block", shape);
