@@ -26,6 +26,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.control.LightControl;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.Texture;
@@ -62,7 +63,7 @@ public class GameApplication extends SimpleApplication implements
 	public void simpleInitApp() {
 		assetManager.registerLocator(".", FileLocator.class);
 		
-		Mesh sphereMesh = new Sphere(5, 5, 20f);
+		Mesh sphereMesh = new Sphere(20, 20, 20f);
 		Spatial sphereSpacial = new Geometry("Sphere", sphereMesh);
 		Material sphereMat = new Material(assetManager,
 				"Common/MatDefs/Misc/Unshaded.j3md");
@@ -71,8 +72,14 @@ public class GameApplication extends SimpleApplication implements
 		rootNode.attachChild(sphereSpacial);
 		sphereSpacial.setLocalTranslation(0, 10, 0);
 		RotationControl rotationControl = new RotationControl(100, 100, 100);
-		rotationControl.setSpeeds(new Vector3f(1.1f, 1.2f, 1.3f));
+		rotationControl.setSpeeds(new Vector3f(0.1f, 0.2f, 0.3f));
 		sphereSpacial.addControl(rotationControl);
+		
+		PointLight myLight = new PointLight();
+		myLight.setColor(ColorRGBA.Red);
+		rootNode.addLight(myLight);
+		LightControl lightControl = new LightControl(myLight);
+		sphereSpacial.addControl(lightControl); // this spatial controls the position of this light.
 		
 
 		initCrossHairs();
