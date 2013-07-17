@@ -62,7 +62,7 @@ public class GameApplication extends SimpleApplication implements
 	public void simpleInitApp() {
 		assetManager.registerLocator(".", FileLocator.class);
 		
-		Mesh sphereMesh = new Sphere(5, 5, 2f);
+		Mesh sphereMesh = new Sphere(5, 5, 20f);
 		Spatial sphereSpacial = new Geometry("Sphere", sphereMesh);
 		Material sphereMat = new Material(assetManager,
 				"Common/MatDefs/Misc/Unshaded.j3md");
@@ -70,7 +70,9 @@ public class GameApplication extends SimpleApplication implements
 		sphereSpacial.setMaterial(sphereMat);
 		rootNode.attachChild(sphereSpacial);
 		sphereSpacial.setLocalTranslation(0, 10, 0);
-		sphereSpacial.addControl(new RotationControl(10, 10, 1));
+		RotationControl rotationControl = new RotationControl(100, 100, 100);
+		rotationControl.setSpeeds(new Vector3f(1.1f, 1.2f, 1.3f));
+		sphereSpacial.addControl(rotationControl);
 		
 
 		initCrossHairs();
