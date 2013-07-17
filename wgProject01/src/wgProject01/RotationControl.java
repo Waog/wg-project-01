@@ -50,11 +50,6 @@ public class RotationControl extends AbstractControl {
 	protected void controlUpdate(float tpf) {
 		
 		this.curPosCount = this.curPosCount.add(speeds.mult(tpf));
-		System.out.println("tpf:" + tpf);
-		System.out.println("speeds:" + speeds);
-		System.out.println("speeds.mult(tpf):" + speeds.mult(tpf));
-		System.out.println(this.curPosCount);
-		System.out.println("center: " + center);
 		if (this.curPosCount.x > Math.PI * 2) {
 			this.curPosCount.x -= Math.PI * 2;
 		}
