@@ -1,7 +1,5 @@
 package wgProject01.ingameState;
 
-import java.util.List;
-
 import jm3Utils.Jm3Utils;
 import wgProject01.GameApplication;
 import wgProject01.RotationControl;
@@ -13,9 +11,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
-import com.jme3.bullet.control.PhysicsControl;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.bullet.objects.PhysicsRigidBody;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.font.BitmapFont;
@@ -33,6 +29,8 @@ import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Matrix3f;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -43,7 +41,6 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.LightControl;
-import com.jme3.scene.debug.Grid;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
@@ -233,33 +230,43 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		}
 		playerPhys.setWalkDirection(walkDirection);
 		cam.setLocation(playerPhys.getPhysicsLocation());
-		// highlightBlockFace();
+		highlightBlockFace();
 		updateSun(tpf);
 	}
 
-	/*
-	 * private void highlightBlockFace() {
-	 * 
-	 * results.clear(); results = shootRay(RAY_LIMIT); if (results.size() > 0) {
-	 * // Vector3f viewPoint = calculateBlockLocation(results); // Box shape =
-	 * new Box(0f, 0.5f, 100f); // Geometry geometry = new Geometry("Block",
-	 * shape); CollisionResult closest = results.getClosestCollision(); Geometry
-	 * geom = closest.getGeometry(); faceVector .set(calculateHittedFace(geom,
-	 * closest.getContactPoint())); faceVectorNegated.set(faceVector.negate());
-	 * if (faceVector.equals(Vector3f.UNIT_X) ||
-	 * faceVectorNegated.equals(Vector3f.UNIT_X)) {
-	 * highlightedBlockFace.rotateUpTo(Vector3f.UNIT_X); } else if
-	 * (faceVector.equals(Vector3f.UNIT_Y) ||
-	 * faceVectorNegated.equals(Vector3f.UNIT_Y)) {
-	 * highlightedBlockFace.rotateUpTo(Vector3f.UNIT_Y);
-	 * 
-	 * } else { highlightedBlockFace.rotateUpTo(Vector3f.UNIT_Z); }
-	 * faceVector.multLocal(0.51f); // this is supposed to be a bit in // front
-	 * // of the last block in a local coordinate // system relative to the mid
-	 * point of the // hit geometry
-	 * highlightedBlockFace.setLocalTranslation(geom.getLocalTranslation()
-	 * .addLocal(faceVector)); } }
-	 */
+	private void highlightBlockFace() {
+
+		results.clear();
+		results = shootRay(RAY_LIMIT);
+		if (results.size() > 0) {
+			// Vector3f viewPoint = calculateBlockLocation(results);
+			// Box shape = new Box(0f, 0.5f, 100f);
+			// Geometry geometry = new Geometry("Block", shape);
+			CollisionResult closest = results.getClosestCollision();
+			Geometry geom = closest.getGeometry();
+			Vector3f selectedBlockPos = geom.getWorldTranslation();
+			Vector3f vectorToNeighbor = getVectorToNeighbor(geom,
+					closest.getContactPoint());
+			Vector3f halfVecToNeigh = vectorToNeighbor.mult(0.51f);
+
+			// TODO 1: remove debugcode:
+			Jm3Utils.drawLine(selectedBlockPos,
+					selectedBlockPos.add(vectorToNeighbor), rootNode,
+					assetManager);
+
+			// this is supposed to be a bit in front of the last block in a
+			// local coordinate system relative to the mid point of the hit
+			// geometry
+			highlightedBlockFace.setLocalTranslation(selectedBlockPos
+					.add(halfVecToNeigh));
+			// float[] rotationAngles = {1f, 0f, 0f};
+			// Quaternion quaternion = new Quaternion(rotationAngles);
+			// highlightedBlockFace.setLocalRotation(quaternion);
+			Vector3f someOtherVector = vectorToNeighbor.add(new Vector3f(1, 1, 1));
+			Vector3f firstOrthVector = vectorToNeighbor.cross(someOtherVector);
+			highlightedBlockFace.rotateUpTo(firstOrthVector);
+		}
+	}
 
 	/**
 	 * initializes the most important nodes and attaches them to their specific
@@ -573,9 +580,10 @@ public class IngameState extends AbstractAppState implements ActionListener {
 				closest.getContactPoint());
 		// System.out.println(blockLocation.toString()); // for Testing
 		// System.out.println(geom.getLocalTranslation().toString());
-		Vector3f blockLocation = vectorToNeighbor.addLocal(selectedGeom.getWorldTranslation());
-		Jm3Utils.drawLine(selectedGeom.getWorldTranslation(), blockLocation, rootNode,
-				assetManager);
+		Vector3f blockLocation = vectorToNeighbor.addLocal(selectedGeom
+				.getWorldTranslation());
+		Jm3Utils.drawLine(selectedGeom.getWorldTranslation(), blockLocation,
+				rootNode, assetManager);
 		return blockLocation;
 	}
 
@@ -595,8 +603,10 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		projectedVector.set(contactPoint.add(geom.getWorldTranslation()
 				.negate()));
 
-		float xProjectionLength = projectedVector.dot(Vector3f.UNIT_X); // scalar product of
-															// tmp with the
+		float xProjectionLength = projectedVector.dot(Vector3f.UNIT_X); // scalar
+																		// product
+																		// of
+		// tmp with the
 		// unit
 		// vector in x-dir'n
 		float yProjectionLength = projectedVector.dot(Vector3f.UNIT_Y);
