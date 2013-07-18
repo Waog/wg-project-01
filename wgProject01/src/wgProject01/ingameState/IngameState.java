@@ -1,5 +1,7 @@
 package wgProject01.ingameState;
 
+import java.util.List;
+
 import wgProject01.GameApplication;
 import wgProject01.RotationControl;
 
@@ -79,6 +81,8 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	// They here to avoid instanciating new vectors on each frame
 	private Vector3f camDir = new Vector3f();
 	private Vector3f camLeft = new Vector3f();
+	private Vector3f newSunPos = new Vector3f();
+	
 	private Node sunNode; // contains the suns
 	private Node shootables; // contains all spatials onto which a block can be
 								// set
@@ -104,13 +108,13 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		this.guiNode = this.app.getGuiNode();
 
 		// init stuff that is independent of whether state is PAUSED or RUNNING
-		
+		guiNode.addLight(new AmbientLight());
 
 		initNodes();
 		initCrossHairs();
 		initPhysics();
 		initFloor();
-		// initOneBlockFloor(); // take either one of the floor initializations
+		//initOneBlockFloor(); // take either one of the floor initializations
 		initSun();
 		initKeys(); // load my custom keybinding
 		setUpKeys();
@@ -118,6 +122,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		initAnotherSun();
 
 		viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f)); // makes the background somewhat blue
+		//TODO 2 the movementspeed setting does not work at all
 		flyCam.setMoveSpeed(25);
 
 	}
@@ -209,6 +214,8 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		// the node containing the geometries in the inventory
 		inventoryNode = new Node(INVENTORY_NODE); // set up the inventory
 		guiNode.attachChild(inventoryNode);
+		inventoryNode.setLocalTranslation(cam.getWidth() / 2,cam.getHeight() / 2 - 20, 0);
+		inventoryNode.scale(10);
 	}
 
 	/** initializes a "floor" made of one big box - this box is not mineable */
@@ -242,7 +249,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		geometry.addControl(blockPhy);
 		blockPhy.setKinematic(true);
 		bulletAppState.getPhysicsSpace().add(blockPhy);
-	
+		
 		shootables.attachChild(geometry);
 	}
 
@@ -360,7 +367,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		float newSunPosX = (float) (radius * Math.sin(this.sunPosition));
 		float newSunPosY = (float) (radius * Math.cos(this.sunPosition));
 	
-		Vector3f newSunPos = new Vector3f(newSunPosX, newSunPosY, 0);
+		newSunPos.set(newSunPosX, newSunPosY, 0);
 	
 		sunNode.setLocalTranslation(newSunPos);
 		sunLight.setPosition(newSunPos);
@@ -426,13 +433,19 @@ public class IngameState extends AbstractAppState implements ActionListener {
 			Geometry geom = closest.getGeometry();
 			Node node = geom.getParent();
 			bulletAppState.getPhysicsSpace().remove(geom); // removes the block from the physicsSpace
-			if (node.getName().equals(MINEABLES)
-					&& !node.getName().equals("rootNode"))
+			System.out.println(node.getName());
+			if (node.getName().equals(MINEABLES)) {
+				System.out.println("geom attached");
 				inventoryNode.attachChild(geom);
-			else if (!node.getName().equals(MINEABLES)) {
+			}
+			// this one may be important for non-block spatials
+			else  {
 				System.out.println(node.getName());
 				inventoryNode.attachChild(node); //
 			}
+			System.out.println("nothing attached to inv");
+			List<Spatial> list = inventoryNode.getChildren();
+			System.out.println();
 		}
 	}
 
@@ -451,10 +464,11 @@ public class IngameState extends AbstractAppState implements ActionListener {
 			// System.out.println(geom.getLocalTranslation().toString());
 			blockLocation = blockLocation.add(geom.getLocalTranslation());
 			System.out.println(blockLocation.toString());
+			
 			addBlockAt((int) blockLocation.x, (int) blockLocation.y,
 					(int) blockLocation.z);
+			//TODO 2 stop blocks from being placed when player is in the way
 		}
-
 	}
 
 	/**
