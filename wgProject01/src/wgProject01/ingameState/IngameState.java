@@ -82,7 +82,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	private Vector3f camDir = new Vector3f();
 	private Vector3f camLeft = new Vector3f();
 	private Vector3f newSunPos = new Vector3f();
-	
+
 	private Node sunNode; // contains the suns
 	private Node shootables; // contains all spatials onto which a block can be
 								// set
@@ -114,20 +114,24 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		initCrossHairs();
 		initPhysics();
 		initFloor();
-		//initOneBlockFloor(); // take either one of the floor initializations
+		// initOneBlockFloor(); // take either one of the floor initializations
 		initSun();
 		initKeys(); // load my custom keybinding
 		setUpKeys();
 		initGeneralLights();
 		initAnotherSun();
 
-		viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f)); // makes the background somewhat blue
-		//TODO 2 the movementspeed setting does not work at all
+		viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f)); // makes
+																		// the
+																		// background
+																		// somewhat
+																		// blue
+		// TODO 2 the movementspeed setting does not work at all
 		flyCam.setMoveSpeed(25);
 
 	}
 
-	//TODO 3
+	// TODO 3
 	/** is this another sun? please write a proper comment */
 	private void initAnotherSun() {
 		Mesh sphereMesh = new Sphere(20, 20, 20f);
@@ -148,7 +152,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		LightControl lightControl = new LightControl(myLight);
 		sphereSpacial.addControl(lightControl); // this spatial controls the
 												// position of this light.
-		
+
 	}
 
 	@Override
@@ -206,16 +210,17 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		// at, or to mine it
 		shootables = new Node(SHOOTABLES);
 		rootNode.attachChild(shootables);
-	
+
 		// the node containing the blocks that can be picked up
 		mineables = new Node(MINEABLES);
 		shootables.attachChild(mineables);
-	
+
 		// the node containing the geometries in the inventory
 		inventoryNode = new Node(INVENTORY_NODE); // set up the inventory
 		guiNode.attachChild(inventoryNode);
-		inventoryNode.setLocalTranslation(cam.getWidth() / 2,cam.getHeight() / 2 - 20, 0);
-		inventoryNode.scale(10);
+		inventoryNode.setLocalTranslation(cam.getWidth() / 2,
+				cam.getHeight() / 2 - 20, 0);
+		inventoryNode.scale(20);
 	}
 
 	/** initializes a "floor" made of one big box - this box is not mineable */
@@ -226,11 +231,11 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		// "Common/MatDefs/Misc/Unshaded.j3md");
 		// mat.setColor("Color", ColorRGBA.randomColor());
 		// geometry.setMaterial(mat);
-	
+
 		TangentBinormalGenerator.generate(shape);
 		Material sphereMat = new Material(assetManager,
 				"assets/Materials/Lighting/Lighting.j3md");
-	
+
 		Texture texture = assetManager.loadTexture("Textures/Pond/Pond.jpg");
 		texture.setWrap(WrapMode.Repeat);
 		sphereMat.setTexture("DiffuseMap", texture);
@@ -241,15 +246,15 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		sphereMat.setColor("Specular", ColorRGBA.White);
 		sphereMat.setFloat("Shininess", 64f); // [0,128]
 		geometry.setMaterial(sphereMat);
-	
+
 		geometry.setLocalTranslation(new Vector3f(0, 0, 0));
-	
+
 		// the block physics:
 		RigidBodyControl blockPhy = new RigidBodyControl(0);
 		geometry.addControl(blockPhy);
 		blockPhy.setKinematic(true);
 		bulletAppState.getPhysicsSpace().add(blockPhy);
-		
+
 		shootables.attachChild(geometry);
 	}
 
@@ -264,7 +269,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 				addBlockAt(x, 0, z);
 				addBlockAt(x, -1, z);
 				addBlockAt(x, -2, z);
-	
+
 				if (Math.abs(x) >= FLOOR_RADIUS - 2
 						|| Math.abs(z) >= FLOOR_RADIUS - 2) {
 					addBlockAt(x, 1, z);
@@ -275,31 +280,34 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		}
 	}
 
-	/** initializes three lights to have a general enlightening setting any materials visible */
+	/**
+	 * initializes three lights to have a general enlightening setting any
+	 * materials visible
+	 */
 	private void initGeneralLights() {
 		// Add an ambient light to make everything visible.
 		AmbientLight ambientLight = new AmbientLight();
 		ambientLight.setColor(ColorRGBA.Pink);
 		rootNode.addLight(ambientLight);
-	
+
 		/** Must add a light to make the lit object visible! */
 		DirectionalLight sun = new DirectionalLight();
 		sun.setDirection(new Vector3f(1, 0, -1).normalizeLocal());
 		sun.setColor(ColorRGBA.DarkGray);
 		rootNode.addLight(sun);
-	
+
 		/** Must add a light to make the lit object visible! */
 		DirectionalLight sun2 = new DirectionalLight();
 		sun2.setDirection(new Vector3f(-1, 1, 0).normalizeLocal());
 		sun2.setColor(ColorRGBA.DarkGray);
 		rootNode.addLight(sun2);
-	
+
 		/** Must add a light to make the lit object visible! */
 		DirectionalLight sun3 = new DirectionalLight();
 		sun3.setDirection(new Vector3f(0, -1, 1).normalizeLocal());
 		sun3.setColor(ColorRGBA.DarkGray);
 		rootNode.addLight(sun3);
-		
+
 	}
 
 	/** A centered plus sign to help the player aim. */
@@ -317,7 +325,10 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		guiNode.attachChild(ch);
 	}
 
-	/** currently initializes two suns - one with default controller, one is custom controller*/
+	/**
+	 * currently initializes two suns - one with default controller, one is
+	 * custom controller
+	 */
 	private void initSun() {
 		sunNode = new Node("sun");
 
@@ -359,16 +370,16 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	/** keeps the suns positioning updated */
 	private void updateSun(float tpf) {
 		double radius = 100;
-	
+
 		this.sunPosition += tpf;
 		if (this.sunPosition > Math.PI * 2) {
 			this.sunPosition -= Math.PI * 2;
 		}
 		float newSunPosX = (float) (radius * Math.sin(this.sunPosition));
 		float newSunPosY = (float) (radius * Math.cos(this.sunPosition));
-	
+
 		newSunPos.set(newSunPosX, newSunPosY, 0);
-	
+
 		sunNode.setLocalTranslation(newSunPos);
 		sunLight.setPosition(newSunPos);
 	}
@@ -432,14 +443,16 @@ public class IngameState extends AbstractAppState implements ActionListener {
 			CollisionResult closest = results.getClosestCollision();
 			Geometry geom = closest.getGeometry();
 			Node node = geom.getParent();
-			bulletAppState.getPhysicsSpace().remove(geom); // removes the block from the physicsSpace
+			bulletAppState.getPhysicsSpace().remove(geom); // removes the block
+															// from the
+															// physicsSpace
 			System.out.println(node.getName());
 			if (node.getName().equals(MINEABLES)) {
 				System.out.println("geom attached");
 				inventoryNode.attachChild(geom);
 			}
 			// this one may be important for non-block spatials
-			else  {
+			else {
 				System.out.println(node.getName());
 				inventoryNode.attachChild(node); //
 			}
@@ -450,25 +463,57 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	}
 
 	/**
-	 * places a block onto to the targetted physical object relative to the
-	 * targetted side of the object
+	 * takes a spatial from the inventory and puts it onto the right place
+	 */
+	private void placeBlockFromInv() {
+		if (inventoryNode.getQuantity() > 0) { //check for empty inventoryNode
+			CollisionResults results = shootRay(6);
+			if (results.size() > 0) { //check if there is a hit at all
+				Vector3f blockLocation = calculateBlockLocation(results);
+				Spatial spaten = inventoryNode.detachChildAt(0);
+				spaten.setLocalTranslation(blockLocation);
+				mineables.attachChild(spaten); // TODO 3 is there anything that
+												// can be set but is not
+												// mineable?
+				// TODO 2 stop blocks from being placed when player is in the
+				// way
+			}
+		}
+	}
+
+	/**
+	 * places a block onto the targetted physical object relative to the
+	 * targetted face of the block.
+	 * This method does not use the inventory instead generates new blocks every time called.
 	 */
 	private void placeBlock() {
 		CollisionResults results = shootRay(6);
 		if (results.size() > 0) {
-			CollisionResult closest = results.getClosestCollision();
-			Geometry geom = closest.getGeometry();
-			Vector3f blockLocation = calculateHittedFace(geom,
-					closest.getContactPoint());
-			// System.out.println(blockLocation.toString()); // for Testing
-			// System.out.println(geom.getLocalTranslation().toString());
-			blockLocation = blockLocation.add(geom.getLocalTranslation());
-			System.out.println(blockLocation.toString());
-			
+			Vector3f blockLocation = calculateBlockLocation(results);
+
 			addBlockAt((int) blockLocation.x, (int) blockLocation.y,
 					(int) blockLocation.z);
-			//TODO 2 stop blocks from being placed when player is in the way
+			// TODO 2 stop blocks from being placed when player is in the way
 		}
+	}
+
+	/**
+	 * calculates the position where the block shall be set and returns it
+	 * 
+	 * @param results
+	 *            the set of results calculated
+	 * @return the position of the block to be placed
+	 */
+	private Vector3f calculateBlockLocation(CollisionResults results) {
+		CollisionResult closest = results.getClosestCollision();
+		Geometry geom = closest.getGeometry();
+		Vector3f blockLocation = calculateHittedFace(geom,
+				closest.getContactPoint());
+		// System.out.println(blockLocation.toString()); // for Testing
+		// System.out.println(geom.getLocalTranslation().toString());
+		blockLocation = blockLocation.add(geom.getLocalTranslation());
+		// System.out.println(blockLocation.toString());
+		return blockLocation;
 	}
 
 	/**
@@ -610,7 +655,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		// new if-statement to get the possibility of running and mining or
 		// placing at the same time
 		if (binding.equals(PLACE_BLOCK) && !value) {
-			placeBlock();
+			placeBlockFromInv();
 		} else if (binding.equals(MINE_BLOCK) && !value) {
 			mineBlock();
 		}
