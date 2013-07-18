@@ -149,7 +149,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		initMaterials();
 
 		highlightedBlockFace.setMaterial(matGrid);
-		highlightedBlockFace.setMesh(new Quad(1, 1));
+		highlightedBlockFace.setMesh(new Box(0.5f, 0f, 0.5f));
 		highlightedBlockFace.setLocalTranslation(0, 2, 0);
 		rootNode.attachChild(highlightedBlockFace);
 		viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f)); // makes
@@ -249,11 +249,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 					closest.getContactPoint());
 			Vector3f halfVecToNeigh = vectorToNeighbor.mult(0.51f);
 
-			// TODO 1: remove debugcode:
-			Jm3Utils.drawLine(selectedBlockPos,
-					selectedBlockPos.add(vectorToNeighbor), rootNode,
-					assetManager);
-
 			// this is supposed to be a bit in front of the last block in a
 			// local coordinate system relative to the mid point of the hit
 			// geometry
@@ -264,7 +259,22 @@ public class IngameState extends AbstractAppState implements ActionListener {
 			// highlightedBlockFace.setLocalRotation(quaternion);
 			Vector3f someOtherVector = vectorToNeighbor.add(new Vector3f(1, 1, 1));
 			Vector3f firstOrthVector = vectorToNeighbor.cross(someOtherVector);
-			highlightedBlockFace.rotateUpTo(firstOrthVector);
+			Vector3f projectedFirstOrthVec = new Vector3f();
+			if (firstOrthVector.dot(Vector3f.UNIT_X) != 0) {
+				projectedFirstOrthVec = firstOrthVector.project(Vector3f.UNIT_X);
+			} else if (firstOrthVector.dot(Vector3f.UNIT_Y) != 0) {
+				projectedFirstOrthVec = firstOrthVector.project(Vector3f.UNIT_Y);
+			} else if (firstOrthVector.dot(Vector3f.UNIT_Z) != 0) {
+				projectedFirstOrthVec = firstOrthVector.project(Vector3f.UNIT_Z);
+			} else {
+				System.out.println("fail");
+			}
+			
+			Vector3f secondOrthVector = vectorToNeighbor.cross(projectedFirstOrthVec);
+			highlightedBlockFace.rotateUpTo(vectorToNeighbor);
+			rootNode.attachChild(highlightedBlockFace);
+		} else {
+			highlightedBlockFace.removeFromParent();
 		}
 	}
 
@@ -331,7 +341,8 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	private void initMaterials() {
 		matGrid = new Material(assetManager,
 				"assets/Materials/Unshaded/Unshaded.j3md");
-		matGrid.setColor("Color", ColorRGBA.Red);
+		matGrid.setColor("Color", ColorRGBA.LightGray);
+		matGrid.getAdditionalRenderState().setWireframe(true);
 	}
 
 	/**
