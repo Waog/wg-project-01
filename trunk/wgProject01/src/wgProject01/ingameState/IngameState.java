@@ -47,7 +47,7 @@ import com.jme3.util.TangentBinormalGenerator;
 public class IngameState extends AbstractAppState implements ActionListener {
 
 	private GameApplication app;
-	private Node rootNode;
+	private Node rootNode, guiNode;
 	private AssetManager assetManager;
 	private AppStateManager stateManager;
 	private InputManager inputManager;
@@ -60,6 +60,10 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	private static final String UP = "Up";
 	private static final String RIGHT = "Right";
 	private static final String LEFT = "Left";
+	private static final String MINE_BLOCK = "MineBlock";
+	private static final String SHOOTABLES = "Shootables";
+	private static final String MINEABLES = "Mineables";
+	private static final String INVENTORY_NODE = "InventoryNode";
 	protected Geometry player;
 	Boolean isRunning = true;
 	private Vector3f walkDirection = new Vector3f();
@@ -73,10 +77,13 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	// They here to avoid instanciating new vectors on each frame
 	private Vector3f camDir = new Vector3f();
 	private Vector3f camLeft = new Vector3f();
-	private Node sunNode;
-	private Node shootables; // contains all spatials onto which a block can be set
-	private Node mineables; // contains all spatials that can be picked up e.g. not the floor
-	private Node inventoryNode; // this one handles the ingame inventory spatials
+	private Node sunNode; // contains the suns
+	private Node shootables; // contains all spatials onto which a block can be
+								// set
+	private Node mineables; // contains all spatials that can be picked up e.g.
+							// not the floor
+	private Node inventoryNode; // this one handles the ingame inventory
+								// spatials
 	private PointLight sunLight;
 	private FlyByCamera flyCam;
 
@@ -92,6 +99,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		this.stateManager.getState(BulletAppState.class);
 		this.cam = this.app.getCamera();
 		this.flyCam = this.app.getFlyByCamera();
+		this.guiNode = this.app.getGuiNode();
 
 		// init stuff that is independent of whether state is PAUSED or RUNNING
 		Mesh sphereMesh = new Sphere(20, 20, 20f);
@@ -113,22 +121,13 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		sphereSpacial.addControl(lightControl); // this spatial controls the
 												// position of this light.
 
-
-		shootables = new Node(); // contains all nodes where player is able to
-									// put things at, or to "mine" it
-		rootNode.attachChild(shootables);
-		inventoryNode = new Node(); // set up the inventory
-		this.app.getGuiNode().attachChild(inventoryNode);
-		mineables = new Node();
-		shootables.attachChild(mineables);
-
-
+		initNodes();
 		initCrossHairs();
 		initPhysics();
 		initFloor();
-		//initOneBlockFloor();
+		// initOneBlockFloor();
 		initSun();
-		
+
 		viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 		flyCam.setMoveSpeed(25);
 
@@ -157,6 +156,23 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		sun3.setDirection(new Vector3f(0, -1, 1).normalizeLocal());
 		sun3.setColor(ColorRGBA.DarkGray);
 		rootNode.addLight(sun3);
+	}
+
+	/**
+	 * initializes the most important nodes and attaches them to their specific position
+	 */
+	private void initNodes() {
+		//contains all nodes and geometries where player is able to put things at, or to mine it
+		shootables = new Node(SHOOTABLES); 
+		rootNode.attachChild(shootables);
+		
+		// the node containing the blocks that can be picked up
+		mineables = new Node(MINEABLES);
+		shootables.attachChild(mineables);
+
+		// the node containing the geometries in the inventory
+		inventoryNode = new Node(INVENTORY_NODE); // set up the inventory
+		guiNode.attachChild(inventoryNode);
 	}
 
 	@Override
@@ -292,12 +308,15 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		inputManager.addMapping(JUMP, new KeyTrigger(KeyInput.KEY_SPACE));
 		inputManager.addMapping(PLACE_BLOCK, new MouseButtonTrigger(
 				MouseInput.BUTTON_RIGHT));
+		inputManager.addMapping(MINE_BLOCK, new MouseButtonTrigger(
+				MouseInput.BUTTON_LEFT));
 		inputManager.addListener(this, LEFT);
 		inputManager.addListener(this, RIGHT);
 		inputManager.addListener(this, UP);
 		inputManager.addListener(this, DOWN);
 		inputManager.addListener(this, JUMP);
 		inputManager.addListener(this, PLACE_BLOCK);
+		inputManager.addListener(this, MINE_BLOCK);
 
 		// Add the names to the action listener.
 	}
@@ -307,19 +326,39 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	}
 
 	/**
+	 * currently picks up a block and puts it into the inventory
+	 */
+	private void mineBlock() {
+		CollisionResults results = shootRay(6);
+		if (results.size() > 0) {
+			CollisionResult closest = results.getClosestCollision();
+			Geometry geom = closest.getGeometry();
+			Node node = geom.getParent();
+
+			if (node.getName().equals(MINEABLES)
+					&& !node.getName().equals("rootNode"))
+				inventoryNode.attachChild(geom);
+			else if (!node.getName().equals(MINEABLES)) {
+				System.out.println(node.getName());
+				inventoryNode.attachChild(node); //
+			}
+		}
+
+	}
+
+	/**
 	 * places a block onto to the targetted physical object relative to the
 	 * targetted side of the object
 	 */
 	private void placeBlock() {
-		CollisionResults results = shootRay(5);
-		Vector3f blockLocation;
-		System.out.println(results.size());
+		CollisionResults results = shootRay(6);
 		if (results.size() > 0) {
 			CollisionResult closest = results.getClosestCollision();
 			Geometry geom = closest.getGeometry();
-			blockLocation = calculateHittedFace(geom, closest.getContactPoint());
-			System.out.println(blockLocation.toString());
-			System.out.println(geom.getLocalTranslation().toString());
+			Vector3f blockLocation = calculateHittedFace(geom,
+					closest.getContactPoint());
+			// System.out.println(blockLocation.toString()); // for Testing
+			// System.out.println(geom.getLocalTranslation().toString());
 			blockLocation = blockLocation.add(geom.getLocalTranslation());
 			System.out.println(blockLocation.toString());
 			addBlockAt((int) blockLocation.x, (int) blockLocation.y,
@@ -336,6 +375,8 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	 *            the geometry of the hitted block
 	 * @param contactPoint
 	 *            the closest intersection point of the ray with the block
+	 * @return a signed unit coordinate vector corresponding to the face of the
+	 *         hitted block
 	 */
 	private Vector3f calculateHittedFace(Geometry geom, Vector3f contactPoint) {
 		// calculate the vector pointing from the middle of geom to contactPoint
@@ -352,11 +393,11 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		float max = Math.max(Math.abs(tmpX), Math.abs(tmpY));
 		max = Math.max(max, Math.abs(tmpZ));
 		if (max == tmpX || max == -tmpX)
-			return Vector3f.UNIT_X.mult(Math.signum(tmpX) );
+			return Vector3f.UNIT_X.mult(Math.signum(tmpX));
 		else if (max == tmpY || max == -tmpY)
-			return Vector3f.UNIT_Y.mult(Math.signum(tmpY) );
+			return Vector3f.UNIT_Y.mult(Math.signum(tmpY));
 		else
-			return Vector3f.UNIT_Z.mult(Math.signum(tmpZ) );
+			return Vector3f.UNIT_Z.mult(Math.signum(tmpZ));
 	}
 
 	/**
@@ -504,8 +545,10 @@ public class IngameState extends AbstractAppState implements ActionListener {
 			playerPhys.jump();
 		}
 		if (binding.equals(PLACE_BLOCK) && !value) {
-			System.out.println("placeBlocks");
 			placeBlock();
+		}
+		else if(binding.equals(MINE_BLOCK) && !value){
+			mineBlock();
 		}
 	}
 
@@ -521,6 +564,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		// center
 				cam.getWidth() / 2 - ch.getLineWidth() / 2, cam.getHeight() / 2
 						+ ch.getLineHeight() / 2, 0);
-		app.getGuiNode().attachChild(ch);
+		guiNode.attachChild(ch);
 	}
 }
