@@ -127,7 +127,8 @@ public class IngameState extends AbstractAppState implements ActionListener {
 																		// somewhat
 																		// blue
 		// TODO 2 the movementspeed setting does not work at all
-		flyCam.setMoveSpeed(25);
+		flyCam.setMoveSpeed(2500);
+		
 
 	}
 
@@ -472,6 +473,8 @@ public class IngameState extends AbstractAppState implements ActionListener {
 				Vector3f blockLocation = calculateBlockLocation(results);
 				Spatial spaten = inventoryNode.detachChildAt(0);
 				spaten.setLocalTranslation(blockLocation);
+				
+				addBlockPhysics(spaten, 0);
 				mineables.attachChild(spaten); // TODO 3 is there anything that
 												// can be set but is not
 												// mineable?
@@ -609,14 +612,19 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		geometry.setMaterial(sphereMat);
 
 		geometry.setLocalTranslation(new Vector3f(x, y, z));
-
-		// the block physics:
-		RigidBodyControl blockPhy = new RigidBodyControl(0);
-		geometry.addControl(blockPhy);
-		blockPhy.setKinematic(true);
-		bulletAppState.getPhysicsSpace().add(blockPhy);
+		
+		addBlockPhysics(geometry, 0);
 
 		mineables.attachChild(geometry);
+	}
+
+	private void addBlockPhysics(Spatial spaten, int mass) {
+
+		RigidBodyControl blockPhy = new RigidBodyControl(mass);
+		spaten.addControl(blockPhy);
+		blockPhy.setKinematic(true); //TODO 1 why is this true?
+		bulletAppState.getPhysicsSpace().add(blockPhy);
+		
 	}
 
 	/**
@@ -655,7 +663,8 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		// new if-statement to get the possibility of running and mining or
 		// placing at the same time
 		if (binding.equals(PLACE_BLOCK) && !value) {
-			placeBlockFromInv();
+			placeBlockFromInv(); // use blocks from inventory
+			//placeBlock(); // infinite block placing
 		} else if (binding.equals(MINE_BLOCK) && !value) {
 			mineBlock();
 		}
