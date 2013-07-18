@@ -2,6 +2,8 @@ package wgProject01.ingameState;
 
 import java.util.List;
 
+import jm3Utils.Jm3Utils;
+
 import wgProject01.GameApplication;
 import wgProject01.RotationControl;
 
@@ -118,13 +120,13 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		this.cam = this.app.getCamera();
 		this.flyCam = this.app.getFlyByCamera();
 		this.guiNode = this.app.getGuiNode();
-		
+
 		// initialize the block manager
 		BlockManager blockManager = BlockManager.getInstance();
 		Node blockNode = new Node();
 		rootNode.attachChild(blockNode);
 		blockManager.initData(blockNode, assetManager);
-		
+
 		BlockGameObj newBlock = blockManager.getBlockGameObj();
 		blockManager.setBlock(0, 1, 0, newBlock);
 
@@ -222,44 +224,33 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		}
 		playerPhys.setWalkDirection(walkDirection);
 		cam.setLocation(playerPhys.getPhysicsLocation());
-		highlightBlockFace();
+		// highlightBlockFace();
 		updateSun(tpf);
 	}
 
-	private void highlightBlockFace() {
-
-		results.clear();
-		results = shootRay(RAY_LIMIT);
-		if (results.size() > 0) {
-			// Vector3f viewPoint = calculateBlockLocation(results);
-			// Box shape = new Box(0f, 0.5f, 100f);
-			// Geometry geometry = new Geometry("Block", shape);
-			CollisionResult closest = results.getClosestCollision();
-			Geometry geom = closest.getGeometry();
-			faceVector
-					.set(calculateHittedFace(geom, closest.getContactPoint()));
-			faceVectorNegated.set(faceVector.negate());
-			if (faceVector.equals(Vector3f.UNIT_X)
-					|| faceVectorNegated.equals(Vector3f.UNIT_X)) {
-				highlightedBlockFace.rotateUpTo(Vector3f.UNIT_X);
-			} else if (faceVector.equals(Vector3f.UNIT_Y)
-					|| faceVectorNegated.equals(Vector3f.UNIT_Y)) {
-				highlightedBlockFace.rotateUpTo(Vector3f.UNIT_Y);
-
-			} else {
-				highlightedBlockFace.rotateUpTo(Vector3f.UNIT_Z);
-			}
-			faceVector.multLocal(0.51f); // this is supposed to be a bit in
-											// front
-			// of the last block in a local coordinate
-			// system relative to the mid point of the
-			// hit geometry
-			highlightedBlockFace.setLocalTranslation(geom.getLocalTranslation()
-					.addLocal(faceVector));
-
-		}
-
-	}
+	/*
+	 * private void highlightBlockFace() {
+	 * 
+	 * results.clear(); results = shootRay(RAY_LIMIT); if (results.size() > 0) {
+	 * // Vector3f viewPoint = calculateBlockLocation(results); // Box shape =
+	 * new Box(0f, 0.5f, 100f); // Geometry geometry = new Geometry("Block",
+	 * shape); CollisionResult closest = results.getClosestCollision(); Geometry
+	 * geom = closest.getGeometry(); faceVector .set(calculateHittedFace(geom,
+	 * closest.getContactPoint())); faceVectorNegated.set(faceVector.negate());
+	 * if (faceVector.equals(Vector3f.UNIT_X) ||
+	 * faceVectorNegated.equals(Vector3f.UNIT_X)) {
+	 * highlightedBlockFace.rotateUpTo(Vector3f.UNIT_X); } else if
+	 * (faceVector.equals(Vector3f.UNIT_Y) ||
+	 * faceVectorNegated.equals(Vector3f.UNIT_Y)) {
+	 * highlightedBlockFace.rotateUpTo(Vector3f.UNIT_Y);
+	 * 
+	 * } else { highlightedBlockFace.rotateUpTo(Vector3f.UNIT_Z); }
+	 * faceVector.multLocal(0.51f); // this is supposed to be a bit in // front
+	 * // of the last block in a local coordinate // system relative to the mid
+	 * point of the // hit geometry
+	 * highlightedBlockFace.setLocalTranslation(geom.getLocalTranslation()
+	 * .addLocal(faceVector)); } }
+	 */
 
 	/**
 	 * initializes the most important nodes and attaches them to their specific
@@ -568,13 +559,14 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	 */
 	private Vector3f calculateBlockLocation(CollisionResults results) {
 		CollisionResult closest = results.getClosestCollision();
-		Geometry geom = closest.getGeometry();
-		Vector3f blockLocation = calculateHittedFace(geom,
+		Geometry selectedGeom = closest.getGeometry();
+		Vector3f vectorToNeighbor = getVectorToNeighbor(selectedGeom,
 				closest.getContactPoint());
 		// System.out.println(blockLocation.toString()); // for Testing
 		// System.out.println(geom.getLocalTranslation().toString());
-		blockLocation = blockLocation.add(geom.getLocalTranslation());
-		// System.out.println(blockLocation.toString());
+		Vector3f blockLocation = vectorToNeighbor.addLocal(selectedGeom.getWorldTranslation());
+		Jm3Utils.drawLine(selectedGeom.getWorldTranslation(), blockLocation, rootNode,
+				assetManager);
 		return blockLocation;
 	}
 
@@ -589,32 +581,37 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	 * @return a signed unit coordinate vector corresponding to the face of the
 	 *         hit block
 	 */
-	private Vector3f calculateHittedFace(Geometry geom, Vector3f contactPoint) {
+	private Vector3f getVectorToNeighbor(Geometry geom, Vector3f contactPoint) {
 		// calculate the vector pointing from the middle of geom to contactPoint
-		projectedVector.set(contactPoint.add(geom.getWorldTranslation().negate()));
+		projectedVector.set(contactPoint.add(geom.getWorldTranslation()
+				.negate()));
 
-		float tmpX = projectedVector.dot(Vector3f.UNIT_X); // scalar product of tmp with the
-												// unit
-												// vector in x-dir'n
-		float tmpY = projectedVector.dot(Vector3f.UNIT_Y);
-		float tmpZ = projectedVector.dot(Vector3f.UNIT_Z);
+		float xProjectionLength = projectedVector.dot(Vector3f.UNIT_X); // scalar
+																		// product
+																		// of
+																		// tmp
+																		// with
+																		// the
+		// unit
+		// vector in x-dir'n
+		float yProjectionLength = projectedVector.dot(Vector3f.UNIT_Y);
+		float zProjectionLength = projectedVector.dot(Vector3f.UNIT_Z);
 		// get maximum of the three projections
-		float max = Math.max(Math.abs(tmpX), Math.abs(tmpY));
-		max = Math.max(max, Math.abs(tmpZ));
-		if (max == tmpX || max == -tmpX) {
-			System.out.println("x" + tmpX);
-			return Vector3f.UNIT_X.multLocal(Math.signum(tmpX));
-		}
+		float projectionMax = Math.max(Math.abs(xProjectionLength),
+				Math.abs(yProjectionLength));
+		projectionMax = Math.max(projectionMax, Math.abs(zProjectionLength));
+		if (projectionMax == xProjectionLength
+				|| projectionMax == -xProjectionLength) {
+			System.out.println("x" + xProjectionLength);
+			return Vector3f.UNIT_X.multLocal(Math.signum(xProjectionLength));
+		} else if (projectionMax == yProjectionLength
+				|| projectionMax == -yProjectionLength) {
+			System.out.println("y" + yProjectionLength);
+			return Vector3f.UNIT_Y.multLocal(Math.signum(yProjectionLength));
+		} else {
+			System.out.println("z" + zProjectionLength);
 
-		else if (max == tmpY || max == -tmpY) {
-			System.out.println("y" + tmpY);
-			return Vector3f.UNIT_Y.multLocal(Math.signum(tmpY));
-		}
-
-		else {
-			System.out.println("z" + tmpZ);
-
-			return Vector3f.UNIT_Z.multLocal(Math.signum(tmpZ));
+			return Vector3f.UNIT_Z.multLocal(Math.signum(zProjectionLength));
 		}
 
 	}
