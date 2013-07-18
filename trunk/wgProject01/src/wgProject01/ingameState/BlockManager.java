@@ -41,7 +41,7 @@ public class BlockManager {
 	/**
 	 * Returns the singleton instance of the block manager.
 	 */
-	BlockManager getInstance() {
+	static BlockManager getInstance() {
 		if (singletonInstance == null) {
 			singletonInstance = new BlockManager();
 		}

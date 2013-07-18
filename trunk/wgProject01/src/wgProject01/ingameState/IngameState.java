@@ -106,6 +106,15 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		this.cam = this.app.getCamera();
 		this.flyCam = this.app.getFlyByCamera();
 		this.guiNode = this.app.getGuiNode();
+		
+		// initialize the block manager
+		BlockManager blockManager = BlockManager.getInstance();
+		Node blockNode = new Node();
+		rootNode.attachChild(blockNode);
+		blockManager.initData(blockNode, assetManager);
+		
+		BlockGameObj newBlock = blockManager.getBlockGameObj();
+		blockManager.setBlock(0, 5, 0, newBlock);
 
 		// init stuff that is independent of whether state is PAUSED or RUNNING
 		guiNode.addLight(new AmbientLight());
