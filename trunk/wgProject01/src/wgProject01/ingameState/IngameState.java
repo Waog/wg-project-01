@@ -11,6 +11,8 @@ import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.collision.CollisionResult;
+import com.jme3.collision.CollisionResults;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.input.FlyByCamera;
@@ -26,6 +28,7 @@ import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
@@ -51,7 +54,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	private ViewPort viewPort;
 	private Camera cam;
 
-	private static final String ADD_BLOCK = "addBlock";
+	private static final String PLACE_BLOCK = "PlaceBlock";
 	private static final String JUMP = "Jump";
 	private static final String DOWN = "Down";
 	private static final String UP = "Up";
@@ -71,6 +74,9 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	private Vector3f camDir = new Vector3f();
 	private Vector3f camLeft = new Vector3f();
 	private Node sunNode;
+	private Node shootables; // contains all spatials onto which a block can be set
+	private Node mineables; // contains all spatials that can be picked up e.g. not the floor
+	private Node inventoryNode; // this one handles the ingame inventory spatials
 	private PointLight sunLight;
 	private FlyByCamera flyCam;
 
@@ -107,12 +113,22 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		sphereSpacial.addControl(lightControl); // this spatial controls the
 												// position of this light.
 
+
+		shootables = new Node(); // contains all nodes where player is able to
+									// put things at, or to "mine" it
+		rootNode.attachChild(shootables);
+		inventoryNode = new Node(); // set up the inventory
+		this.app.getGuiNode().attachChild(inventoryNode);
+		mineables = new Node();
+		shootables.attachChild(mineables);
+
+
 		initCrossHairs();
 		initPhysics();
-		// initFloor();
-		initOneBlockFloor();
+		initFloor();
+		//initOneBlockFloor();
 		initSun();
-
+		
 		viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 		flyCam.setMoveSpeed(25);
 
@@ -248,28 +264,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		bulletAppState.getPhysicsSpace().add(playerPhys);
 	}
 
-	/**
-	 * We over-write some navigational key mappings here, so we can add
-	 * physics-controlled walking and jumping:
-	 */
-	private void setUpKeys() {
-		inputManager.addMapping(LEFT, new KeyTrigger(KeyInput.KEY_A));
-		inputManager.addMapping(RIGHT, new KeyTrigger(KeyInput.KEY_D));
-		inputManager.addMapping(UP, new KeyTrigger(KeyInput.KEY_W));
-		inputManager.addMapping(DOWN, new KeyTrigger(KeyInput.KEY_S));
-		inputManager.addMapping(JUMP, new KeyTrigger(KeyInput.KEY_SPACE));
-		inputManager.addMapping(ADD_BLOCK, new MouseButtonTrigger(
-				MouseInput.BUTTON_RIGHT));
-		inputManager.addListener(this, LEFT);
-		inputManager.addListener(this, RIGHT);
-		inputManager.addListener(this, UP);
-		inputManager.addListener(this, DOWN);
-		inputManager.addListener(this, JUMP);
-		inputManager.addListener(this, ADD_BLOCK);
-
-		// Add the names to the action listener.
-	}
-
 	private void updateSun(float tpf) {
 		double radius = 100;
 
@@ -286,15 +280,111 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		sunLight.setPosition(newSunPos);
 	}
 
+	/**
+	 * We over-write some navigational key mappings here, so we can add
+	 * physics-controlled walking and jumping:
+	 */
+	private void setUpKeys() {
+		inputManager.addMapping(LEFT, new KeyTrigger(KeyInput.KEY_A));
+		inputManager.addMapping(RIGHT, new KeyTrigger(KeyInput.KEY_D));
+		inputManager.addMapping(UP, new KeyTrigger(KeyInput.KEY_W));
+		inputManager.addMapping(DOWN, new KeyTrigger(KeyInput.KEY_S));
+		inputManager.addMapping(JUMP, new KeyTrigger(KeyInput.KEY_SPACE));
+		inputManager.addMapping(PLACE_BLOCK, new MouseButtonTrigger(
+				MouseInput.BUTTON_RIGHT));
+		inputManager.addListener(this, LEFT);
+		inputManager.addListener(this, RIGHT);
+		inputManager.addListener(this, UP);
+		inputManager.addListener(this, DOWN);
+		inputManager.addListener(this, JUMP);
+		inputManager.addListener(this, PLACE_BLOCK);
+
+		// Add the names to the action listener.
+	}
+
 	/** Custom Keybinding: Map named actions to inputs. */
 	private void initKeys() {
 	}
 
-	private void addBlock() {
-		Vector3f blockLocation = cam.getLocation().add(
-				cam.getDirection().mult(4f));
-		addBlockAt((int) blockLocation.x, (int) blockLocation.y,
-				(int) blockLocation.z);
+	/**
+	 * places a block onto to the targetted physical object relative to the
+	 * targetted side of the object
+	 */
+	private void placeBlock() {
+		CollisionResults results = shootRay(5);
+		Vector3f blockLocation;
+		System.out.println(results.size());
+		if (results.size() > 0) {
+			CollisionResult closest = results.getClosestCollision();
+			Geometry geom = closest.getGeometry();
+			blockLocation = calculateHittedFace(geom, closest.getContactPoint());
+			System.out.println(blockLocation.toString());
+			System.out.println(geom.getLocalTranslation().toString());
+			blockLocation = blockLocation.add(geom.getLocalTranslation());
+			System.out.println(blockLocation.toString());
+			addBlockAt((int) blockLocation.x, (int) blockLocation.y,
+					(int) blockLocation.z);
+		}
+
+	}
+
+	/**
+	 * calculates which of the six faces of a block was hit by projecting it to
+	 * the axes and
+	 * 
+	 * @param geom
+	 *            the geometry of the hitted block
+	 * @param contactPoint
+	 *            the closest intersection point of the ray with the block
+	 */
+	private Vector3f calculateHittedFace(Geometry geom, Vector3f contactPoint) {
+		// calculate the vector pointing from the middle of geom to contactPoint
+		Vector3f tmp = contactPoint.add(geom.getLocalTranslation().negate());
+		System.out.println("vector from mid to contact point: "
+				+ tmp.toString());
+
+		float tmpX = tmp.dot(Vector3f.UNIT_X); // scalar product of tmp with the
+												// unit
+												// vector in x-dir'n
+		float tmpY = tmp.dot(Vector3f.UNIT_Y);
+		float tmpZ = tmp.dot(Vector3f.UNIT_Z);
+		// get maximum of the three projections
+		float max = Math.max(Math.abs(tmpX), Math.abs(tmpY));
+		max = Math.max(max, Math.abs(tmpZ));
+		if (max == tmpX || max == -tmpX)
+			return Vector3f.UNIT_X.mult(Math.signum(tmpX) );
+		else if (max == tmpY || max == -tmpY)
+			return Vector3f.UNIT_Y.mult(Math.signum(tmpY) );
+		else
+			return Vector3f.UNIT_Z.mult(Math.signum(tmpZ) );
+	}
+
+	/**
+	 * shoots a ray of length >limit< in camera direction and returns a list of
+	 * results where the ray intersects with elements of the node shootables
+	 * 
+	 * @param limit
+	 *            the maximum length of the ray, may be infinity
+	 * @return results the list of CollisionResults
+	 */
+	private CollisionResults shootRay(float limit) {
+		CollisionResults results = new CollisionResults();
+		Ray ray = new Ray(cam.getLocation(), cam.getDirection());
+		ray.setLimit(limit);
+		shootables.collideWith(ray, results);
+		// Print the results for Testing
+		System.out.println("----- Collisions? " + results.size() + "-----");
+		for (int i = 0; i < results.size(); i++) { // For each hit, we know
+													// distance, impact point,
+													// name of geometry.
+			float dist = results.getCollision(i).getDistance();
+			Vector3f pt = results.getCollision(i).getContactPoint();
+			String hit = results.getCollision(i).getGeometry().getName();
+			System.out.println("* Collision #" + i);
+			System.out.println("  You shot " + hit + " at " + pt + ", " + dist
+					+ " wu away.");
+		}
+		return results;
 	}
 
 	private void initOneBlockFloor() {
@@ -328,7 +418,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		blockPhy.setKinematic(true);
 		bulletAppState.getPhysicsSpace().add(blockPhy);
 
-		rootNode.attachChild(geometry);
+		shootables.attachChild(geometry);
 	}
 
 	private void addBlockAt(int x, int y, int z) {
@@ -360,11 +450,11 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		blockPhy.setKinematic(true);
 		bulletAppState.getPhysicsSpace().add(blockPhy);
 
-		rootNode.attachChild(geometry);
+		mineables.attachChild(geometry);
 	}
 
 	private void initFloor() {
-		int FLOOR_RADIUS = 50;
+		int FLOOR_RADIUS = 10;
 		for (int x = -FLOOR_RADIUS; x <= FLOOR_RADIUS; x++) {
 			for (int z = -FLOOR_RADIUS; z <= FLOOR_RADIUS; z++) {
 				addBlockAt(x, 0, z);
@@ -413,8 +503,9 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		} else if (binding.equals(JUMP)) {
 			playerPhys.jump();
 		}
-		if (binding.equals(ADD_BLOCK) && !value) {
-			addBlock();
+		if (binding.equals(PLACE_BLOCK) && !value) {
+			System.out.println("placeBlocks");
+			placeBlock();
 		}
 	}
 
