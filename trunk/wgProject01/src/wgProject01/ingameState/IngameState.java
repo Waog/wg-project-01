@@ -3,7 +3,6 @@ package wgProject01.ingameState;
 import java.util.List;
 
 import jm3Utils.Jm3Utils;
-
 import wgProject01.GameApplication;
 import wgProject01.RotationControl;
 
@@ -126,9 +125,17 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		Node blockNode = new Node();
 		rootNode.attachChild(blockNode);
 		blockManager.initData(blockNode, assetManager);
-
+		// initialize a block using the block manager
 		BlockGameObj newBlock = blockManager.getBlockGameObj();
 		blockManager.setBlock(0, 1, 0, newBlock);
+
+		// TODO 1: remove debug code:
+		Jm3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(1, 0, 0),
+				rootNode, assetManager);
+		Jm3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(0, 1, 0),
+				rootNode, assetManager);
+		Jm3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(0, 0, 1),
+				rootNode, assetManager);
 
 		// init stuff that is independent of whether state is PAUSED or RUNNING
 		guiNode.addLight(new AmbientLight());
@@ -158,8 +165,10 @@ public class IngameState extends AbstractAppState implements ActionListener {
 
 	}
 
-	// TODO 3
-	/** is this another sun? please write a proper comment */
+	/**
+	 * Inits a red rotating sun, which uses the rotation control to fly around
+	 * and acts as a red point light source as well.
+	 */
 	private void initAnotherSun() {
 		Mesh sphereMesh = new Sphere(20, 20, 20f);
 		Spatial sphereSpacial = new Geometry("Sphere", sphereMesh);
@@ -326,15 +335,15 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		int FLOOR_RADIUS = 10;
 		for (int x = -FLOOR_RADIUS; x <= FLOOR_RADIUS; x++) {
 			for (int z = -FLOOR_RADIUS; z <= FLOOR_RADIUS; z++) {
-				addBlockAt(x, 0, z);
-				addBlockAt(x, -1, z);
+				addBlockAt(x, -2, z);
+				addBlockAt(x, -3, z);
 				// addBlockAt(x, -2, z);
 
 				if (Math.abs(x) >= FLOOR_RADIUS - 2
 						|| Math.abs(z) >= FLOOR_RADIUS - 1) {
+					addBlockAt(x, -1, z);
+					addBlockAt(x, 0, z);
 					addBlockAt(x, 1, z);
-					addBlockAt(x, 2, z);
-					addBlockAt(x, 3, z);
 				}
 			}
 		}
@@ -586,12 +595,8 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		projectedVector.set(contactPoint.add(geom.getWorldTranslation()
 				.negate()));
 
-		float xProjectionLength = projectedVector.dot(Vector3f.UNIT_X); // scalar
-																		// product
-																		// of
-																		// tmp
-																		// with
-																		// the
+		float xProjectionLength = projectedVector.dot(Vector3f.UNIT_X); // scalar product of
+															// tmp with the
 		// unit
 		// vector in x-dir'n
 		float yProjectionLength = projectedVector.dot(Vector3f.UNIT_Y);
