@@ -114,7 +114,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		blockManager.initData(blockNode, assetManager);
 		
 		BlockGameObj newBlock = blockManager.getBlockGameObj();
-		blockManager.setBlock(0, 5, 0, newBlock);
+		blockManager.setBlock(0, 1, 0, newBlock);
 
 		// init stuff that is independent of whether state is PAUSED or RUNNING
 		guiNode.addLight(new AmbientLight());
