@@ -580,8 +580,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 				closest.getContactPoint());
 		// System.out.println(blockLocation.toString()); // for Testing
 		// System.out.println(geom.getLocalTranslation().toString());
-		Vector3f blockLocation = vectorToNeighbor.addLocal(selectedGeom
-				.getWorldTranslation());
+		Vector3f blockLocation = selectedGeom.getWorldTranslation().add(vectorToNeighbor);
 		Jm3Utils.drawLine(selectedGeom.getWorldTranslation(), blockLocation,
 				rootNode, assetManager);
 		return blockLocation;
@@ -603,9 +602,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		projectedVector.set(contactPoint.add(geom.getWorldTranslation()
 				.negate()));
 
-		float xProjectionLength = projectedVector.dot(Vector3f.UNIT_X); // scalar
-																		// product
-																		// of
+		float xProjectionLength = projectedVector.dot(Vector3f.UNIT_X); // scalar product of
 		// tmp with the
 		// unit
 		// vector in x-dir'n
