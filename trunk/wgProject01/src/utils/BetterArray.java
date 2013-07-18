@@ -16,12 +16,12 @@ public class BetterArray<T> {
 	 */
 	ArrayList<T> list = new ArrayList<T>();
 
-
 	/**
 	 * Returns the element at the specified position in this Array.
 	 */
 	public T get(int index) {
 		int positiveIndex = getPositiveIndex(index);
+		checkIndex(positiveIndex);
 		return list.get(positiveIndex);
 	}
 
@@ -31,6 +31,7 @@ public class BetterArray<T> {
 	 */
 	public void set(int index, T element) {
 		int positiveIndex = getPositiveIndex(index);
+		checkIndex(positiveIndex);
 		list.set(positiveIndex, element);
 	}
 
@@ -56,6 +57,16 @@ public class BetterArray<T> {
 			return positiveIndex / -2;
 		} else {
 			return (positiveIndex + 1) / 2;
+		}
+	}
+
+	/**
+	 * Checks if the given positive index is existant in the internal list and
+	 * fills the list with "null"-objects until this index if not.
+	 */
+	private void checkIndex(int positiveIndex) {
+		while (list.size() - 1 < positiveIndex) {
+			list.add(null);
 		}
 	}
 }
