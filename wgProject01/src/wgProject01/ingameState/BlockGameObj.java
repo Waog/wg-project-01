@@ -2,6 +2,7 @@ package wgProject01.ingameState;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -30,21 +31,29 @@ public class BlockGameObj {
 	BlockGameObj(Node node, AssetManager assetManager) {
 		this.node = node;
 		
-		Box shape = new Box(0.5f, 0.5f, 0.5f);
-		geometry = new Geometry("Block", shape);
+		Box mesh = new Box(0.5f, 0.5f, 0.5f);
+		geometry = new Geometry("Block", mesh);
 
-		TangentBinormalGenerator.generate(shape);
-		Material sphereMat = new Material(assetManager,
+		TangentBinormalGenerator.generate(mesh);
+		Material shinyStoneMat = new Material(assetManager,
 				"assets/Materials/Lighting/Lighting.j3md");
-		sphereMat.setTexture("DiffuseMap",
+		shinyStoneMat.setTexture("DiffuseMap",
 				assetManager.loadTexture("Textures/Pond/Pond.jpg"));
-		sphereMat.setTexture("NormalMap",
+		shinyStoneMat.setTexture("NormalMap",
 				assetManager.loadTexture("Textures/Pond/Pond_normal.png"));
-		sphereMat.setBoolean("UseMaterialColors", true);
-		sphereMat.setColor("Diffuse", ColorRGBA.White);
-		sphereMat.setColor("Specular", ColorRGBA.White);
-		sphereMat.setFloat("Shininess", 64f); // [0,128]
-		geometry.setMaterial(sphereMat);
+		shinyStoneMat.setBoolean("UseMaterialColors", true);
+		shinyStoneMat.setColor("Diffuse", ColorRGBA.White);
+		shinyStoneMat.setColor("Specular", ColorRGBA.White);
+		shinyStoneMat.setFloat("Shininess", 64f); // [0,128]
+		
+		Material debugMaterial = new Material(assetManager,
+				"Common/MatDefs/Misc/Unshaded.j3md");
+		ColorRGBA randomColor = ColorRGBA.randomColor();
+		randomColor.a = 0.1f;
+		debugMaterial.setColor("Color", randomColor);
+		debugMaterial.getAdditionalRenderState().setBlendMode(BlendMode.Alpha); // !
+		
+		geometry.setMaterial(debugMaterial);
 	}
 
 	/**
