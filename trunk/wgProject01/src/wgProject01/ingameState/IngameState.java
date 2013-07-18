@@ -425,8 +425,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 			CollisionResult closest = results.getClosestCollision();
 			Geometry geom = closest.getGeometry();
 			Node node = geom.getParent();
-			//TODO 1 must remove physic body from the position the block is picked from
-
+			bulletAppState.getPhysicsSpace().remove(geom); // removes the block from the physicsSpace
 			if (node.getName().equals(MINEABLES)
 					&& !node.getName().equals("rootNode"))
 				inventoryNode.attachChild(geom);
