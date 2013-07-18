@@ -10,7 +10,9 @@ import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
+import com.jme3.bullet.control.PhysicsControl;
 import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.bullet.objects.PhysicsRigidBody;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.font.BitmapFont;
@@ -102,6 +104,27 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		this.guiNode = this.app.getGuiNode();
 
 		// init stuff that is independent of whether state is PAUSED or RUNNING
+		
+
+		initNodes();
+		initCrossHairs();
+		initPhysics();
+		initFloor();
+		// initOneBlockFloor(); // take either one of the floor initializations
+		initSun();
+		initKeys(); // load my custom keybinding
+		setUpKeys();
+		initGeneralLights();
+		initAnotherSun();
+
+		viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f)); // makes the background somewhat blue
+		flyCam.setMoveSpeed(25);
+
+	}
+
+	//TODO 3
+	/** is this another sun? please write a proper comment */
+	private void initAnotherSun() {
 		Mesh sphereMesh = new Sphere(20, 20, 20f);
 		Spatial sphereSpacial = new Geometry("Sphere", sphereMesh);
 		Material sphereMat = new Material(assetManager,
@@ -120,59 +143,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		LightControl lightControl = new LightControl(myLight);
 		sphereSpacial.addControl(lightControl); // this spatial controls the
 												// position of this light.
-
-		initNodes();
-		initCrossHairs();
-		initPhysics();
-		initFloor();
-		// initOneBlockFloor();
-		initSun();
-
-		viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
-		flyCam.setMoveSpeed(25);
-
-		initKeys(); // load my custom keybinding
-		setUpKeys();
-
-		// Add a ambient light to make everything visible.
-		AmbientLight ambientLight = new AmbientLight();
-		ambientLight.setColor(ColorRGBA.Pink);
-		rootNode.addLight(ambientLight);
-
-		/** Must add a light to make the lit object visible! */
-		DirectionalLight sun = new DirectionalLight();
-		sun.setDirection(new Vector3f(1, 0, -1).normalizeLocal());
-		sun.setColor(ColorRGBA.DarkGray);
-		rootNode.addLight(sun);
-
-		/** Must add a light to make the lit object visible! */
-		DirectionalLight sun2 = new DirectionalLight();
-		sun2.setDirection(new Vector3f(-1, 1, 0).normalizeLocal());
-		sun2.setColor(ColorRGBA.DarkGray);
-		rootNode.addLight(sun2);
-
-		/** Must add a light to make the lit object visible! */
-		DirectionalLight sun3 = new DirectionalLight();
-		sun3.setDirection(new Vector3f(0, -1, 1).normalizeLocal());
-		sun3.setColor(ColorRGBA.DarkGray);
-		rootNode.addLight(sun3);
-	}
-
-	/**
-	 * initializes the most important nodes and attaches them to their specific position
-	 */
-	private void initNodes() {
-		//contains all nodes and geometries where player is able to put things at, or to mine it
-		shootables = new Node(SHOOTABLES); 
-		rootNode.attachChild(shootables);
 		
-		// the node containing the blocks that can be picked up
-		mineables = new Node(MINEABLES);
-		shootables.attachChild(mineables);
-
-		// the node containing the geometries in the inventory
-		inventoryNode = new Node(INVENTORY_NODE); // set up the inventory
-		guiNode.attachChild(inventoryNode);
 	}
 
 	@Override
@@ -221,6 +192,125 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		updateSun(tpf);
 	}
 
+	/**
+	 * initializes the most important nodes and attaches them to their specific
+	 * position
+	 */
+	private void initNodes() {
+		// contains all nodes and geometries where player is able to put things
+		// at, or to mine it
+		shootables = new Node(SHOOTABLES);
+		rootNode.attachChild(shootables);
+	
+		// the node containing the blocks that can be picked up
+		mineables = new Node(MINEABLES);
+		shootables.attachChild(mineables);
+	
+		// the node containing the geometries in the inventory
+		inventoryNode = new Node(INVENTORY_NODE); // set up the inventory
+		guiNode.attachChild(inventoryNode);
+	}
+
+	/** initializes a "floor" made of one big box - this box is not mineable */
+	private void initOneBlockFloor() {
+		Box shape = new Box(100f, 0.5f, 100f);
+		Geometry geometry = new Geometry("Block", shape);
+		// Material mat = new Material(assetManager,
+		// "Common/MatDefs/Misc/Unshaded.j3md");
+		// mat.setColor("Color", ColorRGBA.randomColor());
+		// geometry.setMaterial(mat);
+	
+		TangentBinormalGenerator.generate(shape);
+		Material sphereMat = new Material(assetManager,
+				"assets/Materials/Lighting/Lighting.j3md");
+	
+		Texture texture = assetManager.loadTexture("Textures/Pond/Pond.jpg");
+		texture.setWrap(WrapMode.Repeat);
+		sphereMat.setTexture("DiffuseMap", texture);
+		sphereMat.setTexture("NormalMap",
+				assetManager.loadTexture("Textures/Pond/Pond_normal.png"));
+		sphereMat.setBoolean("UseMaterialColors", true);
+		sphereMat.setColor("Diffuse", ColorRGBA.White);
+		sphereMat.setColor("Specular", ColorRGBA.White);
+		sphereMat.setFloat("Shininess", 64f); // [0,128]
+		geometry.setMaterial(sphereMat);
+	
+		geometry.setLocalTranslation(new Vector3f(0, 0, 0));
+	
+		// the block physics:
+		RigidBodyControl blockPhy = new RigidBodyControl(0);
+		geometry.addControl(blockPhy);
+		blockPhy.setKinematic(true);
+		bulletAppState.getPhysicsSpace().add(blockPhy);
+	
+		shootables.attachChild(geometry);
+	}
+
+	/**
+	 * initializes a quadratic floor consisting of blocks, FLOOR_RADIUS defines
+	 * its size
+	 */
+	private void initFloor() {
+		int FLOOR_RADIUS = 10;
+		for (int x = -FLOOR_RADIUS; x <= FLOOR_RADIUS; x++) {
+			for (int z = -FLOOR_RADIUS; z <= FLOOR_RADIUS; z++) {
+				addBlockAt(x, 0, z);
+				addBlockAt(x, -1, z);
+				addBlockAt(x, -2, z);
+	
+				if (Math.abs(x) >= FLOOR_RADIUS - 2
+						|| Math.abs(z) >= FLOOR_RADIUS - 2) {
+					addBlockAt(x, 1, z);
+					addBlockAt(x, 2, z);
+					addBlockAt(x, 3, z);
+				}
+			}
+		}
+	}
+
+	/** initializes three lights to have a general enlightening setting any materials visible */
+	private void initGeneralLights() {
+		// Add an ambient light to make everything visible.
+		AmbientLight ambientLight = new AmbientLight();
+		ambientLight.setColor(ColorRGBA.Pink);
+		rootNode.addLight(ambientLight);
+	
+		/** Must add a light to make the lit object visible! */
+		DirectionalLight sun = new DirectionalLight();
+		sun.setDirection(new Vector3f(1, 0, -1).normalizeLocal());
+		sun.setColor(ColorRGBA.DarkGray);
+		rootNode.addLight(sun);
+	
+		/** Must add a light to make the lit object visible! */
+		DirectionalLight sun2 = new DirectionalLight();
+		sun2.setDirection(new Vector3f(-1, 1, 0).normalizeLocal());
+		sun2.setColor(ColorRGBA.DarkGray);
+		rootNode.addLight(sun2);
+	
+		/** Must add a light to make the lit object visible! */
+		DirectionalLight sun3 = new DirectionalLight();
+		sun3.setDirection(new Vector3f(0, -1, 1).normalizeLocal());
+		sun3.setColor(ColorRGBA.DarkGray);
+		rootNode.addLight(sun3);
+		
+	}
+
+	/** A centered plus sign to help the player aim. */
+	private void initCrossHairs() {
+		app.setDisplayStatView(false);
+		BitmapFont guiFont = assetManager
+				.loadFont("Interface/Fonts/Default.fnt");
+		BitmapText ch = new BitmapText(guiFont, false);
+		ch.setSize(guiFont.getCharSet().getRenderedSize() * 2);
+		ch.setText("+"); // crosshairs
+		ch.setLocalTranslation(
+		// center
+				cam.getWidth() / 2 - ch.getLineWidth() / 2, cam.getHeight() / 2
+						+ ch.getLineHeight() / 2, 0);
+		guiNode.attachChild(ch);
+	}
+
+	/** currently initializes two suns - one with default controller, one is custom controller*/
 	private void initSun() {
 		sunNode = new Node("sun");
 
@@ -259,8 +349,25 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		rootNode.addLight(sunLight);
 	}
 
+	/** keeps the suns positioning updated */
+	private void updateSun(float tpf) {
+		double radius = 100;
+	
+		this.sunPosition += tpf;
+		if (this.sunPosition > Math.PI * 2) {
+			this.sunPosition -= Math.PI * 2;
+		}
+		float newSunPosX = (float) (radius * Math.sin(this.sunPosition));
+		float newSunPosY = (float) (radius * Math.cos(this.sunPosition));
+	
+		Vector3f newSunPos = new Vector3f(newSunPosX, newSunPosY, 0);
+	
+		sunNode.setLocalTranslation(newSunPos);
+		sunLight.setPosition(newSunPos);
+	}
+
 	/**
-	 * Initializes the useing of physics and makes the player/camera collidable.
+	 * Initializes the usage of physics and makes the player/camera collidable.
 	 */
 	private void initPhysics() {
 		bulletAppState = new BulletAppState();
@@ -278,22 +385,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		// space,
 		// to make them appear in the game world.
 		bulletAppState.getPhysicsSpace().add(playerPhys);
-	}
-
-	private void updateSun(float tpf) {
-		double radius = 100;
-
-		this.sunPosition += tpf;
-		if (this.sunPosition > Math.PI * 2) {
-			this.sunPosition -= Math.PI * 2;
-		}
-		float newSunPosX = (float) (radius * Math.sin(this.sunPosition));
-		float newSunPosY = (float) (radius * Math.cos(this.sunPosition));
-
-		Vector3f newSunPos = new Vector3f(newSunPosX, newSunPosY, 0);
-
-		sunNode.setLocalTranslation(newSunPos);
-		sunLight.setPosition(newSunPos);
 	}
 
 	/**
@@ -334,6 +425,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 			CollisionResult closest = results.getClosestCollision();
 			Geometry geom = closest.getGeometry();
 			Node node = geom.getParent();
+			//TODO 1 must remove physic body from the position the block is picked from
 
 			if (node.getName().equals(MINEABLES)
 					&& !node.getName().equals("rootNode"))
@@ -343,7 +435,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 				inventoryNode.attachChild(node); //
 			}
 		}
-
 	}
 
 	/**
@@ -428,40 +519,16 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		return results;
 	}
 
-	private void initOneBlockFloor() {
-		Box shape = new Box(100f, 0.5f, 100f);
-		Geometry geometry = new Geometry("Block", shape);
-		// Material mat = new Material(assetManager,
-		// "Common/MatDefs/Misc/Unshaded.j3md");
-		// mat.setColor("Color", ColorRGBA.randomColor());
-		// geometry.setMaterial(mat);
-
-		TangentBinormalGenerator.generate(shape);
-		Material sphereMat = new Material(assetManager,
-				"assets/Materials/Lighting/Lighting.j3md");
-
-		Texture texture = assetManager.loadTexture("Textures/Pond/Pond.jpg");
-		texture.setWrap(WrapMode.Repeat);
-		sphereMat.setTexture("DiffuseMap", texture);
-		sphereMat.setTexture("NormalMap",
-				assetManager.loadTexture("Textures/Pond/Pond_normal.png"));
-		sphereMat.setBoolean("UseMaterialColors", true);
-		sphereMat.setColor("Diffuse", ColorRGBA.White);
-		sphereMat.setColor("Specular", ColorRGBA.White);
-		sphereMat.setFloat("Shininess", 64f); // [0,128]
-		geometry.setMaterial(sphereMat);
-
-		geometry.setLocalTranslation(new Vector3f(0, 0, 0));
-
-		// the block physics:
-		RigidBodyControl blockPhy = new RigidBodyControl(0);
-		geometry.addControl(blockPhy);
-		blockPhy.setKinematic(true);
-		bulletAppState.getPhysicsSpace().add(blockPhy);
-
-		shootables.attachChild(geometry);
-	}
-
+	/**
+	 * adds a block at the specific position (x,y,z)
+	 * 
+	 * @param x
+	 *            the x-coordinate
+	 * @param y
+	 *            the y-coordinate
+	 * @param z
+	 *            the z-coordinate
+	 */
 	private void addBlockAt(int x, int y, int z) {
 		Box shape = new Box(0.5f, 0.5f, 0.5f);
 		Geometry geometry = new Geometry("Block", shape);
@@ -492,24 +559,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		bulletAppState.getPhysicsSpace().add(blockPhy);
 
 		mineables.attachChild(geometry);
-	}
-
-	private void initFloor() {
-		int FLOOR_RADIUS = 10;
-		for (int x = -FLOOR_RADIUS; x <= FLOOR_RADIUS; x++) {
-			for (int z = -FLOOR_RADIUS; z <= FLOOR_RADIUS; z++) {
-				addBlockAt(x, 0, z);
-				addBlockAt(x, -1, z);
-				addBlockAt(x, -2, z);
-
-				if (Math.abs(x) >= FLOOR_RADIUS - 2
-						|| Math.abs(z) >= FLOOR_RADIUS - 2) {
-					addBlockAt(x, 1, z);
-					addBlockAt(x, 2, z);
-					addBlockAt(x, 3, z);
-				}
-			}
-		}
 	}
 
 	/**
@@ -544,26 +593,13 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		} else if (binding.equals(JUMP)) {
 			playerPhys.jump();
 		}
+
+		// new if-statement to get the possibility of running and mining or
+		// placing at the same time
 		if (binding.equals(PLACE_BLOCK) && !value) {
 			placeBlock();
-		}
-		else if(binding.equals(MINE_BLOCK) && !value){
+		} else if (binding.equals(MINE_BLOCK) && !value) {
 			mineBlock();
 		}
-	}
-
-	/** A centered plus sign to help the player aim. */
-	private void initCrossHairs() {
-		app.setDisplayStatView(false);
-		BitmapFont guiFont = assetManager
-				.loadFont("Interface/Fonts/Default.fnt");
-		BitmapText ch = new BitmapText(guiFont, false);
-		ch.setSize(guiFont.getCharSet().getRenderedSize() * 2);
-		ch.setText("+"); // crosshairs
-		ch.setLocalTranslation(
-		// center
-				cam.getWidth() / 2 - ch.getLineWidth() / 2, cam.getHeight() / 2
-						+ ch.getLineHeight() / 2, 0);
-		guiNode.attachChild(ch);
 	}
 }
