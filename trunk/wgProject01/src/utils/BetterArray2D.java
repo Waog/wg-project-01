@@ -2,7 +2,7 @@ package utils;
 
 /**
  * Is like the {@link BetterArray}-class, except this class is 2 dimensional,
- * i.e. you always need two indizes to access it.
+ * i.e. you always need two indices to access it.
  * 
  * @author oli
  * 
