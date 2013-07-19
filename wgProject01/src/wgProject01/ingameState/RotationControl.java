@@ -1,4 +1,4 @@
-package wgProject01;
+package wgProject01.ingameState;
 
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
@@ -27,7 +27,7 @@ public class RotationControl extends AbstractControl {
 	public RotationControl() {
 	}
 
-	public RotationControl(int radiusX, int radiusY, int radiusZ) {
+	public RotationControl(float radiusX, float radiusY, float radiusZ) {
 		super();
 		radii = new Vector3f(radiusX, radiusY, radiusZ);
 	}

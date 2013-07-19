@@ -4,6 +4,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
+import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
@@ -33,7 +34,7 @@ public class BlockGameObj {
 		
 		Box mesh = new Box(0.5f, 0.5f, 0.5f);
 		geometry = new Geometry("Block", mesh);
-
+		geometry.setQueueBucket(Bucket.Transparent);
 		TangentBinormalGenerator.generate(mesh);
 		Material shinyStoneMat = new Material(assetManager,
 				"assets/Materials/Lighting/Lighting.j3md");
@@ -49,7 +50,7 @@ public class BlockGameObj {
 		Material debugMaterial = new Material(assetManager,
 				"Common/MatDefs/Misc/Unshaded.j3md");
 		ColorRGBA randomColor = ColorRGBA.randomColor();
-		randomColor.a = 0.1f;
+		randomColor.a = 0.5f;
 		debugMaterial.setColor("Color", randomColor);
 		debugMaterial.getAdditionalRenderState().setBlendMode(BlendMode.Alpha); // !
 		

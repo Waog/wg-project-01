@@ -1,8 +1,9 @@
 package wgProject01.ingameState;
 
+import java.util.Random;
+
 import jm3Utils.Jm3Utils;
 import wgProject01.GameApplication;
-import wgProject01.RotationControl;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
@@ -29,8 +30,6 @@ import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Matrix3f;
-import com.jme3.math.Quaternion;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -42,7 +41,6 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.LightControl;
 import com.jme3.scene.shape.Box;
-import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
@@ -93,15 +91,14 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	private Vector3f faceVectorNegated = new Vector3f();
 	private Vector3f projectedVector = new Vector3f();
 
-	private Node sunNode; // contains the suns
 	private Node shootables; // contains all spatials onto which a block can be
 								// set
 	private Node mineables; // contains all spatials that can be picked up e.g.
 							// not the floor
 	private Node inventoryNode; // this one handles the ingame inventory
 								// spatials
-	private PointLight sunLight;
 	private FlyByCamera flyCam;
+	private final int FLOOR_RADIUS = 10;
 
 	@Override
 	public void initialize(AppStateManager stateManager, Application app) {
@@ -117,16 +114,10 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		this.flyCam = this.app.getFlyByCamera();
 		this.guiNode = this.app.getGuiNode();
 
-		// initialize the block manager
-		BlockManager blockManager = BlockManager.getInstance();
-		Node blockNode = new Node();
-		rootNode.attachChild(blockNode);
-		blockManager.initData(blockNode, assetManager);
-		// initialize a block using the block manager
-		BlockGameObj newBlock = blockManager.getBlockGameObj();
-		blockManager.setBlock(0, 1, 0, newBlock);
+		initBlockManager();
 
 		// TODO 1: remove debug code:
+		// draw the coordinate system:
 		Jm3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(1, 0, 0),
 				rootNode, assetManager);
 		Jm3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(0, 1, 0),
@@ -142,10 +133,11 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		initPhysics();
 		initFloor();
 		// initOneBlockFloor(); // take either one of the floor initializations
-		initSun();
 		initKeys(); // load my custom keybinding
 		initGeneralLights();
-		initAnotherSun();
+		initRandomSun();
+		initRandomSun();
+		initRandomSun();
 		initMaterials();
 
 		highlightedBlockFace.setMaterial(matGrid);
@@ -163,29 +155,78 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	}
 
 	/**
-	 * Inits a red rotating sun, which uses the rotation control to fly around
-	 * and acts as a red point light source as well.
+	 * Initializes the block Manager and some blocks for testing.
 	 */
-	private void initAnotherSun() {
-		Mesh sphereMesh = new Sphere(20, 20, 20f);
+	private void initBlockManager() {
+		// initialize the block manager
+		BlockManager blockManager = BlockManager.getInstance();
+		Node blockNode = new Node();
+		rootNode.attachChild(blockNode);
+		blockManager.initData(blockNode, assetManager);
+		
+		// initialize blocks using the block manager
+		for (int x = -FLOOR_RADIUS; x <=FLOOR_RADIUS; x++) {
+			for (int z = -FLOOR_RADIUS; z <=FLOOR_RADIUS; z++) {
+				BlockGameObj newBlock = blockManager.getBlockGameObj();
+				blockManager.setBlock(x, 4, z, newBlock);
+			}
+		}
+	}
+
+	/**
+	 * Initializes a randomly colored sun, with a random rotation speed, which
+	 * uses the rotation control to fly around and acts as a point light of it's
+	 * color source as well.
+	 */
+	private void initRandomSun() {
+		float geometryRadius = 20;
+		float geometryRadius2 = 30;
+		float rotationRadius = FLOOR_RADIUS + 2 * geometryRadius2;
+		ColorRGBA innerColor = ColorRGBA.randomColor();
+		ColorRGBA outerColor = innerColor.clone();
+		outerColor.a = .5f;
+		Random rand = new Random();
+		float randomSpeedX = rand.nextFloat();
+		float randomSpeedY = rand.nextFloat();
+		float randomSpeedZ = rand.nextFloat();
+
+		Node sunNode = new Node();
+		rootNode.attachChild(sunNode);
+
+		// inner non-transparent sphere
+		Mesh sphereMesh = new Sphere(20, 20, geometryRadius);
 		Spatial sphereSpacial = new Geometry("Sphere", sphereMesh);
 		Material sphereMat = new Material(assetManager,
 				"Common/MatDefs/Misc/Unshaded.j3md");
-		sphereMat.setColor("Color", ColorRGBA.Red);
+		sphereMat.setColor("Color", innerColor);
 		sphereSpacial.setMaterial(sphereMat);
-		rootNode.attachChild(sphereSpacial);
-		sphereSpacial.setLocalTranslation(0, 10, 0);
-		RotationControl rotationControl = new RotationControl(100, 100, 100);
-		rotationControl.setSpeeds(new Vector3f(0.1f, 0.2f, 0.3f));
-		sphereSpacial.addControl(rotationControl);
+		sunNode.attachChild(sphereSpacial);
 
+		// outer semi transparent sphere
+		Sphere sphereMesh2 = new Sphere(20, 20, geometryRadius2);
+		Spatial sphereSpacial2 = new Geometry("Sphere", sphereMesh2);
+		sphereSpacial2.setQueueBucket(Bucket.Transparent);
+		Material mat_aSun2 = new Material(assetManager,
+				"Common/MatDefs/Misc/Unshaded.j3md");
+		mat_aSun2.setColor("Color", outerColor);
+		mat_aSun2.getAdditionalRenderState().setBlendMode(BlendMode.Alpha); // !
+		sphereSpacial2.setMaterial(mat_aSun2);
+		sunNode.attachChild(sphereSpacial2);
+
+		// the point light
 		PointLight myLight = new PointLight();
-		myLight.setColor(ColorRGBA.Red);
+		myLight.setColor(innerColor);
 		rootNode.addLight(myLight);
 		LightControl lightControl = new LightControl(myLight);
 		sphereSpacial.addControl(lightControl); // this spatial controls the
 												// position of this light.
 
+		// the rotational movement
+		RotationControl rotationControl = new RotationControl(rotationRadius,
+				rotationRadius, rotationRadius);
+		rotationControl.setSpeeds(new Vector3f(randomSpeedX, randomSpeedY,
+				randomSpeedZ));
+		sunNode.addControl(rotationControl);
 	}
 
 	@Override
@@ -231,7 +272,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		playerPhys.setWalkDirection(walkDirection);
 		cam.setLocation(playerPhys.getPhysicsLocation());
 		highlightBlockFace();
-		updateSun(tpf);
 	}
 
 	private void highlightBlockFace() {
@@ -257,20 +297,25 @@ public class IngameState extends AbstractAppState implements ActionListener {
 			// float[] rotationAngles = {1f, 0f, 0f};
 			// Quaternion quaternion = new Quaternion(rotationAngles);
 			// highlightedBlockFace.setLocalRotation(quaternion);
-			Vector3f someOtherVector = vectorToNeighbor.add(new Vector3f(1, 1, 1));
+			Vector3f someOtherVector = vectorToNeighbor.add(new Vector3f(1, 1,
+					1));
 			Vector3f firstOrthVector = vectorToNeighbor.cross(someOtherVector);
 			Vector3f projectedFirstOrthVec = new Vector3f();
 			if (firstOrthVector.dot(Vector3f.UNIT_X) != 0) {
-				projectedFirstOrthVec = firstOrthVector.project(Vector3f.UNIT_X);
+				projectedFirstOrthVec = firstOrthVector
+						.project(Vector3f.UNIT_X);
 			} else if (firstOrthVector.dot(Vector3f.UNIT_Y) != 0) {
-				projectedFirstOrthVec = firstOrthVector.project(Vector3f.UNIT_Y);
+				projectedFirstOrthVec = firstOrthVector
+						.project(Vector3f.UNIT_Y);
 			} else if (firstOrthVector.dot(Vector3f.UNIT_Z) != 0) {
-				projectedFirstOrthVec = firstOrthVector.project(Vector3f.UNIT_Z);
+				projectedFirstOrthVec = firstOrthVector
+						.project(Vector3f.UNIT_Z);
 			} else {
 				System.out.println("fail");
 			}
-			
-			Vector3f secondOrthVector = vectorToNeighbor.cross(projectedFirstOrthVec);
+
+			Vector3f secondOrthVector = vectorToNeighbor
+					.cross(projectedFirstOrthVec);
 			highlightedBlockFace.rotateUpTo(vectorToNeighbor);
 			rootNode.attachChild(highlightedBlockFace);
 		} else {
@@ -350,7 +395,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	 * its size
 	 */
 	private void initFloor() {
-		int FLOOR_RADIUS = 10;
 		for (int x = -FLOOR_RADIUS; x <= FLOOR_RADIUS; x++) {
 			for (int z = -FLOOR_RADIUS; z <= FLOOR_RADIUS; z++) {
 				addBlockAt(x, -2, z);
@@ -410,65 +454,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 				cam.getWidth() / 2 - ch.getLineWidth() / 2, cam.getHeight() / 2
 						+ ch.getLineHeight() / 2, 0);
 		guiNode.attachChild(ch);
-	}
-
-	/**
-	 * currently initializes two suns - one with default controller, one is
-	 * custom controller
-	 */
-	private void initSun() {
-		sunNode = new Node("sun");
-
-		// a visible point light source:
-		Vector3f sunPos = new Vector3f(3, 2, 20);
-		sunNode.setLocalTranslation(sunPos);
-		ColorRGBA lightColor = ColorRGBA.Orange;
-		ColorRGBA lightColorSemiTransparent = lightColor.clone();
-		lightColorSemiTransparent.a = 0.5f;
-
-		Sphere sphere = new Sphere(20, 20, 20f);
-		Spatial aSun = new Geometry("Sphere", sphere);
-		aSun.setQueueBucket(Bucket.Transparent);
-		Material mat_aSun = new Material(assetManager,
-				"Common/MatDefs/Misc/Unshaded.j3md");
-		mat_aSun.setColor("Color", lightColor);
-		mat_aSun.getAdditionalRenderState().setBlendMode(BlendMode.Alpha); // !
-		aSun.setMaterial(mat_aSun);
-		sunNode.attachChild(aSun);
-
-		Sphere sphere2 = new Sphere(20, 20, 30f);
-		Spatial aSun2 = new Geometry("Sphere", sphere2);
-		aSun2.setQueueBucket(Bucket.Transparent);
-		Material mat_aSun2 = new Material(assetManager,
-				"Common/MatDefs/Misc/Unshaded.j3md");
-		mat_aSun2.setColor("Color", lightColorSemiTransparent);
-		mat_aSun2.getAdditionalRenderState().setBlendMode(BlendMode.Alpha); // !
-		aSun2.setMaterial(mat_aSun2);
-		sunNode.attachChild(aSun2);
-		rootNode.attachChild(sunNode);
-
-		sunLight = new PointLight();
-		sunLight.setPosition(sunPos);
-		sunLight.setColor(lightColor);
-		// pointlight.setRadius(300);
-		rootNode.addLight(sunLight);
-	}
-
-	/** keeps the suns positioning updated */
-	private void updateSun(float tpf) {
-		double radius = 100;
-
-		this.sunPosition += tpf;
-		if (this.sunPosition > Math.PI * 2) {
-			this.sunPosition -= Math.PI * 2;
-		}
-		float newSunPosX = (float) (radius * Math.sin(this.sunPosition));
-		float newSunPosY = (float) (radius * Math.cos(this.sunPosition));
-
-		newSunPos.set(newSunPosX, newSunPosY, 0);
-
-		sunNode.setLocalTranslation(newSunPos);
-		sunLight.setPosition(newSunPos);
 	}
 
 	/**
@@ -591,7 +576,8 @@ public class IngameState extends AbstractAppState implements ActionListener {
 				closest.getContactPoint());
 		// System.out.println(blockLocation.toString()); // for Testing
 		// System.out.println(geom.getLocalTranslation().toString());
-		Vector3f blockLocation = selectedGeom.getWorldTranslation().add(vectorToNeighbor);
+		Vector3f blockLocation = selectedGeom.getWorldTranslation().add(
+				vectorToNeighbor);
 		Jm3Utils.drawLine(selectedGeom.getWorldTranslation(), blockLocation,
 				rootNode, assetManager);
 		return blockLocation;
@@ -613,7 +599,9 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		projectedVector.set(contactPoint.add(geom.getWorldTranslation()
 				.negate()));
 
-		float xProjectionLength = projectedVector.dot(Vector3f.UNIT_X); // scalar product of
+		float xProjectionLength = projectedVector.dot(Vector3f.UNIT_X); // scalar
+																		// product
+																		// of
 		// tmp with the
 		// unit
 		// vector in x-dir'n

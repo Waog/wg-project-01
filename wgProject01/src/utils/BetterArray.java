@@ -52,13 +52,13 @@ public class BetterArray<T> {
 	 * Transforms the given positive index, to the original index, reversing the
 	 * effect of {@link #getPositiveIndex(int)}.
 	 */
-	private int getOriginalIndex(int positiveIndex) {
-		if (positiveIndex % 2 == 0) { // even
-			return positiveIndex / -2;
-		} else {
-			return (positiveIndex + 1) / 2;
-		}
-	}
+//	private int getOriginalIndex(int positiveIndex) {
+//		if (positiveIndex % 2 == 0) { // even
+//			return positiveIndex / -2;
+//		} else {
+//			return (positiveIndex + 1) / 2;
+//		}
+//	}
 
 	/**
 	 * Checks if the given positive index is existant in the internal list and
