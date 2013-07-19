@@ -75,7 +75,7 @@ public class BlockGameObj {
 	 */
 	void doHandlePlacementAt(int x, int y, int z) {
 		geometry.setLocalTranslation(x, y, z);
-		mesh.getBound().setCenter(new Vector3f(x, y, z));
+//		mesh.getBound().setCenter(new Vector3f(x, y, z));
 		node.attachChild(geometry);
 	}
 
