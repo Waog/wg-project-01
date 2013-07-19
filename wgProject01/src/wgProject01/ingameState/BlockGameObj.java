@@ -1,12 +1,15 @@
 package wgProject01.ingameState;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.bounding.BoundingBox;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.util.TangentBinormalGenerator;
 
@@ -16,11 +19,15 @@ public class BlockGameObj {
 	 * The Node to which this Block will be attached to and detached from.
 	 */
 	private Node node;
-	
+
 	/**
 	 * The box geometry of this block.
 	 */
 	private Geometry geometry;
+
+	private BoundingBox boundingBox;
+
+	private Box mesh;
 
 	/**
 	 * Creates a new Block game object which will attach to the given node as
@@ -31,8 +38,11 @@ public class BlockGameObj {
 	 */
 	BlockGameObj(Node node, AssetManager assetManager) {
 		this.node = node;
-		
-		Box mesh = new Box(0.5f, 0.5f, 0.5f);
+
+		mesh = new Box(0.5f, 0.5f, 0.5f);
+		boundingBox = new BoundingBox(Vector3f.ZERO, .5f, .5f, .5f);
+		mesh.setBound(boundingBox);
+		mesh.updateBound();
 		geometry = new Geometry("Block", mesh);
 		geometry.setQueueBucket(Bucket.Transparent);
 		TangentBinormalGenerator.generate(mesh);
@@ -46,14 +56,14 @@ public class BlockGameObj {
 		shinyStoneMat.setColor("Diffuse", ColorRGBA.White);
 		shinyStoneMat.setColor("Specular", ColorRGBA.White);
 		shinyStoneMat.setFloat("Shininess", 64f); // [0,128]
-		
+
 		Material debugMaterial = new Material(assetManager,
 				"Common/MatDefs/Misc/Unshaded.j3md");
 		ColorRGBA randomColor = ColorRGBA.randomColor();
 		randomColor.a = 0.5f;
 		debugMaterial.setColor("Color", randomColor);
 		debugMaterial.getAdditionalRenderState().setBlendMode(BlendMode.Alpha); // !
-		
+
 		geometry.setMaterial(debugMaterial);
 	}
 
@@ -70,6 +80,8 @@ public class BlockGameObj {
 	 */
 	void doHandlePlacementAt(int x, int y, int z) {
 		geometry.setLocalTranslation(x, y, z);
+		boundingBox.setCenter(new Vector3f(x, y, z));
+//		mesh.updateBound();
 		node.attachChild(geometry);
 	}
 
@@ -80,4 +92,7 @@ public class BlockGameObj {
 		geometry.removeFromParent();
 	}
 
+	BoundingBox getBoundingBox() {
+		return boundingBox;
+	}
 }
