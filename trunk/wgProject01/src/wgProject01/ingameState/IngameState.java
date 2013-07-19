@@ -157,8 +157,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 
 	private void initTestBlock() {
 		Box mesh = new Box(0.5f, 0.5f, 0.5f);
-		BoundingBox boundingBox = new BoundingBox();
-		mesh.setBound(boundingBox);
 		Geometry geometry = new Geometry("Block", mesh);
 		geometry.setQueueBucket(Bucket.Transparent);
 		
