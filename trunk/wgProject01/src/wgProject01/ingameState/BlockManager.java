@@ -1,6 +1,7 @@
 package wgProject01.ingameState;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 
 import utils.BetterArray3D;
@@ -125,5 +126,10 @@ public class BlockManager {
 	BlockGameObj getBlock(int x, int y, int z) {
 		return blockArray.get(x, y, z);
 
+	}
+
+	BlockGameObj getBlock(Vector3f pos) {
+		return getBlock((int) pos.x, (int) pos.y, (int) pos.z);
+		
 	}
 }

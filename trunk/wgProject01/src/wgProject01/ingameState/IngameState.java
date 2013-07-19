@@ -9,6 +9,7 @@ import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
+import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
@@ -136,8 +137,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		initKeys(); // load my custom keybinding
 		initGeneralLights();
 		initRandomSun();
-		initRandomSun();
-		initRandomSun();
 		initMaterials();
 
 		highlightedBlockFace.setMaterial(matGrid);
@@ -152,6 +151,41 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		// TODO 2 the movementspeed setting does not work at all
 		flyCam.setMoveSpeed(2500);
 
+		
+		initTestBlock();
+	}
+
+	private void initTestBlock() {
+		Box mesh = new Box(0.5f, 0.5f, 0.5f);
+		BoundingBox boundingBox = new BoundingBox();
+		mesh.setBound(boundingBox);
+		Geometry geometry = new Geometry("Block", mesh);
+		geometry.setQueueBucket(Bucket.Transparent);
+		
+		Material debugMaterial = new Material(assetManager,
+				"Common/MatDefs/Misc/Unshaded.j3md");
+		ColorRGBA randomColor = ColorRGBA.randomColor();
+		randomColor.a = 0.8f;
+		debugMaterial.setColor("Color", randomColor);
+		debugMaterial.getAdditionalRenderState().setBlendMode(BlendMode.Alpha); // !
+		
+		geometry.setMaterial(debugMaterial);
+
+		geometry.setLocalTranslation(0, 10, 0);
+		rootNode.attachChild(geometry);
+		
+		// make it rotate
+		// the rotational movement
+		RotationControl rotationControl = new RotationControl(8,
+				8, 8);
+		rotationControl.setSpeeds(new Vector3f(1, 1,
+				1));
+		geometry.addControl(rotationControl);
+		
+		// make it colide with blocks
+		BlockCollisionControl blockCollisionControl = new BlockCollisionControl(
+				new Vector3f(1, 1, 1));
+		geometry.addControl(blockCollisionControl);
 	}
 
 	/**
@@ -294,28 +328,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 			// geometry
 			highlightedBlockFace.setLocalTranslation(selectedBlockPos
 					.add(halfVecToNeigh));
-			// float[] rotationAngles = {1f, 0f, 0f};
-			// Quaternion quaternion = new Quaternion(rotationAngles);
-			// highlightedBlockFace.setLocalRotation(quaternion);
-			Vector3f someOtherVector = vectorToNeighbor.add(new Vector3f(1, 1,
-					1));
-			Vector3f firstOrthVector = vectorToNeighbor.cross(someOtherVector);
-			Vector3f projectedFirstOrthVec = new Vector3f();
-			if (firstOrthVector.dot(Vector3f.UNIT_X) != 0) {
-				projectedFirstOrthVec = firstOrthVector
-						.project(Vector3f.UNIT_X);
-			} else if (firstOrthVector.dot(Vector3f.UNIT_Y) != 0) {
-				projectedFirstOrthVec = firstOrthVector
-						.project(Vector3f.UNIT_Y);
-			} else if (firstOrthVector.dot(Vector3f.UNIT_Z) != 0) {
-				projectedFirstOrthVec = firstOrthVector
-						.project(Vector3f.UNIT_Z);
-			} else {
-				System.out.println("fail");
-			}
 
-			Vector3f secondOrthVector = vectorToNeighbor
-					.cross(projectedFirstOrthVec);
 			highlightedBlockFace.rotateUpTo(vectorToNeighbor);
 			rootNode.attachChild(highlightedBlockFace);
 		} else {
@@ -462,13 +475,14 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	private void initPhysics() {
 		bulletAppState = new BulletAppState();
 		stateManager.attach(bulletAppState);
+//		bulletAppState.getPhysicsSpace().enableDebug(assetManager);
 
 		CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(1f,
 				1.8f, 1);
 		playerPhys = new CharacterControl(capsuleShape, 0.05f);
 		playerPhys.setJumpSpeed(10f);
 		playerPhys.setFallSpeed(30);
-		playerPhys.setGravity(30);
+		playerPhys.setGravity(0);
 		playerPhys.setPhysicsLocation(new Vector3f(0, 5, 0));
 
 		// We attach the scene and the player to the rootnode and the physics
@@ -613,15 +627,11 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		projectionMax = Math.max(projectionMax, Math.abs(zProjectionLength));
 		if (projectionMax == xProjectionLength
 				|| projectionMax == -xProjectionLength) {
-			System.out.println("x" + xProjectionLength);
 			return Vector3f.UNIT_X.multLocal(Math.signum(xProjectionLength));
 		} else if (projectionMax == yProjectionLength
 				|| projectionMax == -yProjectionLength) {
-			System.out.println("y" + yProjectionLength);
 			return Vector3f.UNIT_Y.multLocal(Math.signum(yProjectionLength));
 		} else {
-			System.out.println("z" + zProjectionLength);
-
 			return Vector3f.UNIT_Z.multLocal(Math.signum(zProjectionLength));
 		}
 
