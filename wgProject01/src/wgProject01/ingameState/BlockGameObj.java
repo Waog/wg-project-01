@@ -25,8 +25,6 @@ public class BlockGameObj {
 	 */
 	private Geometry geometry;
 
-	private BoundingBox boundingBox;
-
 	private Box mesh;
 
 	/**
@@ -40,9 +38,6 @@ public class BlockGameObj {
 		this.node = node;
 
 		mesh = new Box(0.5f, 0.5f, 0.5f);
-		boundingBox = new BoundingBox(Vector3f.ZERO, .5f, .5f, .5f);
-		mesh.setBound(boundingBox);
-		mesh.updateBound();
 		geometry = new Geometry("Block", mesh);
 		geometry.setQueueBucket(Bucket.Transparent);
 		TangentBinormalGenerator.generate(mesh);
@@ -80,8 +75,7 @@ public class BlockGameObj {
 	 */
 	void doHandlePlacementAt(int x, int y, int z) {
 		geometry.setLocalTranslation(x, y, z);
-		boundingBox.setCenter(new Vector3f(x, y, z));
-//		mesh.updateBound();
+		mesh.getBound().setCenter(new Vector3f(x, y, z));
 		node.attachChild(geometry);
 	}
 
@@ -93,6 +87,6 @@ public class BlockGameObj {
 	}
 
 	BoundingBox getBoundingBox() {
-		return boundingBox;
+		return (BoundingBox) mesh.getBound();
 	}
 }
