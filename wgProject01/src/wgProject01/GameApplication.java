@@ -15,7 +15,8 @@ import com.jme3.asset.plugins.FileLocator;
 public class GameApplication extends SimpleApplication {
 
 	/**
-	 * Initializes the game application. Is called once by the jme3 framework.
+	 * JME3 calls this method automatically once.
+	 * Initializes the game application.
 	 */
 	@Override
 	public void simpleInitApp() {
@@ -27,11 +28,8 @@ public class GameApplication extends SimpleApplication {
 	}
 
 	/**
-	 * This is the main event loop--walking happens here. We check in which
-	 * direction the player is walking by interpreting the camera direction
-	 * forward (camDir) and to the side (camLeft). The setWalkDirection()
-	 * command is what lets a physics-controlled player walk. We also make sure
-	 * here that the camera moves with player.
+	 * JME3 calls this method automatically every Frame.
+	 * Does nothing (except debug stuff).
 	 */
 	@Override
 	public void simpleUpdate(float tpf) {
