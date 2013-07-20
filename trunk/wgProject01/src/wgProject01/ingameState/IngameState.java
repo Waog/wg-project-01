@@ -168,7 +168,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 
 		// make it walk
 		SimpleWalkingAiControl walkControl = new SimpleWalkingAiControl();
-		walkControl.setSpeed(2);
+		walkControl.setSpeed(4);
 		geometry.addControl(walkControl);
 
 		// make it colide with blocks
@@ -216,18 +216,23 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		rootNode.attachChild(blockNode);
 		blockManager.initData(blockNode, assetManager);
 
+		int POS_OFFSET = 0;
+
 		// initialize blocks using the block manager
 		for (int x = -FLOOR_RADIUS; x <= FLOOR_RADIUS; x++) {
 			for (int z = -FLOOR_RADIUS; z <= FLOOR_RADIUS; z++) {
 				BlockGameObj newBlock = blockManager.getBlockGameObj();
-				blockManager.setBlock(x, 4, z, newBlock);
+				blockManager.setBlock(x + POS_OFFSET, 4, z + POS_OFFSET,
+						newBlock);
 
 				if (Math.abs(x) >= FLOOR_RADIUS - 1
 						|| Math.abs(z) >= FLOOR_RADIUS - 1) {
 					BlockGameObj newBlock2 = blockManager.getBlockGameObj();
-					blockManager.setBlock(x, 5, z, newBlock2);
+					blockManager.setBlock(x + POS_OFFSET, 5, z + POS_OFFSET,
+							newBlock2);
 					BlockGameObj newBlock3 = blockManager.getBlockGameObj();
-					blockManager.setBlock(x, 6, z, newBlock3);
+					blockManager.setBlock(x + POS_OFFSET, 6, z + POS_OFFSET,
+							newBlock3);
 				}
 			}
 		}
