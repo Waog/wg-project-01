@@ -25,5 +25,6 @@ public class GameApplication extends SimpleApplication {
 	@Override
 	public void simpleUpdate(float tpf) {
 		// nothing
+//		System.out.println("DEBUG: tpf: " + tpf);
 	}
 }
