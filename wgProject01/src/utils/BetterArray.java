@@ -3,31 +3,40 @@ package utils;
 import java.util.ArrayList;
 
 /**
- * This class works like an array, except that: - you need to use method calls,
- * instead of the []-operator. - it scales automatically, so you can insert
- * objects at any index. - you can use negative indices as well.
+ * This class works like an array, except that:
+ * 
+ * <ul>
+ * <li>you need to use method calls, instead of the []-operator.</li>
+ * <li>it scales automatically, so you can insert objects at any index.</li>
+ * <li>you can use negative indices as well.</li>
+ * </ul>
  * 
  * @author oli
  * 
  */
 public class BetterArray<T> {
-	/**
-	 * Contains the elements of the positive indices and zero.
-	 */
-	ArrayList<T> list = new ArrayList<T>();
 
 	/**
-	 * Returns the element at the specified position in this Array.
+	 * Contains all elements. The indices used are always positive, so the
+	 * {@link #getPositiveIndex(int)} method has to be used on an index to
+	 * access this list.
+	 */
+	private ArrayList<T> list = new ArrayList<T>();
+
+	/**
+	 * Returns the element at the specified position in this array.
 	 */
 	public T get(int index) {
 		int positiveIndex = getPositiveIndex(index);
-		checkIndex(positiveIndex);
+		if (list.size() - 1 < positiveIndex) {
+			return null;
+		}
 		return list.get(positiveIndex);
 	}
 
 	/**
-	 * Replaces the element at the specified position in this list with the
-	 * specified element.
+	 * Sets (and possibly replaces) the element at the specified position in
+	 * this array with the specified element.
 	 */
 	public void set(int index, T element) {
 		int positiveIndex = getPositiveIndex(index);
@@ -52,16 +61,16 @@ public class BetterArray<T> {
 	 * Transforms the given positive index, to the original index, reversing the
 	 * effect of {@link #getPositiveIndex(int)}.
 	 */
-//	private int getOriginalIndex(int positiveIndex) {
-//		if (positiveIndex % 2 == 0) { // even
-//			return positiveIndex / -2;
-//		} else {
-//			return (positiveIndex + 1) / 2;
-//		}
-//	}
+	// private int getOriginalIndex(int positiveIndex) {
+	// if (positiveIndex % 2 == 0) { // even
+	// return positiveIndex / -2;
+	// } else {
+	// return (positiveIndex + 1) / 2;
+	// }
+	// }
 
 	/**
-	 * Checks if the given positive index is existant in the internal list and
+	 * Checks if the given positive index is existent in the internal list and
 	 * fills the list with "null"-objects until this index if not.
 	 */
 	private void checkIndex(int positiveIndex) {
