@@ -1,9 +1,11 @@
 package wgProject01.ingameState;
 
 import java.util.Random;
+import java.util.Stack;
 
 import jm3Utils.Jm3Utils;
 import wgProject01.GameApplication;
+import wgProject01.Settings;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
@@ -37,7 +39,6 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.control.LightControl;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.util.TangentBinormalGenerator;
 
 public class IngameState extends AbstractAppState implements ActionListener {
 
@@ -53,7 +54,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	private static final String MINE_BLOCK = "MineBlock";
 	private static final String SHOOTABLES = "Shootables";
 	private static final String MINEABLES = "Mineables";
-	private static final String INVENTORY_NODE = "InventoryNode";
 	private static final float RAY_LIMIT = 6; // defines how long the shot ray
 												// for picking and placing is
 	protected Geometry player;
@@ -71,8 +71,8 @@ public class IngameState extends AbstractAppState implements ActionListener {
 								// set
 	private Node mineables; // contains all spatials that can be picked up e.g.
 							// not the floor
-	private Node inventoryNode; // this one handles the ingame inventory
-								// spatials
+	private Stack<BlockGameObj> inventory = new Stack<BlockGameObj>();
+	
 	private FlyByCamera flyCam;
 	private final int FLOOR_RADIUS = 10;
 
@@ -90,8 +90,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		this.flyCam = this.app.getFlyByCamera();
 		this.guiNode = this.app.getGuiNode();
 
-		initBlockManager();
-
 		// TODO 1: remove debug code:
 		// draw the coordinate system:
 		Jm3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(1, 0, 0),
@@ -106,11 +104,14 @@ public class IngameState extends AbstractAppState implements ActionListener {
 
 		initNodes();
 		initCrossHairs();
+		initBlockManager();
 		initFloor();
 		// initOneBlockFloor(); // take either one of the floor initializations
 		initKeys(); // load my custom keybinding
 		initGeneralLights();
-		initRandomSun();
+		for (int i = 0; i <= Settings.debugMode; i++) {
+			initRandomSun();
+		}
 		initMaterials();
 
 		highlightedBlockFace.setMaterial(matGrid);
@@ -187,8 +188,8 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	private void initBlockManager() {
 		// initialize the block manager
 		BlockManager blockManager = BlockManager.getInstance();
-		Node blockNode = new Node();
-		rootNode.attachChild(blockNode);
+		Node blockNode = this.mineables;
+		// rootNode.attachChild(blockNode);
 		blockManager.initData(blockNode, assetManager);
 
 		int POS_OFFSET = 0;
@@ -337,13 +338,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		// the node containing the blocks that can be picked up
 		mineables = new Node(MINEABLES);
 		shootables.attachChild(mineables);
-
-		// the node containing the geometries in the inventory
-		inventoryNode = new Node(INVENTORY_NODE); // set up the inventory
-		guiNode.attachChild(inventoryNode);
-		inventoryNode.setLocalTranslation(cam.getWidth() / 2,
-				cam.getHeight() / 2 - 20, 0);
-		inventoryNode.scale(20);
 	}
 
 	/**
@@ -445,11 +439,13 @@ public class IngameState extends AbstractAppState implements ActionListener {
 			Geometry geom = closest.getGeometry();
 			Node node = geom.getParent();
 			if (node.getName().equals(MINEABLES)) {
-				inventoryNode.attachChild(geom);
+				Vector3f clickedBlockPos = geom.getLocalTranslation();
+				BlockGameObj clickedBlock = BlockManager.getInstance().getBlock(clickedBlockPos);
+				BlockManager.getInstance().removeBlockFrom(clickedBlockPos);
+				inventory.add(clickedBlock);
 			}
 			// this one may be important for non-block spatials
 			else {
-				inventoryNode.attachChild(node); //
 			}
 		}
 	}
@@ -458,16 +454,17 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	 * takes a spatial from the inventory and puts it onto the right place
 	 */
 	private void placeBlockFromInv() {
-		if (inventoryNode.getQuantity() > 0) { // check for empty inventoryNode
+		if (inventory.size() > 0) { // check for empty inventoryNode
 			CollisionResults results = shootRay(RAY_LIMIT);
 			if (results.size() > 0) { // check if there is a hit at all
 				Vector3f blockLocation = calculateBlockLocation(results);
-				Spatial spaten = inventoryNode.detachChildAt(0);
-				spaten.setLocalTranslation(blockLocation);
-
-				mineables.attachChild(spaten); // TODO 3 is there anything that
-												// can be set but is not
-												// mineable?
+				BlockGameObj curBlock = inventory.pop();
+				BlockManager.getInstance().setBlock(blockLocation, curBlock);
+				
+//				spaten.setLocalTranslation(blockLocation);
+//				mineables.attachChild(spaten); // TODO 3 is there anything that
+//												// can be set but is not
+//												// mineable?
 				// TODO 2 stop blocks from being placed when player is in the
 				// way
 			}
@@ -479,15 +476,21 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	 * targetted face of the block. This method does not use the inventory
 	 * instead generates new blocks every time called.
 	 */
-//	private void placeBlock() {
-//		CollisionResults results = shootRay(RAY_LIMIT);
-//		if (results.size() > 0) {
-//			Vector3f blockLocation = calculateBlockLocation(results);
-//
-//			addBlockAt((int) blockLocation.x, (int) blockLocation.y,
-//					(int) blockLocation.z);
-//			// TODO 2 stop blocks from being placed when player is in the way
-//		}
+	// private void placeBlock() {
+	// CollisionResults results = shootRay(RAY_LIMIT);
+	// if (results.size() > 0) {
+	// Vector3f blockLocation = calculateBlockLocation(results);
+	//
+	// addBlockAt((int) blockLocation.x, (int) blockLocation.y,
+	// (int) blockLocation.z);
+	// // TODO 2 stop blocks from being placed when player is in the way
+	// }
+	// }
+
+	
+//	private void addBlockAt(Vector3f blockLocation) {
+//		BlockGameObj newBlock = BlockManager.getInstance().getBlockGameObj();
+//		BlockManager.getInstance().setBlock(blockLocation, newBlock);
 //	}
 
 	/**
@@ -591,29 +594,8 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	 *            the z-coordinate
 	 */
 	private void addBlockAt(int x, int y, int z) {
-		Box shape = new Box(0.5f, 0.5f, 0.5f);
-		Geometry geometry = new Geometry("Block", shape);
-		// Material mat = new Material(assetManager,
-		// "Common/MatDefs/Misc/Unshaded.j3md");
-		// mat.setColor("Color", ColorRGBA.randomColor());
-		// geometry.setMaterial(mat);
-
-		TangentBinormalGenerator.generate(shape);
-		Material sphereMat = new Material(assetManager,
-				"assets/Materials/Lighting/Lighting.j3md");
-		sphereMat.setTexture("DiffuseMap",
-				assetManager.loadTexture("Textures/Pond/Pond.jpg"));
-		sphereMat.setTexture("NormalMap",
-				assetManager.loadTexture("Textures/Pond/Pond_normal.png"));
-		sphereMat.setBoolean("UseMaterialColors", true);
-		sphereMat.setColor("Diffuse", ColorRGBA.White);
-		sphereMat.setColor("Specular", ColorRGBA.White);
-		sphereMat.setFloat("Shininess", 64f); // [0,128]
-		geometry.setMaterial(sphereMat);
-
-		geometry.setLocalTranslation(new Vector3f(x, y, z));
-
-		mineables.attachChild(geometry);
+		BlockGameObj newBlock = BlockManager.getInstance().getBlockGameObj();
+		BlockManager.getInstance().setBlock(x, y, z, newBlock);
 	}
 
 	/**

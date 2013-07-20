@@ -96,7 +96,9 @@ public class BlockManager {
 
 		// place the block and inform it, that it's placed
 		blockArray.set(x, y, z, newBlock);
-		newBlock.doHandlePlacementAt(x, y, z);
+		if (newBlock != null) {
+			newBlock.doHandlePlacementAt(x, y, z);
+		}
 
 		// inform the neighbors of the block about the change
 		// and the block about it's neighbors
@@ -113,8 +115,10 @@ public class BlockManager {
 						BlockGameObj curNeighbor = blockArray.get(x + xOffset,
 								y + yOffset, z + zOffset);
 						// ... inform the new block anyway about the neighbor...
-						newBlock.doHandleNeighborChangeAt(xOffset, yOffset,
-								zOffset, curNeighbor);
+						if (newBlock != null) {
+							newBlock.doHandleNeighborChangeAt(xOffset, yOffset,
+									zOffset, curNeighbor);
+						}
 						if (curNeighbor != null) {
 							// ... and inform it if so.
 							curNeighbor.doHandleNeighborChangeAt(-xOffset,
@@ -136,11 +140,34 @@ public class BlockManager {
 	}
 
 	/**
-	 * Like {@link #getBlock(int, int, int)} but with a vector as parameter.
-	 * The given vectors coordinates are casted to integers.
+	 * Like {@link #getBlock(int, int, int)} but with a vector as position
+	 * parameter. The given vectors coordinates are rounded to their next
+	 * integers.
 	 */
 	BlockGameObj getBlock(Vector3f pos) {
-		return getBlock((int) pos.x, (int) pos.y, (int) pos.z);
+		int intPosX = Math.round(pos.x);
+		int intPosY = Math.round(pos.y);
+		int intPosZ = Math.round(pos.z);
+		return getBlock(intPosX, intPosY, intPosZ);
+	}
 
+	/**
+	 * Like {@link #setBlock(int, int, int, BlockGameObj)} but with a vector as
+	 * position parameter. The given vectors coordinates are rounded to their
+	 * next integers.
+	 */
+	void setBlock(Vector3f pos, BlockGameObj block) {
+		int intPosX = Math.round(pos.x);
+		int intPosY = Math.round(pos.y);
+		int intPosZ = Math.round(pos.z);
+		setBlock(intPosX, intPosY, intPosZ, block);
+	}
+
+	/**
+	 * Removes the block at the specified position and informs all neighbors
+	 * about it.
+	 */
+	public void removeBlockFrom(Vector3f pos) {
+		setBlock(pos, null);
 	}
 }
