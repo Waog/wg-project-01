@@ -26,7 +26,6 @@ public class BlockCollisionControl extends AbstractControl {
 	@Override
 	protected void controlUpdate(float tpf) {
 		Boolean collisionDedected = true;
-
 		for (int i = 1; i <= 3 && collisionDedected; i++) {
 			collisionDedected = false;
 			Vector3f spatialPos = spatial.getWorldTranslation();
