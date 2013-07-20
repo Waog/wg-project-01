@@ -1,8 +1,5 @@
 package wgProject01.ingameState;
 
-import com.jme3.bounding.BoundingBox;
-import com.jme3.collision.CollisionResult;
-import com.jme3.collision.CollisionResults;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -28,46 +25,81 @@ public class BlockCollisionControl extends AbstractControl {
 
 	@Override
 	protected void controlUpdate(float tpf) {
-		Vector3f spatialPos = spatial.getWorldTranslation();
+		Boolean collisionDedected = true;
 
-		int minX = (int) Math.floor(spatialPos.x - radii.x + .5f);
-		int maxX = (int) Math.ceil(spatialPos.x + radii.x - .5f);
-		int minY = (int) Math.floor(spatialPos.y - radii.y + .5f);
-		int maxY = (int) Math.ceil(spatialPos.y + radii.y - .5f);
-		int minZ = (int) Math.floor(spatialPos.z - radii.z + .5f);
-		int maxZ = (int) Math.ceil(spatialPos.z + radii.z - .5f);
+		for (int i = 1; i <= 3 && collisionDedected; i++) {
+			collisionDedected = false;
+			Vector3f spatialPos = spatial.getWorldTranslation();
 
-		for (int curX = minX; curX <= maxX; curX++) {
-			for (int curY = minY; curY <= maxY; curY++) {
-				for (int curZ = minZ; curZ <= maxZ; curZ++) {
-					handleBlockAt(curX, curY, curZ);
+			int minX = (int) Math.floor(spatialPos.x - radii.x + .5f);
+			int maxX = (int) Math.ceil(spatialPos.x + radii.x - .5f);
+			int minY = (int) Math.floor(spatialPos.y - radii.y + .5f);
+			int maxY = (int) Math.ceil(spatialPos.y + radii.y - .5f);
+			int minZ = (int) Math.floor(spatialPos.z - radii.z + .5f);
+			int maxZ = (int) Math.ceil(spatialPos.z + radii.z - .5f);
+
+			float maxIntersectionVolum = 0f;
+			int maxIntersectionIndexX = 0;
+			int maxIntersectionIndexY = 0;
+			int maxIntersectionIndexZ = 0;
+
+			for (int curX = minX; curX <= maxX; curX++) {
+				for (int curY = minY; curY <= maxY; curY++) {
+					for (int curZ = minZ; curZ <= maxZ; curZ++) {
+						float curIntersectionVol = getIntersectionVolumWithBlockAt(
+								curX, curY, curZ);
+						if (curIntersectionVol > maxIntersectionVolum) {
+							maxIntersectionVolum = curIntersectionVol;
+							maxIntersectionIndexX = curX;
+							maxIntersectionIndexY = curY;
+							maxIntersectionIndexZ = curZ;
+						}
+					}
 				}
 			}
-		}
 
+			if (maxIntersectionVolum > 0f) {
+				handleCollisionAt(maxIntersectionIndexX, maxIntersectionIndexY,
+						maxIntersectionIndexZ);
+				collisionDedected = true;
+			}
+		}
 	}
 
-	private void handleBlockAt(int x, int y, int z) {
+	/**
+	 * Returns 0 if there is no block at the given pos.
+	 */
+	private float getIntersectionVolumWithBlockAt(int x, int y, int z) {
 		BlockGameObj block = BlockManager.getInstance().getBlock(x, y, z);
-
-		if (block != null) {
-			// TODO 3: debug code:
-			// System.out.println("DEBUG: in block");
-			// BoundingBox boundingBox = block.getBoundingBox();
-			// int collisionCount2 = spatial.collideWith(boundingBox,
-			// new CollisionResults());
-			// if (collisionCount2 > 0) {
-			// System.out.println("DEBUG: box collision dedected");
-			// }
-
-			Vector3f correctionVectorForCollision = getCorrectionVectorForCollisionAt(x, y, z);
-			Vector3f curLocalTranslation = spatial.getLocalTranslation()
-					.clone();
-			spatial.setLocalTranslation(curLocalTranslation.add(correctionVectorForCollision));
+		if (block == null) {
+			return 0;
 		}
+
+		Vector3f blockPos = new Vector3f(x, y, z);
+		Vector3f lowerBlockBorders = blockPos.subtract(new Vector3f(.5f, .5f,
+				.5f));
+		Vector3f upperBlockBorders = blockPos.add(new Vector3f(.5f, .5f, .5f));
+		Vector3f lowerSpatialBorders = spatial.getLocalTranslation().subtract(
+				radii);
+		Vector3f upperSpatialBorders = spatial.getLocalTranslation().add(radii);
+
+		float xIntersect = Math.max(
+				0,
+				Math.min(upperBlockBorders.x, upperSpatialBorders.x)
+						- Math.max(lowerBlockBorders.x, lowerSpatialBorders.x));
+		float yIntersect = Math.max(
+				0,
+				Math.min(upperBlockBorders.y, upperSpatialBorders.y)
+						- Math.max(lowerBlockBorders.y, lowerSpatialBorders.y));
+		float zIntersect = Math.max(
+				0,
+				Math.min(upperBlockBorders.z, upperSpatialBorders.z)
+						- Math.max(lowerBlockBorders.z, lowerSpatialBorders.z));
+
+		return xIntersect * yIntersect * zIntersect;
 	}
 
-	private Vector3f getCorrectionVectorForCollisionAt(int x, int y, int z) {
+	private void handleCollisionAt(int x, int y, int z) {
 		// determine the shortest way out of the block
 		float shortestDistOut = Float.MAX_VALUE;
 		Vector3f finalLocalTranslation = spatial.getLocalTranslation().clone();
@@ -167,11 +199,8 @@ public class BlockCollisionControl extends AbstractControl {
 			}
 		}
 
-//		spatial.setLocalTranslation(finalLocalTranslation);
-		Vector3f curLocalTranslation = spatial.getLocalTranslation()
-				.clone();
-		Vector3f result = finalLocalTranslation.subtract(curLocalTranslation);
-		return result;
+		// spatial.setLocalTranslation(finalLocalTranslation);
+		spatial.setLocalTranslation(finalLocalTranslation);
 	}
 
 	@Override
