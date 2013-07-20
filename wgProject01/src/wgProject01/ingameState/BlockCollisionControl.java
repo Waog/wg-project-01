@@ -33,18 +33,18 @@ public class BlockCollisionControl extends AbstractControl {
 			collisionDeteced = false;
 			Vector3f spatialPos = spatial.getWorldTranslation();
 
-			int minX = (int) (spatialPos.x - radii.x + .5f);
+			int minX = (int) Math.floor(spatialPos.x - radii.x + .5f);
 			int maxX = (int) Math.ceil(spatialPos.x + radii.x - .5f);
-			int minY = (int) (spatialPos.y - radii.y + .5f);
+			int minY = (int) Math.floor(spatialPos.y - radii.y + .5f);
 			int maxY = (int) Math.ceil(spatialPos.y + radii.y - .5f);
-			int minZ = (int) (spatialPos.z - radii.z + .5f);
+			int minZ = (int) Math.floor(spatialPos.z - radii.z + .5f);
 			int maxZ = (int) Math.ceil(spatialPos.z + radii.z - .5f);
 
 			// attention: this are hacked loops:
 			// they only loop until the first collision is dedected.
-			for (int curX = minX; curX <= maxX && ! collisionDeteced; curX++) {
-				for (int curY = minY; curY <= maxY && ! collisionDeteced; curY++) {
-					for (int curZ = minZ; curZ <= maxZ && ! collisionDeteced; curZ++) {
+			for (int curX = minX; curX <= maxX && !collisionDeteced; curX++) {
+				for (int curY = minY; curY <= maxY && !collisionDeteced; curY++) {
+					for (int curZ = minZ; curZ <= maxZ && !collisionDeteced; curZ++) {
 						handleBlockAt(curX, curY, curZ);
 					}
 				}
@@ -58,13 +58,13 @@ public class BlockCollisionControl extends AbstractControl {
 
 		if (block != null) {
 			// TODO 3: debug code:
-//			System.out.println("DEBUG: in block");
-//			BoundingBox boundingBox = block.getBoundingBox();
-//			int collisionCount2 = spatial.collideWith(boundingBox,
-//					new CollisionResults());
-//			if (collisionCount2 > 0) {
-//				System.out.println("DEBUG: box collision dedected");
-//			}
+			// System.out.println("DEBUG: in block");
+			// BoundingBox boundingBox = block.getBoundingBox();
+			// int collisionCount2 = spatial.collideWith(boundingBox,
+			// new CollisionResults());
+			// if (collisionCount2 > 0) {
+			// System.out.println("DEBUG: box collision dedected");
+			// }
 
 			handleCollisionAt(x, y, z);
 			collisionDeteced = true;
@@ -73,63 +73,106 @@ public class BlockCollisionControl extends AbstractControl {
 	}
 
 	private void handleCollisionAt(int x, int y, int z) {
+		// determine the shortest way out of the block
+		float shortestDistOut = Float.MAX_VALUE;
+		Vector3f finalLocalTranslation = spatial.getLocalTranslation().clone();
+
 		// collision with higher x coordinate
 		float spatialX = spatial.getLocalTranslation().x;
 		float lowerSpatialX = spatialX - radii.x;
 		if (lowerSpatialX < x + .5f && spatialX > x) {
+			Vector3f curLocalTranslation = spatial.getLocalTranslation()
+					.clone();
 			Vector3f newLocalTranslation = spatial.getLocalTranslation()
 					.clone();
 			newLocalTranslation.x = x + .5f + radii.x;
-			spatial.setLocalTranslation(newLocalTranslation);
+			float curDist = newLocalTranslation.distance(curLocalTranslation);
+			if (curDist < shortestDistOut) {
+				shortestDistOut = curDist;
+				finalLocalTranslation = newLocalTranslation;
+			}
 		}
 		// collision with lower x coordinate
 		spatialX = spatial.getLocalTranslation().x;
 		float upperSpatialX = spatialX + radii.x;
 		if (upperSpatialX > x - .5f && spatialX < x) {
+			Vector3f curLocalTranslation = spatial.getLocalTranslation()
+					.clone();
 			Vector3f newLocalTranslation = spatial.getLocalTranslation()
 					.clone();
 			newLocalTranslation.x = x - .5f - radii.x;
-			spatial.setLocalTranslation(newLocalTranslation);
+			float curDist = newLocalTranslation.distance(curLocalTranslation);
+			if (curDist < shortestDistOut) {
+				shortestDistOut = curDist;
+				finalLocalTranslation = newLocalTranslation;
+			}
 		}
 
 		// collision with higher y coordinate
 		float spatialY = spatial.getLocalTranslation().y;
 		float lowerSpatialY = spatialY - radii.y;
 		if (lowerSpatialY < y + .5f && spatialY > y) {
+			Vector3f curLocalTranslation = spatial.getLocalTranslation()
+					.clone();
 			Vector3f newLocalTranslation = spatial.getLocalTranslation()
 					.clone();
 			newLocalTranslation.y = y + .5f + radii.y;
-			spatial.setLocalTranslation(newLocalTranslation);
+			float curDist = newLocalTranslation.distance(curLocalTranslation);
+			if (curDist < shortestDistOut) {
+				shortestDistOut = curDist;
+				finalLocalTranslation = newLocalTranslation;
+			}
 		}
 
 		// collision with lower y coordinate
 		spatialY = spatial.getLocalTranslation().y;
 		float upperSpatialY = spatialY + radii.y;
 		if (upperSpatialY > y - .5f && spatialY < y) {
+
+			Vector3f curLocalTranslation = spatial.getLocalTranslation()
+					.clone();
 			Vector3f newLocalTranslation = spatial.getLocalTranslation()
 					.clone();
 			newLocalTranslation.y = y - .5f - radii.y;
-			spatial.setLocalTranslation(newLocalTranslation);
+			float curDist = newLocalTranslation.distance(curLocalTranslation);
+			if (curDist < shortestDistOut) {
+				shortestDistOut = curDist;
+				finalLocalTranslation = newLocalTranslation;
+			}
 		}
 		// collision with higher z coordinate
 		float spatialZ = spatial.getLocalTranslation().z;
 		float lowerSpatialZ = spatialZ - radii.z;
 		if (lowerSpatialZ < z + .5f && spatialZ > z) {
+			Vector3f curLocalTranslation = spatial.getLocalTranslation()
+					.clone();
 			Vector3f newLocalTranslation = spatial.getLocalTranslation()
 					.clone();
 			newLocalTranslation.z = z + .5f + radii.z;
-			spatial.setLocalTranslation(newLocalTranslation);
+			float curDist = newLocalTranslation.distance(curLocalTranslation);
+			if (curDist < shortestDistOut) {
+				shortestDistOut = curDist;
+				finalLocalTranslation = newLocalTranslation;
+			}
 		}
 
 		// collision with lower z coordinate
 		spatialZ = spatial.getLocalTranslation().z;
 		float upperSpatialZ = spatialZ + radii.z;
 		if (upperSpatialZ > z - .5f && spatialZ < z) {
+			Vector3f curLocalTranslation = spatial.getLocalTranslation()
+					.clone();
 			Vector3f newLocalTranslation = spatial.getLocalTranslation()
 					.clone();
 			newLocalTranslation.z = z - .5f - radii.z;
-			spatial.setLocalTranslation(newLocalTranslation);
+			float curDist = newLocalTranslation.distance(curLocalTranslation);
+			if (curDist < shortestDistOut) {
+				shortestDistOut = curDist;
+				finalLocalTranslation = newLocalTranslation;
+			}
 		}
+		
+		spatial.setLocalTranslation(finalLocalTranslation);
 	}
 
 	@Override

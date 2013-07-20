@@ -35,9 +35,9 @@ public class SimpleWalkingAiControl extends AbstractControl {
 		if (leftSecs < 0) {
 			Random random = new Random();
 			leftSecs = random.nextFloat() * 10f;
-			curDirection.x = random.nextFloat();
+			curDirection.x = random.nextFloat() - 0.5f;
 			curDirection.y = 0;
-			curDirection.z = random.nextFloat();
+			curDirection.z = random.nextFloat() - 0.5f;
 			curDirection.normalizeLocal();
 		}
 		
