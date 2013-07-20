@@ -58,13 +58,13 @@ public class BlockCollisionControl extends AbstractControl {
 
 		if (block != null) {
 			// TODO 3: debug code:
-			System.out.println("DEBUG: in block");
-			BoundingBox boundingBox = block.getBoundingBox();
-			int collisionCount2 = spatial.collideWith(boundingBox,
-					new CollisionResults());
-			if (collisionCount2 > 0) {
-				System.out.println("DEBUG: box collision dedected");
-			}
+//			System.out.println("DEBUG: in block");
+//			BoundingBox boundingBox = block.getBoundingBox();
+//			int collisionCount2 = spatial.collideWith(boundingBox,
+//					new CollisionResults());
+//			if (collisionCount2 > 0) {
+//				System.out.println("DEBUG: box collision dedected");
+//			}
 
 			handleCollisionAt(x, y, z);
 			collisionDeteced = true;

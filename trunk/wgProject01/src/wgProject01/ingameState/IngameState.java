@@ -151,35 +151,55 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		// TODO 2 the movementspeed setting does not work at all
 		flyCam.setMoveSpeed(2500);
 
-		
 		initTestBlock();
+		initTestEnemy();
+	}
+
+	private void initTestEnemy() {
+		Box mesh = new Box(0.5f, 0.5f, 0.5f);
+		Geometry geometry = new Geometry("Block", mesh);
+
+		Material enemyMaterial = new Material(assetManager,
+				"Common/MatDefs/Misc/Unshaded.j3md");
+		enemyMaterial.setColor("Color", ColorRGBA.Red);
+		geometry.setMaterial(enemyMaterial);
+		geometry.setLocalTranslation(0, 5.5f, 0);
+		rootNode.attachChild(geometry);
+
+		// make it walk
+		SimpleWalkingAiControl walkControl = new SimpleWalkingAiControl();
+		walkControl.setSpeed(2);
+		geometry.addControl(walkControl);
+
+		// make it colide with blocks
+		BlockCollisionControl blockCollisionControl = new BlockCollisionControl(
+				new Vector3f(1, 1, 1));
+		geometry.addControl(blockCollisionControl);
 	}
 
 	private void initTestBlock() {
 		Box mesh = new Box(0.5f, 0.5f, 0.5f);
 		Geometry geometry = new Geometry("Block", mesh);
 		geometry.setQueueBucket(Bucket.Transparent);
-		
+
 		Material debugMaterial = new Material(assetManager,
 				"Common/MatDefs/Misc/Unshaded.j3md");
 		ColorRGBA randomColor = ColorRGBA.randomColor();
 		randomColor.a = 0.8f;
 		debugMaterial.setColor("Color", randomColor);
 		debugMaterial.getAdditionalRenderState().setBlendMode(BlendMode.Alpha); // !
-		
+
 		geometry.setMaterial(debugMaterial);
 
 		geometry.setLocalTranslation(0, 10, 0);
 		rootNode.attachChild(geometry);
-		
+
 		// make it rotate
 		// the rotational movement
-		RotationControl rotationControl = new RotationControl(8,
-				8, 8);
-		rotationControl.setSpeeds(new Vector3f(1, 1,
-				1));
+		RotationControl rotationControl = new RotationControl(8, 8, 8);
+		rotationControl.setSpeeds(new Vector3f(1, 1, 1));
 		geometry.addControl(rotationControl);
-		
+
 		// make it colide with blocks
 		BlockCollisionControl blockCollisionControl = new BlockCollisionControl(
 				new Vector3f(1, 1, 1));
@@ -195,12 +215,20 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		Node blockNode = new Node();
 		rootNode.attachChild(blockNode);
 		blockManager.initData(blockNode, assetManager);
-		
+
 		// initialize blocks using the block manager
-		for (int x = -FLOOR_RADIUS; x <=FLOOR_RADIUS; x++) {
-			for (int z = -FLOOR_RADIUS; z <=FLOOR_RADIUS; z++) {
+		for (int x = -FLOOR_RADIUS; x <= FLOOR_RADIUS; x++) {
+			for (int z = -FLOOR_RADIUS; z <= FLOOR_RADIUS; z++) {
 				BlockGameObj newBlock = blockManager.getBlockGameObj();
 				blockManager.setBlock(x, 4, z, newBlock);
+
+				if (Math.abs(x) >= FLOOR_RADIUS - 1
+						|| Math.abs(z) >= FLOOR_RADIUS - 1) {
+					BlockGameObj newBlock2 = blockManager.getBlockGameObj();
+					blockManager.setBlock(x, 5, z, newBlock2);
+					BlockGameObj newBlock3 = blockManager.getBlockGameObj();
+					blockManager.setBlock(x, 6, z, newBlock3);
+				}
 			}
 		}
 	}
@@ -473,7 +501,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	private void initPhysics() {
 		bulletAppState = new BulletAppState();
 		stateManager.attach(bulletAppState);
-//		bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+		// bulletAppState.getPhysicsSpace().enableDebug(assetManager);
 
 		CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(1f,
 				1.8f, 1);
