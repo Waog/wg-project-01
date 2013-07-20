@@ -10,19 +10,14 @@ import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
-import com.jme3.bullet.control.CharacterControl;
-import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.input.FlyByCamera;
 import com.jme3.input.InputManager;
-import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
-import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
@@ -42,8 +37,6 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.control.LightControl;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.TangentBinormalGenerator;
 
 public class IngameState extends AbstractAppState implements ActionListener {
@@ -57,11 +50,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	private Camera cam;
 
 	private static final String PLACE_BLOCK = "PlaceBlock";
-	private static final String JUMP = "Jump";
-	private static final String DOWN = "Down";
-	private static final String UP = "Up";
-	private static final String RIGHT = "Right";
-	private static final String LEFT = "Left";
 	private static final String MINE_BLOCK = "MineBlock";
 	private static final String SHOOTABLES = "Shootables";
 	private static final String MINEABLES = "Mineables";
@@ -72,23 +60,11 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	private Geometry highlightedBlockFace = new Geometry();
 	private Material matGrid;
 	Boolean isRunning = true;
-	private Vector3f walkDirection = new Vector3f();
-	private boolean left = false, right = false, up = false, down = false;
 
-	private CharacterControl playerPhys;
-	private BulletAppState bulletAppState;
-	private double sunPosition = 0.0f;
 	private CollisionResults results = new CollisionResults();
 
 	private Ray ray = new Ray();
 
-	// Temporary vectors used on each frame.
-	// They here to avoid instanciating new vectors on each frame
-	private Vector3f camDir = new Vector3f();
-	private Vector3f camLeft = new Vector3f();
-	private Vector3f newSunPos = new Vector3f();
-	private Vector3f faceVector = new Vector3f();
-	private Vector3f faceVectorNegated = new Vector3f();
 	private Vector3f projectedVector = new Vector3f();
 
 	private Node shootables; // contains all spatials onto which a block can be
@@ -130,7 +106,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 
 		initNodes();
 		initCrossHairs();
-		initPhysics();
 		initFloor();
 		// initOneBlockFloor(); // take either one of the floor initializations
 		initKeys(); // load my custom keybinding
@@ -148,7 +123,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 																		// somewhat
 																		// blue
 		// TODO 2 the movementspeed setting does not work at all
-		flyCam.setMoveSpeed(2500);
+		flyCam.setMoveSpeed(10);
 
 		initTestBlock();
 		initTestEnemy();
@@ -318,24 +293,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	// enabled.
 	@Override
 	public void update(float tpf) {
-		// do the following while game is RUNNING
-		camDir.set(cam.getDirection()).multLocal(0.6f);
-		camLeft.set(cam.getLeft()).multLocal(0.4f);
-		walkDirection.set(0, 0, 0);
-		if (left) {
-			walkDirection.addLocal(camLeft);
-		}
-		if (right) {
-			walkDirection.addLocal(camLeft.negate());
-		}
-		if (up) {
-			walkDirection.addLocal(camDir);
-		}
-		if (down) {
-			walkDirection.addLocal(camDir.negate());
-		}
-		playerPhys.setWalkDirection(walkDirection);
-		cam.setLocation(playerPhys.getPhysicsLocation());
 		highlightBlockFace();
 	}
 
@@ -387,41 +344,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		inventoryNode.setLocalTranslation(cam.getWidth() / 2,
 				cam.getHeight() / 2 - 20, 0);
 		inventoryNode.scale(20);
-	}
-
-	/** initializes a "floor" made of one big box - this box is not mineable */
-	private void initOneBlockFloor() {
-		Box shape = new Box(100f, 0.5f, 100f);
-		Geometry geometry = new Geometry("Block", shape);
-		// Material mat = new Material(assetManager,
-		// "Common/MatDefs/Misc/Unshaded.j3md");
-		// mat.setColor("Color", ColorRGBA.randomColor());
-		// geometry.setMaterial(mat);
-
-		TangentBinormalGenerator.generate(shape);
-		Material sphereMat = new Material(assetManager,
-				"assets/Materials/Lighting/Lighting.j3md");
-
-		Texture texture = assetManager.loadTexture("Textures/Pond/Pond.jpg");
-		texture.setWrap(WrapMode.Repeat);
-		sphereMat.setTexture("DiffuseMap", texture);
-		sphereMat.setTexture("NormalMap",
-				assetManager.loadTexture("Textures/Pond/Pond_normal.png"));
-		sphereMat.setBoolean("UseMaterialColors", true);
-		sphereMat.setColor("Diffuse", ColorRGBA.White);
-		sphereMat.setColor("Specular", ColorRGBA.White);
-		sphereMat.setFloat("Shininess", 64f); // [0,128]
-		geometry.setMaterial(sphereMat);
-
-		geometry.setLocalTranslation(new Vector3f(0, 0, 0));
-
-		// the block physics:
-		RigidBodyControl blockPhy = new RigidBodyControl(0);
-		geometry.addControl(blockPhy);
-		blockPhy.setKinematic(true);
-		bulletAppState.getPhysicsSpace().add(blockPhy);
-
-		shootables.attachChild(geometry);
 	}
 
 	/**
@@ -501,50 +423,16 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	}
 
 	/**
-	 * Initializes the usage of physics and makes the player/camera collidable.
-	 */
-	private void initPhysics() {
-		bulletAppState = new BulletAppState();
-		stateManager.attach(bulletAppState);
-		// bulletAppState.getPhysicsSpace().enableDebug(assetManager);
-
-		CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(1f,
-				1.8f, 1);
-		playerPhys = new CharacterControl(capsuleShape, 0.05f);
-		playerPhys.setJumpSpeed(10f);
-		playerPhys.setFallSpeed(30);
-		playerPhys.setGravity(0);
-		playerPhys.setPhysicsLocation(new Vector3f(0, 8, 12));
-
-		// We attach the scene and the player to the rootnode and the physics
-		// space,
-		// to make them appear in the game world.
-		bulletAppState.getPhysicsSpace().add(playerPhys);
-	}
-
-	/**
 	 * We over-write some navigational key mappings here, so we can add
 	 * physics-controlled walking and jumping:
 	 */
 	private void initKeys() {
-		inputManager.addMapping(LEFT, new KeyTrigger(KeyInput.KEY_A));
-		inputManager.addMapping(RIGHT, new KeyTrigger(KeyInput.KEY_D));
-		inputManager.addMapping(UP, new KeyTrigger(KeyInput.KEY_W));
-		inputManager.addMapping(DOWN, new KeyTrigger(KeyInput.KEY_S));
-		inputManager.addMapping(JUMP, new KeyTrigger(KeyInput.KEY_SPACE));
 		inputManager.addMapping(PLACE_BLOCK, new MouseButtonTrigger(
 				MouseInput.BUTTON_RIGHT));
 		inputManager.addMapping(MINE_BLOCK, new MouseButtonTrigger(
 				MouseInput.BUTTON_LEFT));
-		inputManager.addListener(this, LEFT);
-		inputManager.addListener(this, RIGHT);
-		inputManager.addListener(this, UP);
-		inputManager.addListener(this, DOWN);
-		inputManager.addListener(this, JUMP);
 		inputManager.addListener(this, PLACE_BLOCK);
 		inputManager.addListener(this, MINE_BLOCK);
-
-		// Add the names to the action listener.
 	}
 
 	/**
@@ -556,10 +444,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 			CollisionResult closest = results.getClosestCollision();
 			Geometry geom = closest.getGeometry();
 			Node node = geom.getParent();
-			bulletAppState.getPhysicsSpace().remove(geom); // removes the
-															// geometry
-															// from the
-															// physicsSpace
 			if (node.getName().equals(MINEABLES)) {
 				inventoryNode.attachChild(geom);
 			}
@@ -581,7 +465,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 				Spatial spaten = inventoryNode.detachChildAt(0);
 				spaten.setLocalTranslation(blockLocation);
 
-				addBlockPhysics(spaten, 0);
 				mineables.attachChild(spaten); // TODO 3 is there anything that
 												// can be set but is not
 												// mineable?
@@ -596,16 +479,16 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	 * targetted face of the block. This method does not use the inventory
 	 * instead generates new blocks every time called.
 	 */
-	private void placeBlock() {
-		CollisionResults results = shootRay(RAY_LIMIT);
-		if (results.size() > 0) {
-			Vector3f blockLocation = calculateBlockLocation(results);
-
-			addBlockAt((int) blockLocation.x, (int) blockLocation.y,
-					(int) blockLocation.z);
-			// TODO 2 stop blocks from being placed when player is in the way
-		}
-	}
+//	private void placeBlock() {
+//		CollisionResults results = shootRay(RAY_LIMIT);
+//		if (results.size() > 0) {
+//			Vector3f blockLocation = calculateBlockLocation(results);
+//
+//			addBlockAt((int) blockLocation.x, (int) blockLocation.y,
+//					(int) blockLocation.z);
+//			// TODO 2 stop blocks from being placed when player is in the way
+//		}
+//	}
 
 	/**
 	 * calculates the position where the block shall be set and returns it
@@ -730,18 +613,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 
 		geometry.setLocalTranslation(new Vector3f(x, y, z));
 
-		addBlockPhysics(geometry, 0);
-
 		mineables.attachChild(geometry);
-	}
-
-	private void addBlockPhysics(Spatial spaten, int mass) {
-
-		RigidBodyControl blockPhy = new RigidBodyControl(mass);
-		spaten.addControl(blockPhy);
-		blockPhy.setKinematic(true); // TODO 1 why is this true?
-		bulletAppState.getPhysicsSpace().add(blockPhy);
-
 	}
 
 	/**
@@ -749,34 +621,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	 * yet, we just keep track of the direction the user pressed.
 	 */
 	public void onAction(String binding, boolean value, float tpf) {
-		if (binding.equals(LEFT)) {
-			if (value) {
-				left = true;
-			} else {
-				left = false;
-			}
-		} else if (binding.equals(RIGHT)) {
-			if (value) {
-				right = true;
-			} else {
-				right = false;
-			}
-		} else if (binding.equals(UP)) {
-			if (value) {
-				up = true;
-			} else {
-				up = false;
-			}
-		} else if (binding.equals(DOWN)) {
-			if (value) {
-				down = true;
-			} else {
-				down = false;
-			}
-		} else if (binding.equals(JUMP)) {
-			playerPhys.jump();
-		}
-
 		// new if-statement to get the possibility of running and mining or
 		// placing at the same time
 		if (binding.equals(PLACE_BLOCK) && !value) {
