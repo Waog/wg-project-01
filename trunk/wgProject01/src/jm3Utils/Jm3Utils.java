@@ -17,7 +17,7 @@ import com.jme3.scene.shape.Line;
 public class Jm3Utils {
 
 	/**
-	 * places a visible line in the coordinate system of the given node, between
+	 * Places a visible line in the coordinate system of the given node, between
 	 * the given end points.
 	 */
 	public static void drawLine(Vector3f start, Vector3f end, Node node, AssetManager assetManager) {

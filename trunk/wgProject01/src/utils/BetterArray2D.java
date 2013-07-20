@@ -17,7 +17,7 @@ public class BetterArray2D<T> {
 	private BetterArray<BetterArray<T>> space = new BetterArray<BetterArray<T>>();
 
 	/**
-	 * Returns the element at the specified position in this Array.
+	 * Returns the element at the specified position in this array.
 	 */
 	public T get(int x, int y) {
 		BetterArray<T> innerArray = space.get(x);
@@ -29,8 +29,8 @@ public class BetterArray2D<T> {
 	}
 
 	/**
-	 * Replaces the element at the specified position in this list with the
-	 * specified element.
+	 * Sets (and possibly replaces) the element at the specified position in
+	 * this array with the specified element.
 	 */
 	public void set(int x, int y, T element) {
 		BetterArray<T> innerArray = space.get(x);
