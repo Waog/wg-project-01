@@ -1,5 +1,5 @@
 /**
- * TODO 3: write comment.
+ * Contains the classes specific to our WG project.
  * 
  * @author oli
  */
