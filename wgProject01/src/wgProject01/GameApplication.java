@@ -5,13 +5,24 @@ import wgProject01.ingameState.IngameState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.plugins.FileLocator;
 
-/** Sample 5 - how to map keys and mousebuttons to actions */
+/**
+ * The Game Application.
+ * 
+ * This is the central control class responsible for putting together the whole
+ * game and navigating through different states (for instance menus, ingame
+ * state, login screen) of the game.
+ */
 public class GameApplication extends SimpleApplication {
 
+	/**
+	 * Initializes the game application. Is called once by the jme3 framework.
+	 */
 	@Override
 	public void simpleInitApp() {
+		// make our own assets accessible
 		assetManager.registerLocator(".", FileLocator.class);
-		
+
+		// initialize the initial app states
 		stateManager.attach(new IngameState());
 	}
 
@@ -24,7 +35,9 @@ public class GameApplication extends SimpleApplication {
 	 */
 	@Override
 	public void simpleUpdate(float tpf) {
-		// nothing
-//		System.out.println("DEBUG: tpf: " + tpf);
+		// print the TPF in debug mode:
+		if (Settings.debugMode >= 1) {
+			System.out.println("DEBUG: tpf: " + tpf);
+		}
 	}
 }
