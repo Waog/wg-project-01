@@ -12,7 +12,6 @@ import com.jme3.scene.control.AbstractControl;
 public class BlockCollisionControl extends AbstractControl {
 
 	private Vector3f radii;
-	private boolean collisionDeteced;
 
 	public BlockCollisionControl(Vector3f spacialSize) {
 		this.radii = spacialSize.mult(0.5f);
@@ -29,28 +28,23 @@ public class BlockCollisionControl extends AbstractControl {
 
 	@Override
 	protected void controlUpdate(float tpf) {
-		do {
-			collisionDeteced = false;
-			Vector3f spatialPos = spatial.getWorldTranslation();
+		Vector3f spatialPos = spatial.getWorldTranslation();
 
-			int minX = (int) Math.floor(spatialPos.x - radii.x + .5f);
-			int maxX = (int) Math.ceil(spatialPos.x + radii.x - .5f);
-			int minY = (int) Math.floor(spatialPos.y - radii.y + .5f);
-			int maxY = (int) Math.ceil(spatialPos.y + radii.y - .5f);
-			int minZ = (int) Math.floor(spatialPos.z - radii.z + .5f);
-			int maxZ = (int) Math.ceil(spatialPos.z + radii.z - .5f);
+		int minX = (int) Math.floor(spatialPos.x - radii.x + .5f);
+		int maxX = (int) Math.ceil(spatialPos.x + radii.x - .5f);
+		int minY = (int) Math.floor(spatialPos.y - radii.y + .5f);
+		int maxY = (int) Math.ceil(spatialPos.y + radii.y - .5f);
+		int minZ = (int) Math.floor(spatialPos.z - radii.z + .5f);
+		int maxZ = (int) Math.ceil(spatialPos.z + radii.z - .5f);
 
-			// attention: this are hacked loops:
-			// they only loop until the first collision is dedected.
-			for (int curX = minX; curX <= maxX && !collisionDeteced; curX++) {
-				for (int curY = minY; curY <= maxY && !collisionDeteced; curY++) {
-					for (int curZ = minZ; curZ <= maxZ && !collisionDeteced; curZ++) {
-						handleBlockAt(curX, curY, curZ);
-					}
+		for (int curX = minX; curX <= maxX; curX++) {
+			for (int curY = minY; curY <= maxY; curY++) {
+				for (int curZ = minZ; curZ <= maxZ; curZ++) {
+					handleBlockAt(curX, curY, curZ);
 				}
 			}
+		}
 
-		} while (collisionDeteced);
 	}
 
 	private void handleBlockAt(int x, int y, int z) {
@@ -66,13 +60,14 @@ public class BlockCollisionControl extends AbstractControl {
 			// System.out.println("DEBUG: box collision dedected");
 			// }
 
-			handleCollisionAt(x, y, z);
-			collisionDeteced = true;
+			Vector3f correctionVectorForCollision = getCorrectionVectorForCollisionAt(x, y, z);
+			Vector3f curLocalTranslation = spatial.getLocalTranslation()
+					.clone();
+			spatial.setLocalTranslation(curLocalTranslation.add(correctionVectorForCollision));
 		}
-
 	}
 
-	private void handleCollisionAt(int x, int y, int z) {
+	private Vector3f getCorrectionVectorForCollisionAt(int x, int y, int z) {
 		// determine the shortest way out of the block
 		float shortestDistOut = Float.MAX_VALUE;
 		Vector3f finalLocalTranslation = spatial.getLocalTranslation().clone();
@@ -171,8 +166,12 @@ public class BlockCollisionControl extends AbstractControl {
 				finalLocalTranslation = newLocalTranslation;
 			}
 		}
-		
-		spatial.setLocalTranslation(finalLocalTranslation);
+
+//		spatial.setLocalTranslation(finalLocalTranslation);
+		Vector3f curLocalTranslation = spatial.getLocalTranslation()
+				.clone();
+		Vector3f result = finalLocalTranslation.subtract(curLocalTranslation);
+		return result;
 	}
 
 	@Override
