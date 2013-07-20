@@ -11,15 +11,22 @@ import com.jme3.scene.control.AbstractControl;
 public class SimpleWalkingAiControl extends AbstractControl {
 
 	private Vector3f curDirection = new Vector3f(0, 0, 0);
-	private float leftSecs = 3;
+	private float leftSecs = -1;
 	private float speed = 1;
+	private float maxSecondsToOneDirection;
 
-	public SimpleWalkingAiControl() {
+	SimpleWalkingAiControl() {
 	}
 
-	public void setSpeed(float walkSpeed) {
+	void setSpeed(float walkSpeed) {
 		this.speed = walkSpeed;
 	}
+	
+	void setSwitchDirectionInterval(float maxSecondsToOneDirection) {
+		this.maxSecondsToOneDirection = maxSecondsToOneDirection;
+	}
+	
+	
 
 	/**
 	 * This is your init method. Optionally, you can modify the spatial from
@@ -34,7 +41,7 @@ public class SimpleWalkingAiControl extends AbstractControl {
 	protected void controlUpdate(float tpf) {
 		if (leftSecs < 0) {
 			Random random = new Random();
-			leftSecs = random.nextFloat() * 10f;
+			leftSecs = random.nextFloat() * maxSecondsToOneDirection;
 			curDirection.x = random.nextFloat() - 0.5f;
 			curDirection.y = 0;
 			curDirection.z = random.nextFloat() - 0.5f;

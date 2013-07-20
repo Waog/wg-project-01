@@ -163,17 +163,18 @@ public class IngameState extends AbstractAppState implements ActionListener {
 				"Common/MatDefs/Misc/Unshaded.j3md");
 		enemyMaterial.setColor("Color", ColorRGBA.Red);
 		geometry.setMaterial(enemyMaterial);
-		geometry.setLocalTranslation(0, 5.5f, 0);
+		geometry.setLocalTranslation(0, 5f, 0);
 		rootNode.attachChild(geometry);
 
 		// make it walk
 		SimpleWalkingAiControl walkControl = new SimpleWalkingAiControl();
-		walkControl.setSpeed(4);
+		walkControl.setSpeed(6);
+		walkControl.setSwitchDirectionInterval(3);
 		geometry.addControl(walkControl);
 
 		// make it colide with blocks
 		BlockCollisionControl blockCollisionControl = new BlockCollisionControl(
-				new Vector3f(1, 1, 1));
+				new Vector3f(.9f, .9f, .9f));
 		geometry.addControl(blockCollisionControl);
 	}
 
