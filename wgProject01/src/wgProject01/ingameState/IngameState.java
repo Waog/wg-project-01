@@ -515,7 +515,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		playerPhys.setJumpSpeed(10f);
 		playerPhys.setFallSpeed(30);
 		playerPhys.setGravity(0);
-		playerPhys.setPhysicsLocation(new Vector3f(0, 5, 0));
+		playerPhys.setPhysicsLocation(new Vector3f(0, 8, 12));
 
 		// We attach the scene and the player to the rootnode and the physics
 		// space,
