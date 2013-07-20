@@ -8,9 +8,12 @@ import com.jme3.scene.control.AbstractControl;
 
 /**
  * This is a {@link com.jme3.scene.control.Control Control} to handle collision
- * with the terrain blocks in a very performant way.
+ * with the terrain {@link BlockGameObj Blocks} in a very performant way.
  * 
- * Attach it to any spatial which is not allowed to intersect with blocks.
+ * <p>
+ * Attach it to any spatial which is not allowed to intersect with blocks. A
+ * {@link BlockManager} must be initialized before using this class.
+ * </p>
  * 
  * @author oli
  * 
@@ -27,6 +30,10 @@ public class BlockCollisionControl extends AbstractControl {
 
 	/**
 	 * Creates a new control with a collision box of the given size.
+	 * <p>
+	 * A {@link BlockManager} must be initialized before using this class.
+	 * </p>
+	 * 
 	 */
 	public BlockCollisionControl(Vector3f spacialCollisionSize) {
 		this.radii = spacialCollisionSize.mult(0.5f);
@@ -101,7 +108,7 @@ public class BlockCollisionControl extends AbstractControl {
 	 */
 	private float getIntersectionVolumWithBlockAt(int x, int y, int z) {
 		BlockGameObj block = BlockManager.getInstance().getBlock(x, y, z);
-		
+
 		// return 0 if there is no Block at the given position.
 		if (block == null) {
 			return 0;
@@ -146,7 +153,7 @@ public class BlockCollisionControl extends AbstractControl {
 		// determine the shortest way out of the block ...
 		float shortestDistOut = Float.MAX_VALUE;
 		Vector3f finalLocalTranslation = spatial.getLocalTranslation().clone();
-		
+
 		// collision with higher x coordinate
 		float spatialX = spatial.getLocalTranslation().x;
 		float lowerSpatialX = spatialX - radii.x;
