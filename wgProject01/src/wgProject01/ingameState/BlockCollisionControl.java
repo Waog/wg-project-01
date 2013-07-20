@@ -18,7 +18,7 @@ import com.jme3.scene.control.AbstractControl;
  * @author oli
  * 
  */
-public class BlockCollisionControl extends AbstractControl {
+class BlockCollisionControl extends AbstractControl {
 
 	/**
 	 * The size of the spatials collision box. For example the spatials
@@ -35,7 +35,7 @@ public class BlockCollisionControl extends AbstractControl {
 	 * </p>
 	 * 
 	 */
-	public BlockCollisionControl(Vector3f spacialCollisionSize) {
+	BlockCollisionControl(Vector3f spacialCollisionSize) {
 		this.radii = spacialCollisionSize.mult(0.5f);
 	}
 

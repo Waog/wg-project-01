@@ -155,7 +155,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 	}
 
 	private void initTestEnemy() {
-		Box mesh = new Box(0.5f, 0.5f, 0.5f);
+		Box mesh = new Box(0.5f, 1.5f, 0.5f);
 		Geometry geometry = new Geometry("Block", mesh);
 
 		Material enemyMaterial = new Material(assetManager,
@@ -173,7 +173,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 
 		// make it colide with blocks
 		BlockCollisionControl blockCollisionControl = new BlockCollisionControl(
-				new Vector3f(.9f, .9f, .9f));
+				new Vector3f(1f, 3f, 1f));
 		geometry.addControl(blockCollisionControl);
 	}
 
