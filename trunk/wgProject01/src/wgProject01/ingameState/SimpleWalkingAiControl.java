@@ -39,6 +39,9 @@ public class SimpleWalkingAiControl extends AbstractControl {
 
 	@Override
 	protected void controlUpdate(float tpf) {
+		// TODO 1: Bad workaround: set down the tpf for movement, to prevent wall slipping
+		tpf = Math.min(tpf, 0.2f);
+		
 		if (leftSecs < 0) {
 			Random random = new Random();
 			leftSecs = random.nextFloat() * maxSecondsToOneDirection;

@@ -7,11 +7,13 @@ import com.jme3.scene.Node;
 import utils.BetterArray3D;
 
 /**
- * Manages all the Blocks. Places them or takes them out of the game. Informs
- * the neighbors of changed blocks about the change, so that they may change
- * their (render) state.
+ * Manages all the {@link BlockGameObj Blocks}. Places them or takes them out of
+ * the game. Informs the neighbors of changed blocks about the change, so that
+ * they may change their (render) state.
  * 
- * Uses the singleton design pattern.
+ * Uses the <a
+ * href="http://en.wikipedia.org/wiki/Singleton_pattern">singleton</a> design
+ * pattern.
  * 
  * @author oli
  * 
@@ -24,23 +26,24 @@ public class BlockManager {
 	private static BlockManager singletonInstance;
 
 	/**
-	 * The 3 dimensional automatically scaling Array of blocks.
+	 * The 3 dimensional automatically scaling array of blocks.
 	 */
 	private BetterArray3D<BlockGameObj> blockArray = new BetterArray3D<BlockGameObj>();
-	
-	
+
 	/**
-	 * The Node to which all Block have to be attached.
+	 * The Node to which all Blocks have to be attached.
 	 */
 	private Node node;
-	
+
 	/**
-	 * The asset manager.
+	 * The asset manager of the application.
 	 */
 	private AssetManager assetManager;
 
 	/**
-	 * Returns the singleton instance of the block manager.
+	 * Returns the singleton instance of the block manager. The
+	 * {@link #initData(Node, AssetManager)} method has to be called on this
+	 * instance once before using it.
 	 */
 	static BlockManager getInstance() {
 		if (singletonInstance == null) {
@@ -51,13 +54,17 @@ public class BlockManager {
 	}
 
 	/**
-	 * Initializes the block manager.
+	 * Private Constructor to ensure the singleton pattern. Use
+	 * {@link #getInstance()} to access an object of this class. Initializes the
+	 * block manager.
 	 */
 	private BlockManager() {
+		// nothing
 	}
 
 	/**
-	 * Initializes the Block Manager with it's needed data.
+	 * Initializes the Block Manager with it's needed data. This method needs to
+	 * be called once before using the instance of the block manager.
 	 * 
 	 * @param blockNode
 	 *            the Node to which all blocks of the BlockManager shall be
@@ -67,18 +74,18 @@ public class BlockManager {
 		this.node = blockNode;
 		this.assetManager = assetManager;
 	}
-	
+
 	/**
-	 * Returns a new Block game object.
+	 * Creates and returns a new {@link BlockGameObj Block} game object.
 	 */
 	BlockGameObj getBlockGameObj() {
 		return new BlockGameObj(this.node, this.assetManager);
 	}
 
 	/**
-	 * Places the given block at the given coordinates. Overrides any block
-	 * which was possibly at the given position. informs all neighbor blocks
-	 * about the change.
+	 * Places the given Block at the given coordinates. Removes any Block which
+	 * was possibly at the given position before placing the new Block. Informs
+	 * all neighbor blocks about the change.
 	 */
 	void setBlock(int x, int y, int z, BlockGameObj newBlock) {
 		// inform the old block, that it's removed
@@ -128,8 +135,12 @@ public class BlockManager {
 
 	}
 
+	/**
+	 * Like {@link #getBlock(int, int, int)} but with a vector as parameter.
+	 * The given vectors coordinates are casted to integers.
+	 */
 	BlockGameObj getBlock(Vector3f pos) {
 		return getBlock((int) pos.x, (int) pos.y, (int) pos.z);
-		
+
 	}
 }
