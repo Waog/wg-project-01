@@ -48,15 +48,14 @@ public class Player extends AbstractAppState implements ActionListener {
 	public void initialize(AppStateManager stateManager, Application app) {
 		super.initialize(stateManager, app);
 		this.app = (GameApplication) app;
-		
+
 		this.rootNode = this.app.getRootNode();
-		this.shootables = (Node) this.rootNode.getChild(SHOOTABLES);;
+		this.shootables = (Node) this.rootNode.getChild(SHOOTABLES);
+		;
 		this.assetManager = this.app.getAssetManager();
 		this.inputManager = this.app.getInputManager();
 		this.cam = this.app.getCamera();
-		
 
-		
 		Material matGrid = new Material(assetManager,
 				"assets/Materials/Unshaded/Unshaded.j3md");
 		matGrid.setColor("Color", ColorRGBA.LightGray);
@@ -66,7 +65,7 @@ public class Player extends AbstractAppState implements ActionListener {
 		highlightedBlockFace.setLocalTranslation(0, 2, 0);
 		rootNode.attachChild(highlightedBlockFace);
 		initKeys();
-		
+
 	}
 
 	public void highlightBlockFace() {
@@ -271,9 +270,14 @@ public class Player extends AbstractAppState implements ActionListener {
 			placeBlockFromInv(); // use blocks from inventory
 			// placeBlock(); // infinite block placing
 		} else if (binding.equals(MINE_BLOCK) && !value) {
+			System.out.println("PRESSED");
 			mineBlock();
 		}
-
 	}
 
+	@Override
+	public void update(float tpf) {
+		super.update(tpf);
+		highlightBlockFace();
+	}
 }

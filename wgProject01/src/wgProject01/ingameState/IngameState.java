@@ -42,10 +42,9 @@ public class IngameState extends AbstractAppState {
 	private ViewPort viewPort;
 	private Camera cam;
 
-
 	private static final String SHOOTABLES = "Shootables";
 	private static final String MINEABLES = "Mineables";
-	
+
 	protected Geometry player;
 	Boolean isRunning = true;
 
@@ -53,7 +52,7 @@ public class IngameState extends AbstractAppState {
 								// set
 	private Node mineables; // contains all spatials that can be picked up e.g.
 							// not the floor
-	
+
 	private FlyByCamera flyCam;
 	private final int FLOOR_RADIUS = 10;
 
@@ -85,18 +84,16 @@ public class IngameState extends AbstractAppState {
 
 		initNodes();
 		initCrossHairs();
-		initBlockManager();	
+		initBlockManager();
 
 		initFloor();
 		// initOneBlockFloor(); // take either one of the floor initializations
 		initGeneralLights();
 		for (int i = 0; i <= Settings.debugMode; i++) {
 			initRandomSun();
-
-
-		stateManager.attach(new Player());
 		}
-
+		
+		stateManager.attach(new Player());
 
 		viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f)); // makes
 																		// the
@@ -253,10 +250,8 @@ public class IngameState extends AbstractAppState {
 	// enabled.
 	@Override
 	public void update(float tpf) {
-		//playerInstance.highlightBlockFace();
 	}
 
-	
 	/**
 	 * initializes the most important nodes and attaches them to their specific
 	 * position
@@ -338,15 +333,10 @@ public class IngameState extends AbstractAppState {
 		guiNode.attachChild(ch);
 	}
 
-
-
-	
-//	private void addBlockAt(Vector3f blockLocation) {
-//		BlockGameObj newBlock = BlockManager.getInstance().getBlockGameObj();
-//		BlockManager.getInstance().setBlock(blockLocation, newBlock);
-//	}
-
-	
+	// private void addBlockAt(Vector3f blockLocation) {
+	// BlockGameObj newBlock = BlockManager.getInstance().getBlockGameObj();
+	// BlockManager.getInstance().setBlock(blockLocation, newBlock);
+	// }
 
 	/**
 	 * adds a block at the specific position (x,y,z)
