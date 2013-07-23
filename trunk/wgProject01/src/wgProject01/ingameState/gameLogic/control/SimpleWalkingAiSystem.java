@@ -34,7 +34,7 @@ public class SimpleWalkingAiSystem extends EntityProcessingSystem {
 	 * Creates a default walking control.
 	 */
 	@SuppressWarnings("unchecked")
-	SimpleWalkingAiSystem() {
+	public SimpleWalkingAiSystem() {
 		super(Aspect.getAspectForAll(PositionComponent.class,
 				WalkingAiComponent.class));
 	}
@@ -71,5 +71,8 @@ public class SimpleWalkingAiSystem extends EntityProcessingSystem {
 		positionComponent.y += moveOffset.y;
 		positionComponent.z += moveOffset.z;
 		walkingAiComponent.leftSecs -= timeDelta;
+		
+		// TODO 1: remove debug code:
+		System.out.println("new pos: " + positionComponent.x + "," + positionComponent.y);
 	}
 }
