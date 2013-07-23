@@ -5,6 +5,7 @@ import java.util.Random;
 import jm3Utils.Jm3Utils;
 import wgProject01.GameApplication;
 import wgProject01.Settings;
+import wgProject01.ingameState.gameLogic.GameLogic;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
@@ -54,10 +55,15 @@ public class IngameState extends AbstractAppState {
 
 	private FlyByCamera flyCam;
 	private final int FLOOR_RADIUS = 10;
+	private GameLogic gameLogic;
 
 	@Override
 	public void initialize(AppStateManager stateManager, Application app) {
 		super.initialize(stateManager, app);
+		
+		gameLogic = new GameLogic();
+		gameLogic.doInit();
+		
 		this.app = (GameApplication) app; // cast to a more specific class
 		this.rootNode = this.app.getRootNode();
 		this.assetManager = this.app.getAssetManager();
@@ -229,7 +235,7 @@ public class IngameState extends AbstractAppState {
 	public void cleanup() {
 		super.cleanup();
 		// unregister all my listeners, detach all my nodes, etc...
-		// nothing
+		gameLogic.doCleanup();
 	}
 
 	@Override
@@ -249,6 +255,7 @@ public class IngameState extends AbstractAppState {
 	// enabled.
 	@Override
 	public void update(float tpf) {
+		gameLogic.doUpdate(tpf);
 	}
 
 	/**
