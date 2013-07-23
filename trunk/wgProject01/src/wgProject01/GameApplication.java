@@ -35,7 +35,7 @@ public class GameApplication extends SimpleApplication {
 	public void simpleUpdate(float tpf) {
 		// print the TPF in debug mode:
 		if (Settings.debugMode >= 1) {
-			System.out.println("DEBUG: tpf: " + tpf);
+			//System.out.println("DEBUG: tpf: " + tpf);
 		}
 	}
 }
