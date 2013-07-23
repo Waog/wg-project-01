@@ -1,5 +1,6 @@
 package wgProject01.ingameState.gameLogic.utils;
 
+import wgProject01.ingameState.gameLogic.model.CollisionBoxComponent;
 import wgProject01.ingameState.gameLogic.model.PositionComponent;
 import wgProject01.ingameState.gameLogic.model.WalkingAiComponent;
 import wgProject01.ingameState.gameLogic.view.EntityView;
@@ -9,6 +10,7 @@ import com.artemis.World;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
@@ -57,22 +59,27 @@ public class EntityFactory {
 		EntityFactory.assetManager = assetManager;
 	}
 
-	public static Entity createEnemy(World world, float x, float y) {
+	public static Entity createEnemy(World world, Vector3f pos) {
 		// Creates the entity + components, adds it to the world and returns it.
 		Entity e = world.createEntity();
 
 		PositionComponent position = new PositionComponent();
-		position.x = x;
-		position.y = y;
+		position.pos.set(pos);
 		e.addComponent(position);
 
 		WalkingAiComponent walkingAiComponent = new WalkingAiComponent();
 		e.addComponent(walkingAiComponent);
 
+		Vector3f collisionBoxRadii = new Vector3f(0.5f, 1.5f, 0.5f);
+		CollisionBoxComponent collisionBoxComponent = new CollisionBoxComponent(
+				collisionBoxRadii);
+		e.addComponent(collisionBoxComponent);
+
 		e.addToWorld();
 
 		// creates the view for this enemy and attaches the entity to it.
-		Box mesh = new Box(0.5f, 1.5f, 0.5f);
+		Box mesh = new Box(collisionBoxRadii.x, collisionBoxRadii.y,
+				collisionBoxRadii.z);
 		Geometry geometry = new Geometry("Block", mesh);
 
 		Material enemyMaterial = new Material(assetManager,

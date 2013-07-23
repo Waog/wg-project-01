@@ -1,14 +1,20 @@
-package wgProject01.ingameState;
+package wgProject01.ingameState.gameLogic.control;
 
+import wgProject01.ingameState.BlockGameObj;
+import wgProject01.ingameState.BlockManager;
+import wgProject01.ingameState.gameLogic.model.CollisionBoxComponent;
+import wgProject01.ingameState.gameLogic.model.PositionComponent;
+
+import com.artemis.Aspect;
+import com.artemis.ComponentMapper;
+import com.artemis.Entity;
+import com.artemis.annotations.Mapper;
+import com.artemis.systems.EntityProcessingSystem;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.ViewPort;
-import com.jme3.scene.Spatial;
-import com.jme3.scene.control.AbstractControl;
 
 /**
- * This is a {@link com.jme3.scene.control.Control Control} to handle collision
- * with the terrain {@link BlockGameObj Blocks} in a very performant way.
+ * This is an entity system to handle collision with the terrain
+ * {@link BlockGameObj Blocks} with very high performance.
  * 
  * <p>
  * Attach it to any spatial which is not allowed to intersect with blocks. A
@@ -18,15 +24,12 @@ import com.jme3.scene.control.AbstractControl;
  * @author oli
  * 
  */
-class BlockCollisionControl extends AbstractControl {
+public class BlockCollisionSystem extends EntityProcessingSystem {
 
-	/**
-	 * The size of the spatials collision box. For example the spatials
-	 * collision area in x direction is from</br>
-	 * <code>(spatial.getLocalTranslation() - radii.x)</code> to</br>
-	 * <code>(spatial.getLocalTranslation() + radii.x)</code>.
-	 */
-	private Vector3f radii;
+	@Mapper
+	ComponentMapper<PositionComponent> positionManager;
+	@Mapper
+	ComponentMapper<CollisionBoxComponent> collisionBoxManager;
 
 	/**
 	 * Creates a new control with a collision box of the given size.
@@ -35,17 +38,10 @@ class BlockCollisionControl extends AbstractControl {
 	 * </p>
 	 * 
 	 */
-	BlockCollisionControl(Vector3f spacialCollisionSize) {
-		this.radii = spacialCollisionSize.mult(0.5f);
-	}
-
-	/**
-	 * JME3 calls this method automatically if the control is attached to a
-	 * spatial. Initializes the Control.
-	 */
-	@Override
-	public void setSpatial(Spatial spatial) {
-		super.setSpatial(spatial);
+	@SuppressWarnings("unchecked")
+	public BlockCollisionSystem() {
+		super(Aspect.getAspectForAll(PositionComponent.class,
+				CollisionBoxComponent.class));
 	}
 
 	/**
@@ -54,24 +50,35 @@ class BlockCollisionControl extends AbstractControl {
 	 * and "pushes" the spatial out of them, if so.
 	 */
 	@Override
-	protected void controlUpdate(float tpf) {
+	protected void process(Entity e) {
+		// extract needed components from entity
+		PositionComponent positionComponent = positionManager.get(e);
+		CollisionBoxComponent collisionBoxComponent = collisionBoxManager
+				.get(e);
+
 		// handle up to 3 block collisions or abort if no collision occured.
 		// Attention: to the loops break condition.
 		Boolean collisionDedected = true;
 		for (int i = 1; i <= 3 && collisionDedected; i++) {
 			collisionDedected = false;
-			Vector3f spatialPos = spatial.getWorldTranslation();
+			Vector3f spatialPos = positionComponent.pos;
 
 			// calculate the minimal and maximal block positions of the
 			// collision test.
-			int minX = (int) Math.floor(spatialPos.x - radii.x + .5f);
-			int maxX = (int) Math.ceil(spatialPos.x + radii.x - .5f);
-			int minY = (int) Math.floor(spatialPos.y - radii.y + .5f);
-			int maxY = (int) Math.ceil(spatialPos.y + radii.y - .5f);
-			int minZ = (int) Math.floor(spatialPos.z - radii.z + .5f);
-			int maxZ = (int) Math.ceil(spatialPos.z + radii.z - .5f);
+			int minX = (int) Math.floor(spatialPos.x
+					- collisionBoxComponent.radii.x + .5f);
+			int maxX = (int) Math.ceil(spatialPos.x
+					+ collisionBoxComponent.radii.x - .5f);
+			int minY = (int) Math.floor(spatialPos.y
+					- collisionBoxComponent.radii.y + .5f);
+			int maxY = (int) Math.ceil(spatialPos.y
+					+ collisionBoxComponent.radii.y - .5f);
+			int minZ = (int) Math.floor(spatialPos.z
+					- collisionBoxComponent.radii.z + .5f);
+			int maxZ = (int) Math.ceil(spatialPos.z
+					+ collisionBoxComponent.radii.z - .5f);
 
-			// find the block with the maximal intersection volum with the
+			// find the block with the maximal intersection volume with the
 			// spatial.
 			float maxIntersectionVolum = 0f;
 			int maxIntersectionIndexX = 0;
@@ -81,7 +88,8 @@ class BlockCollisionControl extends AbstractControl {
 				for (int curY = minY; curY <= maxY; curY++) {
 					for (int curZ = minZ; curZ <= maxZ; curZ++) {
 						float curIntersectionVol = getIntersectionVolumWithBlockAt(
-								curX, curY, curZ);
+								positionComponent, collisionBoxComponent, curX,
+								curY, curZ);
 						if (curIntersectionVol > maxIntersectionVolum) {
 							maxIntersectionVolum = curIntersectionVol;
 							maxIntersectionIndexX = curX;
@@ -94,7 +102,8 @@ class BlockCollisionControl extends AbstractControl {
 
 			// handle the collision with the maximal volume, if one occured.
 			if (maxIntersectionVolum > 0f) {
-				handleCollisionAt(maxIntersectionIndexX, maxIntersectionIndexY,
+				handleCollisionAt(positionComponent, collisionBoxComponent,
+						maxIntersectionIndexX, maxIntersectionIndexY,
 						maxIntersectionIndexZ);
 				collisionDedected = true;
 			}
@@ -106,7 +115,9 @@ class BlockCollisionControl extends AbstractControl {
 	 * block at the given position. Returns 0 if there is no block or no
 	 * collision.
 	 */
-	private float getIntersectionVolumWithBlockAt(int x, int y, int z) {
+	private float getIntersectionVolumWithBlockAt(
+			PositionComponent positionComponent,
+			CollisionBoxComponent collisionBoxComponent, int x, int y, int z) {
 		BlockGameObj block = BlockManager.getInstance().getBlock(x, y, z);
 
 		// return 0 if there is no Block at the given position.
@@ -119,9 +130,10 @@ class BlockCollisionControl extends AbstractControl {
 		Vector3f lowerBlockBorders = blockPos.subtract(new Vector3f(.5f, .5f,
 				.5f));
 		Vector3f upperBlockBorders = blockPos.add(new Vector3f(.5f, .5f, .5f));
-		Vector3f lowerSpatialBorders = spatial.getLocalTranslation().subtract(
-				radii);
-		Vector3f upperSpatialBorders = spatial.getLocalTranslation().add(radii);
+		Vector3f lowerSpatialBorders = positionComponent.pos
+				.subtract(collisionBoxComponent.radii);
+		Vector3f upperSpatialBorders = positionComponent.pos
+				.add(collisionBoxComponent.radii);
 
 		// calculate the intersections in each direction seperatly.
 		float xIntersect = Math.max(
@@ -149,20 +161,19 @@ class BlockCollisionControl extends AbstractControl {
 	 * colliding position.
 	 * </p>
 	 */
-	private void handleCollisionAt(int x, int y, int z) {
+	private void handleCollisionAt(PositionComponent positionComponent,
+			CollisionBoxComponent collisionBoxComponent, int x, int y, int z) {
 		// determine the shortest way out of the block ...
 		float shortestDistOut = Float.MAX_VALUE;
-		Vector3f finalLocalTranslation = spatial.getLocalTranslation().clone();
+		Vector3f finalLocalTranslation = positionComponent.pos.clone();
 
 		// collision with higher x coordinate
-		float spatialX = spatial.getLocalTranslation().x;
-		float lowerSpatialX = spatialX - radii.x;
+		float spatialX = positionComponent.pos.x;
+		float lowerSpatialX = spatialX - collisionBoxComponent.radii.x;
 		if (lowerSpatialX < x + .5f && spatialX > x) {
-			Vector3f curLocalTranslation = spatial.getLocalTranslation()
-					.clone();
-			Vector3f newLocalTranslation = spatial.getLocalTranslation()
-					.clone();
-			newLocalTranslation.x = x + .5f + radii.x;
+			Vector3f curLocalTranslation = positionComponent.pos.clone();
+			Vector3f newLocalTranslation = positionComponent.pos.clone();
+			newLocalTranslation.x = x + .5f + collisionBoxComponent.radii.x;
 			float curDist = newLocalTranslation.distance(curLocalTranslation);
 			if (curDist < shortestDistOut) {
 				shortestDistOut = curDist;
@@ -170,14 +181,12 @@ class BlockCollisionControl extends AbstractControl {
 			}
 		}
 		// collision with lower x coordinate
-		spatialX = spatial.getLocalTranslation().x;
-		float upperSpatialX = spatialX + radii.x;
+		spatialX = positionComponent.pos.x;
+		float upperSpatialX = spatialX + collisionBoxComponent.radii.x;
 		if (upperSpatialX > x - .5f && spatialX < x) {
-			Vector3f curLocalTranslation = spatial.getLocalTranslation()
-					.clone();
-			Vector3f newLocalTranslation = spatial.getLocalTranslation()
-					.clone();
-			newLocalTranslation.x = x - .5f - radii.x;
+			Vector3f curLocalTranslation = positionComponent.pos.clone();
+			Vector3f newLocalTranslation = positionComponent.pos.clone();
+			newLocalTranslation.x = x - .5f - collisionBoxComponent.radii.x;
 			float curDist = newLocalTranslation.distance(curLocalTranslation);
 			if (curDist < shortestDistOut) {
 				shortestDistOut = curDist;
@@ -186,14 +195,12 @@ class BlockCollisionControl extends AbstractControl {
 		}
 
 		// collision with higher y coordinate
-		float spatialY = spatial.getLocalTranslation().y;
-		float lowerSpatialY = spatialY - radii.y;
+		float spatialY = positionComponent.pos.y;
+		float lowerSpatialY = spatialY - collisionBoxComponent.radii.y;
 		if (lowerSpatialY < y + .5f && spatialY > y) {
-			Vector3f curLocalTranslation = spatial.getLocalTranslation()
-					.clone();
-			Vector3f newLocalTranslation = spatial.getLocalTranslation()
-					.clone();
-			newLocalTranslation.y = y + .5f + radii.y;
+			Vector3f curLocalTranslation = positionComponent.pos.clone();
+			Vector3f newLocalTranslation = positionComponent.pos.clone();
+			newLocalTranslation.y = y + .5f + collisionBoxComponent.radii.y;
 			float curDist = newLocalTranslation.distance(curLocalTranslation);
 			if (curDist < shortestDistOut) {
 				shortestDistOut = curDist;
@@ -202,15 +209,13 @@ class BlockCollisionControl extends AbstractControl {
 		}
 
 		// collision with lower y coordinate
-		spatialY = spatial.getLocalTranslation().y;
-		float upperSpatialY = spatialY + radii.y;
+		spatialY = positionComponent.pos.y;
+		float upperSpatialY = spatialY + collisionBoxComponent.radii.y;
 		if (upperSpatialY > y - .5f && spatialY < y) {
 
-			Vector3f curLocalTranslation = spatial.getLocalTranslation()
-					.clone();
-			Vector3f newLocalTranslation = spatial.getLocalTranslation()
-					.clone();
-			newLocalTranslation.y = y - .5f - radii.y;
+			Vector3f curLocalTranslation = positionComponent.pos.clone();
+			Vector3f newLocalTranslation = positionComponent.pos.clone();
+			newLocalTranslation.y = y - .5f - collisionBoxComponent.radii.y;
 			float curDist = newLocalTranslation.distance(curLocalTranslation);
 			if (curDist < shortestDistOut) {
 				shortestDistOut = curDist;
@@ -218,14 +223,12 @@ class BlockCollisionControl extends AbstractControl {
 			}
 		}
 		// collision with higher z coordinate
-		float spatialZ = spatial.getLocalTranslation().z;
-		float lowerSpatialZ = spatialZ - radii.z;
+		float spatialZ = positionComponent.pos.z;
+		float lowerSpatialZ = spatialZ - collisionBoxComponent.radii.z;
 		if (lowerSpatialZ < z + .5f && spatialZ > z) {
-			Vector3f curLocalTranslation = spatial.getLocalTranslation()
-					.clone();
-			Vector3f newLocalTranslation = spatial.getLocalTranslation()
-					.clone();
-			newLocalTranslation.z = z + .5f + radii.z;
+			Vector3f curLocalTranslation = positionComponent.pos.clone();
+			Vector3f newLocalTranslation = positionComponent.pos.clone();
+			newLocalTranslation.z = z + .5f + collisionBoxComponent.radii.z;
 			float curDist = newLocalTranslation.distance(curLocalTranslation);
 			if (curDist < shortestDistOut) {
 				shortestDistOut = curDist;
@@ -234,30 +237,18 @@ class BlockCollisionControl extends AbstractControl {
 		}
 
 		// collision with lower z coordinate
-		spatialZ = spatial.getLocalTranslation().z;
-		float upperSpatialZ = spatialZ + radii.z;
+		spatialZ = positionComponent.pos.z;
+		float upperSpatialZ = spatialZ + collisionBoxComponent.radii.z;
 		if (upperSpatialZ > z - .5f && spatialZ < z) {
-			Vector3f curLocalTranslation = spatial.getLocalTranslation()
-					.clone();
-			Vector3f newLocalTranslation = spatial.getLocalTranslation()
-					.clone();
-			newLocalTranslation.z = z - .5f - radii.z;
+			Vector3f curLocalTranslation = positionComponent.pos.clone();
+			Vector3f newLocalTranslation = positionComponent.pos.clone();
+			newLocalTranslation.z = z - .5f - collisionBoxComponent.radii.z;
 			float curDist = newLocalTranslation.distance(curLocalTranslation);
 			if (curDist < shortestDistOut) {
 				shortestDistOut = curDist;
 				finalLocalTranslation = newLocalTranslation;
 			}
 		}
-
-		spatial.setLocalTranslation(finalLocalTranslation);
+		positionComponent.pos.set(finalLocalTranslation);
 	}
-
-	/**
-	 * JME3 calls this method automatically every frame. Does nothing.
-	 */
-	@Override
-	protected void controlRender(RenderManager rm, ViewPort vp) {
-		// nothing
-	}
-
 }

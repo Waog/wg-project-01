@@ -23,7 +23,7 @@ import com.jme3.util.TangentBinormalGenerator;
  * @author oli
  * 
  */
-class BlockGameObj {
+public class BlockGameObj {
 
 	/**
 	 * The scene graph Node to which this Blocks spatial will be attached to and

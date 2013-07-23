@@ -45,7 +45,7 @@ public class BlockManager {
 	 * {@link #initData(Node, AssetManager)} method has to be called on this
 	 * instance once before using it.
 	 */
-	static BlockManager getInstance() {
+	public static BlockManager getInstance() {
 		if (singletonInstance == null) {
 			singletonInstance = new BlockManager();
 		}
@@ -70,7 +70,7 @@ public class BlockManager {
 	 *            the Node to which all blocks of the BlockManager shall be
 	 *            attached.
 	 */
-	void initData(Node blockNode, AssetManager assetManager) {
+	public void initData(Node blockNode, AssetManager assetManager) {
 		this.node = blockNode;
 		this.assetManager = assetManager;
 	}
@@ -78,7 +78,7 @@ public class BlockManager {
 	/**
 	 * Creates and returns a new {@link BlockGameObj Block} game object.
 	 */
-	BlockGameObj getBlockGameObj() {
+	public BlockGameObj getBlockGameObj() {
 		return new BlockGameObj(this.node, this.assetManager);
 	}
 
@@ -87,7 +87,7 @@ public class BlockManager {
 	 * was possibly at the given position before placing the new Block. Informs
 	 * all neighbor blocks about the change.
 	 */
-	void setBlock(int x, int y, int z, BlockGameObj newBlock) {
+	public void setBlock(int x, int y, int z, BlockGameObj newBlock) {
 		// inform the old block, that it's removed
 		BlockGameObj oldBlock = blockArray.get(x, y, z);
 		if (oldBlock != null) {
@@ -134,7 +134,7 @@ public class BlockManager {
 	 * Returns the block at the given position or null if the given position is
 	 * empty.
 	 */
-	BlockGameObj getBlock(int x, int y, int z) {
+	public BlockGameObj getBlock(int x, int y, int z) {
 		return blockArray.get(x, y, z);
 
 	}
