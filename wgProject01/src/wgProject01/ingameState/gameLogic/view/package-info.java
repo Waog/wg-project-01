@@ -18,4 +18,4 @@
  * @author oli
  *
  */
-package wgProject01.ingameState.view;
+package wgProject01.ingameState.gameLogic.view;
