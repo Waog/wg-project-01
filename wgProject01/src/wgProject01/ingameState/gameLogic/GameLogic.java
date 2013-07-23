@@ -33,7 +33,7 @@ public class GameLogic {
 					MAX_SECONDS_PER_UPDATE);
 			leftDeltaToProcess -= curDeltaToProcess;
 
-			world.setDelta(leftDeltaToProcess);
+			world.setDelta(curDeltaToProcess);
 			world.process();
 		}
 	}

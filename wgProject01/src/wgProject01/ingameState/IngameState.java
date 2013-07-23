@@ -6,6 +6,7 @@ import jm3Utils.Jm3Utils;
 import wgProject01.GameApplication;
 import wgProject01.Settings;
 import wgProject01.ingameState.gameLogic.GameLogic;
+import wgProject01.ingameState.gameLogic.utils.EntityFactory;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
@@ -61,9 +62,6 @@ public class IngameState extends AbstractAppState {
 	public void initialize(AppStateManager stateManager, Application app) {
 		super.initialize(stateManager, app);
 		
-		gameLogic = new GameLogic();
-		gameLogic.doInit();
-		
 		this.app = (GameApplication) app; // cast to a more specific class
 		this.rootNode = this.app.getRootNode();
 		this.assetManager = this.app.getAssetManager();
@@ -74,6 +72,11 @@ public class IngameState extends AbstractAppState {
 		this.cam = this.app.getCamera();
 		this.flyCam = this.app.getFlyByCamera();
 		this.guiNode = this.app.getGuiNode();
+		
+		EntityFactory.initData(rootNode, assetManager);
+		
+		gameLogic = new GameLogic();
+		gameLogic.doInit();
 
 		// TODO 1: remove debug code:
 		// draw the coordinate system:

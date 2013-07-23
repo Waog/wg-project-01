@@ -30,6 +30,8 @@ public class SimpleWalkingAiSystem extends EntityProcessingSystem {
 	@Mapper
 	ComponentMapper<WalkingAiComponent> walkingAiManager;
 
+	Random random = new Random();
+	
 	/**
 	 * Creates a default walking control.
 	 */
@@ -56,7 +58,6 @@ public class SimpleWalkingAiSystem extends EntityProcessingSystem {
 		float timeDelta = world.getDelta();
 
 		if (walkingAiComponent.leftSecs < 0) {
-			Random random = new Random();
 			walkingAiComponent.leftSecs = random.nextFloat()
 					* walkingAiComponent.maxSecondsToOneDirection;
 			walkingAiComponent.curDirection.x = random.nextFloat() - 0.5f;
@@ -73,6 +74,7 @@ public class SimpleWalkingAiSystem extends EntityProcessingSystem {
 		walkingAiComponent.leftSecs -= timeDelta;
 		
 		// TODO 1: remove debug code:
+		System.out.println("curDirection: " + positionComponent.x + "," + positionComponent.y);
 		System.out.println("new pos: " + positionComponent.x + "," + positionComponent.y);
 	}
 }
