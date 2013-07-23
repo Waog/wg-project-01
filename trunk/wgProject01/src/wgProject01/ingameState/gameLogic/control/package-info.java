@@ -18,4 +18,4 @@
  * @author oli
  *
  */
-package wgProject01.ingameState.control;
+package wgProject01.ingameState.gameLogic.control;

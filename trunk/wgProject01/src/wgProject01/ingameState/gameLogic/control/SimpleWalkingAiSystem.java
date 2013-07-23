@@ -1,9 +1,9 @@
-package wgProject01.ingameState.control;
+package wgProject01.ingameState.gameLogic.control;
 
 import java.util.Random;
 
-import wgProject01.ingameState.model.PositionComponent;
-import wgProject01.ingameState.model.WalkingAiComponent;
+import wgProject01.ingameState.gameLogic.model.PositionComponent;
+import wgProject01.ingameState.gameLogic.model.WalkingAiComponent;
 
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;

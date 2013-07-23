@@ -1,4 +1,4 @@
-package wgProject01.ingameState.model;
+package wgProject01.ingameState.gameLogic.model;
 
 import com.artemis.Component;
 
