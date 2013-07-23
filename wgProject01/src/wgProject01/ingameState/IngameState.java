@@ -138,7 +138,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 				"Common/MatDefs/Misc/Unshaded.j3md");
 		enemyMaterial.setColor("Color", ColorRGBA.Red);
 		geometry.setMaterial(enemyMaterial);
-		geometry.setLocalTranslation(0, 5f, 0);
+		geometry.setLocalTranslation(0, -1, 0);
 		rootNode.attachChild(geometry);
 
 		// make it walk
@@ -167,7 +167,7 @@ public class IngameState extends AbstractAppState implements ActionListener {
 
 		geometry.setMaterial(debugMaterial);
 
-		geometry.setLocalTranslation(0, 10, 0);
+		geometry.setLocalTranslation(0, 0, 0);
 		rootNode.attachChild(geometry);
 
 		// make it rotate
@@ -191,27 +191,6 @@ public class IngameState extends AbstractAppState implements ActionListener {
 		Node blockNode = this.mineables;
 		// rootNode.attachChild(blockNode);
 		blockManager.initData(blockNode, assetManager);
-
-		int POS_OFFSET = 0;
-
-		// initialize blocks using the block manager
-		for (int x = -FLOOR_RADIUS; x <= FLOOR_RADIUS; x++) {
-			for (int z = -FLOOR_RADIUS; z <= FLOOR_RADIUS; z++) {
-				BlockGameObj newBlock = blockManager.getBlockGameObj();
-				blockManager.setBlock(x + POS_OFFSET, 4, z + POS_OFFSET,
-						newBlock);
-
-				if (Math.abs(x) >= FLOOR_RADIUS - 1
-						|| Math.abs(z) >= FLOOR_RADIUS - 1) {
-					BlockGameObj newBlock2 = blockManager.getBlockGameObj();
-					blockManager.setBlock(x + POS_OFFSET, 5, z + POS_OFFSET,
-							newBlock2);
-					BlockGameObj newBlock3 = blockManager.getBlockGameObj();
-					blockManager.setBlock(x + POS_OFFSET, 6, z + POS_OFFSET,
-							newBlock3);
-				}
-			}
-		}
 	}
 
 	/**
