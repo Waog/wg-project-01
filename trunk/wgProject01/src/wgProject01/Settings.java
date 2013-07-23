@@ -31,9 +31,9 @@ public class Settings {
 	 * <li> <code>debugMode = 2</code>: debug rendering allowed, max 1 console
 	 * line per frame per problem domain.</li>
 	 * <li> <code>debugMode = 3</code>: all debugging stuff is allowed as long as
-	 * it doesn't slow down the game to hard</li>
+	 * it doesn't slow down the game too hard</li>
 	 * <li> <code>debugMode = 4</code>: anything allowed</li>
 	 * <ul>
 	 */
-	public static int debugMode = 2;
+	public static int debugMode = 3 ;
 }

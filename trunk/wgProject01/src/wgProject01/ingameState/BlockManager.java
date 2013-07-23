@@ -141,7 +141,7 @@ public class BlockManager {
 
 	/**
 	 * Like {@link #getBlock(int, int, int)} but with a vector as position
-	 * parameter. The given vectors coordinates are rounded to their next
+	 * parameter. The given vector's coordinates are rounded to their next
 	 * integers.
 	 */
 	BlockGameObj getBlock(Vector3f pos) {
@@ -153,7 +153,7 @@ public class BlockManager {
 
 	/**
 	 * Like {@link #setBlock(int, int, int, BlockGameObj)} but with a vector as
-	 * position parameter. The given vectors coordinates are rounded to their
+	 * position parameter. The given vector's coordinates are rounded to their
 	 * next integers.
 	 */
 	void setBlock(Vector3f pos, BlockGameObj block) {
