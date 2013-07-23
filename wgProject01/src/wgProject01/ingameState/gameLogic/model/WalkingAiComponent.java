@@ -18,7 +18,7 @@ public class WalkingAiComponent extends Component {
 	/**
 	 * The walking speed.
 	 */
-	public float speed = 1;
+	public float speed = 6;
 
 	/**
 	 * The maximum number of seconds the spatial shall move into one direction.

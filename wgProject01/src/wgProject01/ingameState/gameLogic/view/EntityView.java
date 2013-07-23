@@ -5,7 +5,6 @@ import wgProject01.ingameState.gameLogic.model.PositionComponent;
 import com.artemis.Entity;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
-import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
 
 /**
@@ -26,14 +25,13 @@ public class EntityView extends AbstractControl {
 	@Override
 	protected void controlUpdate(float tpf) {
 		System.out.println("entity update");
-		
+
 		// set the position according to the entities position if it has one.
 		PositionComponent positionComponent = entity
 				.getComponent(PositionComponent.class);
 		if (positionComponent != null) {
 			System.out.println("entity position update");
-			spatial.setLocalTranslation(positionComponent.x,
-					positionComponent.y, positionComponent.z);
+			spatial.setLocalTranslation(positionComponent.pos);
 		}
 	}
 

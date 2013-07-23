@@ -31,7 +31,6 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.LightControl;
-import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 
 public class IngameState extends AbstractAppState {
@@ -55,7 +54,6 @@ public class IngameState extends AbstractAppState {
 							// not the floor
 
 	private FlyByCamera flyCam;
-	private final int FLOOR_RADIUS = 10;
 	private GameLogic gameLogic;
 
 	@Override
@@ -72,11 +70,6 @@ public class IngameState extends AbstractAppState {
 		this.cam = this.app.getCamera();
 		this.flyCam = this.app.getFlyByCamera();
 		this.guiNode = this.app.getGuiNode();
-		
-		EntityFactory.initData(rootNode, assetManager);
-		
-		gameLogic = new GameLogic();
-		gameLogic.doInit();
 
 		// TODO 1: remove debug code:
 		// draw the coordinate system:
@@ -91,10 +84,12 @@ public class IngameState extends AbstractAppState {
 		guiNode.addLight(new AmbientLight());
 
 		initNodes();
-		initCrossHairs();
-		initBlockManager();
-
-		initFloor();
+		initCrossHairs();		
+		EntityFactory.initData(rootNode, assetManager);
+		
+		gameLogic = new GameLogic();
+		gameLogic.doInit(mineables, assetManager);
+		
 		// initOneBlockFloor(); // take either one of the floor initializations
 		initGeneralLights();
 		for (int i = 0; i <= Settings.debugMode; i++) {
@@ -110,72 +105,6 @@ public class IngameState extends AbstractAppState {
 																		// blue
 		// TODO 2 the movementspeed setting does not work at all
 		flyCam.setMoveSpeed(10);
-
-		initTestBlock();
-		initTestEnemy();
-	}
-
-	private void initTestEnemy() {
-		Box mesh = new Box(0.5f, 1.5f, 0.5f);
-		Geometry geometry = new Geometry("Block", mesh);
-
-		Material enemyMaterial = new Material(assetManager,
-				"Common/MatDefs/Misc/Unshaded.j3md");
-		enemyMaterial.setColor("Color", ColorRGBA.Red);
-		geometry.setMaterial(enemyMaterial);
-		geometry.setLocalTranslation(0, -1, 0);
-		rootNode.attachChild(geometry);
-
-		// make it walk
-		SimpleWalkingAiControl walkControl = new SimpleWalkingAiControl();
-		walkControl.setSpeed(6);
-		walkControl.setSwitchDirectionInterval(3);
-		geometry.addControl(walkControl);
-
-		// make it colide with blocks
-		BlockCollisionControl blockCollisionControl = new BlockCollisionControl(
-				new Vector3f(1f, 3f, 1f));
-		geometry.addControl(blockCollisionControl);
-	}
-
-	private void initTestBlock() {
-		Box mesh = new Box(0.5f, 0.5f, 0.5f);
-		Geometry geometry = new Geometry("Block", mesh);
-		geometry.setQueueBucket(Bucket.Transparent);
-
-		Material debugMaterial = new Material(assetManager,
-				"Common/MatDefs/Misc/Unshaded.j3md");
-		ColorRGBA randomColor = ColorRGBA.randomColor();
-		randomColor.a = 0.8f;
-		debugMaterial.setColor("Color", randomColor);
-		debugMaterial.getAdditionalRenderState().setBlendMode(BlendMode.Alpha); // !
-
-		geometry.setMaterial(debugMaterial);
-
-		geometry.setLocalTranslation(0, 0, 0);
-		rootNode.attachChild(geometry);
-
-		// make it rotate
-		// the rotational movement
-		RotationControl rotationControl = new RotationControl(8, 8, 8);
-		rotationControl.setSpeeds(new Vector3f(1, 1, 1));
-		geometry.addControl(rotationControl);
-
-		// make it colide with blocks
-		BlockCollisionControl blockCollisionControl = new BlockCollisionControl(
-				new Vector3f(1, 1, 1));
-		geometry.addControl(blockCollisionControl);
-	}
-
-	/**
-	 * Initializes the block Manager and some blocks for testing.
-	 */
-	private void initBlockManager() {
-		// initialize the block manager
-		BlockManager blockManager = BlockManager.getInstance();
-		Node blockNode = this.mineables;
-		// rootNode.attachChild(blockNode);
-		blockManager.initData(blockNode, assetManager);
 	}
 
 	/**
@@ -186,7 +115,7 @@ public class IngameState extends AbstractAppState {
 	private void initRandomSun() {
 		float geometryRadius = 20;
 		float geometryRadius2 = 30;
-		float rotationRadius = FLOOR_RADIUS + 2 * geometryRadius2;
+		float rotationRadius = GameLogic.FLOOR_RADIUS + 2 * geometryRadius2;
 		ColorRGBA innerColor = ColorRGBA.randomColor();
 		ColorRGBA outerColor = innerColor.clone();
 		outerColor.a = .5f;
@@ -277,27 +206,6 @@ public class IngameState extends AbstractAppState {
 	}
 
 	/**
-	 * initializes a quadratic floor consisting of blocks, FLOOR_RADIUS defines
-	 * its size
-	 */
-	private void initFloor() {
-		for (int x = -FLOOR_RADIUS; x <= FLOOR_RADIUS; x++) {
-			for (int z = -FLOOR_RADIUS; z <= FLOOR_RADIUS; z++) {
-				addBlockAt(x, -2, z);
-				addBlockAt(x, -3, z);
-				// addBlockAt(x, -2, z);
-
-				if (Math.abs(x) >= FLOOR_RADIUS - 2
-						|| Math.abs(z) >= FLOOR_RADIUS - 1) {
-					addBlockAt(x, -1, z);
-					addBlockAt(x, 0, z);
-					addBlockAt(x, 1, z);
-				}
-			}
-		}
-	}
-
-	/**
 	 * initializes three lights to have a general enlightening setting any
 	 * materials visible
 	 */
@@ -346,19 +254,4 @@ public class IngameState extends AbstractAppState {
 	// BlockGameObj newBlock = BlockManager.getInstance().getBlockGameObj();
 	// BlockManager.getInstance().setBlock(blockLocation, newBlock);
 	// }
-
-	/**
-	 * adds a block at the specific position (x,y,z)
-	 * 
-	 * @param x
-	 *            the x-coordinate
-	 * @param y
-	 *            the y-coordinate
-	 * @param z
-	 *            the z-coordinate
-	 */
-	private void addBlockAt(int x, int y, int z) {
-		BlockGameObj newBlock = BlockManager.getInstance().getBlockGameObj();
-		BlockManager.getInstance().setBlock(x, y, z, newBlock);
-	}
 }

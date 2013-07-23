@@ -13,12 +13,8 @@ import com.artemis.systems.EntityProcessingSystem;
 import com.jme3.math.Vector3f;
 
 /**
- * This is a Control to handle simple random walking. Walking means translation
- * on the x-z-plane.
- * 
- * <p>
- * Attach it to any entity which shall randomly walk around.
- * </p>
+ * This is an entity system to handle simple random walking. Walking means
+ * translation on the x-z-plane.
  * 
  * @author oli
  * 
@@ -31,7 +27,7 @@ public class SimpleWalkingAiSystem extends EntityProcessingSystem {
 	ComponentMapper<WalkingAiComponent> walkingAiManager;
 
 	Random random = new Random();
-	
+
 	/**
 	 * Creates a default walking control.
 	 */
@@ -52,9 +48,7 @@ public class SimpleWalkingAiSystem extends EntityProcessingSystem {
 		// extract needed components from entity
 		PositionComponent positionComponent = positionManager.get(e);
 		WalkingAiComponent walkingAiComponent = walkingAiManager.get(e);
-
-		// TODO 1: Bad workaround: set down the tpf for movement, to prevent
-		// wall slipping
+		// extract the time delta
 		float timeDelta = world.getDelta();
 
 		if (walkingAiComponent.leftSecs < 0) {
@@ -68,13 +62,7 @@ public class SimpleWalkingAiSystem extends EntityProcessingSystem {
 
 		Vector3f moveOffset = walkingAiComponent.curDirection.mult(timeDelta)
 				.mult(walkingAiComponent.speed);
-		positionComponent.x += moveOffset.x;
-		positionComponent.y += moveOffset.y;
-		positionComponent.z += moveOffset.z;
+		positionComponent.pos.addLocal(moveOffset);
 		walkingAiComponent.leftSecs -= timeDelta;
-		
-		// TODO 1: remove debug code:
-		System.out.println("curDirection: " + positionComponent.x + "," + positionComponent.y);
-		System.out.println("new pos: " + positionComponent.x + "," + positionComponent.y);
 	}
 }
