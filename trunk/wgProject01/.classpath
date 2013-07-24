@@ -13,7 +13,7 @@
 	<classpathentry kind="lib" path="lib/jME3_2013-05-26/lib/jME3-core.jar" sourcepath="lib/jME3_2013-05-26.zip"/>
 	<classpathentry kind="lib" path="lib/jME3_2013-05-26/lib/jME3-desktop.jar"/>
 	<classpathentry kind="lib" path="lib/jME3_2013-05-26/lib/jME3-effects.jar"/>
-	<classpathentry kind="lib" path="lib/jME3_2013-05-26/lib/jME3-jbullet.jar" sourcepath="D:/Dokumente/workspaces/jMonkeyEngine/jME3_2013-05-26.zip"/>
+	<classpathentry kind="lib" path="lib/jME3_2013-05-26/lib/jME3-jbullet.jar" sourcepath="/HelloTutorialOfJMonkey3D/lib/jME3_2013-05-26.zip"/>
 	<classpathentry kind="lib" path="lib/jME3_2013-05-26/lib/jME3-jogg.jar"/>
 	<classpathentry kind="lib" path="lib/jME3_2013-05-26/lib/jME3-lwjgl-natives.jar"/>
 	<classpathentry kind="lib" path="lib/jME3_2013-05-26/lib/jME3-lwjgl.jar"/>

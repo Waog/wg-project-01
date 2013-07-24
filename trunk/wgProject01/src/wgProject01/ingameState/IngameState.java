@@ -34,26 +34,33 @@ import com.jme3.scene.control.LightControl;
 import com.jme3.scene.shape.Sphere;
 
 public class IngameState extends AbstractAppState {
-
+	
+	/**
+	 * datafields given by the {@link GameApplication} and the
+	 * {@link AssetManager} itself
+	 */
 	private GameApplication app;
 	private Node rootNode, guiNode;
 	private AssetManager assetManager;
 	private AppStateManager stateManager;
 	private ViewPort viewPort;
 	private Camera cam;
-
-	private static final String SHOOTABLES = "Shootables";
-	private static final String MINEABLES = "Mineables";
-
-	protected Geometry player;
-	Boolean isRunning = true;
-
-	private Node shootables; // contains all spatials onto which a block can be
-								// set
-	private Node mineables; // contains all spatials that can be picked up e.g.
-							// not the floor
-
 	private FlyByCamera flyCam;
+
+	/** name for the node Shootable */
+	public static final String SHOOTABLES = "Shootables";
+	/** name for the node Mineables */
+	public static final String MINEABLES = "Mineables";
+
+	/** the geometry representing the players body */
+	protected Geometry player;
+
+	/** contains all spatials onto which a block can be set */
+	private Node shootables; 
+	/** contains all spatials that can be picked up by the player */
+	private Node mineables; 
+
+	/** object representing the game logic */
 	private GameLogic gameLogic;
 
 	@Override
