@@ -15,7 +15,7 @@ public class GameLogic {
 	
 	public final static int FLOOR_RADIUS = 10;
 
-	private final static float MAX_SECONDS_PER_UPDATE = 1.0f / 20.0f;
+	private final static float MAX_SECONDS_PER_UPDATE = 1.0f / 10.0f;
 
 	private World world;
 
