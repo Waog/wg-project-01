@@ -1,7 +1,5 @@
 package wgProject01.ingameState.gameLogic;
 
-import jm3Utils.Jme3Utils;
-import jme3tools.optimize.GeometryBatchFactory;
 import wgProject01.Settings;
 import wgProject01.ingameState.gameLogic.systems.BlockCollisionSystem;
 import wgProject01.ingameState.gameLogic.systems.GravitationSystem;
@@ -12,7 +10,6 @@ import com.artemis.World;
 import com.jme3.asset.AssetManager;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
 
 /**
  * Class which manages the global game logic, initializes the world and entity

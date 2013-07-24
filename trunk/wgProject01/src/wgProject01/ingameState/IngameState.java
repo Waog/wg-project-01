@@ -3,12 +3,10 @@ package wgProject01.ingameState;
 import java.util.Random;
 
 import jm3Utils.Jme3Utils;
-import jme3tools.optimize.GeometryBatchFactory;
 import wgProject01.GameApplication;
 import wgProject01.Settings;
 import wgProject01.ingameState.gameLogic.GameLogic;
 import wgProject01.ingameState.gameLogic.utils.EntityFactory;
-import wgProject01.ingameState.gameLogic.view.BlockFaceFactory;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
