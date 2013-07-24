@@ -1,7 +1,6 @@
 package wgProject01.ingameState.gameLogic;
 
 import wgProject01.Settings;
-import wgProject01.ingameState.gameLogic.components.GravitationComponent;
 import wgProject01.ingameState.gameLogic.systems.BlockCollisionSystem;
 import wgProject01.ingameState.gameLogic.systems.GravitationSystem;
 import wgProject01.ingameState.gameLogic.systems.SimpleWalkingAiSystem;

@@ -1,19 +1,12 @@
 package wgProject01.ingameState.gameLogic.view;
 
 import jm3Utils.Jme3Utils;
-import wgProject01.Settings;
 import wgProject01.ingameState.gameLogic.BlockGameObj;
 import wgProject01.ingameState.gameLogic.BlockManager;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.material.Material;
-import com.jme3.material.RenderState.BlendMode;
-import com.jme3.math.ColorRGBA;
-import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
-import com.jme3.scene.shape.Box;
-import com.jme3.util.TangentBinormalGenerator;
 
 /**
  * <p>
