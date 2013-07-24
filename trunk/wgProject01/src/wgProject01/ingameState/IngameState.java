@@ -2,7 +2,7 @@ package wgProject01.ingameState;
 
 import java.util.Random;
 
-import jm3Utils.Jm3Utils;
+import jm3Utils.Jme3Utils;
 import wgProject01.GameApplication;
 import wgProject01.Settings;
 import wgProject01.ingameState.gameLogic.GameLogic;
@@ -80,11 +80,11 @@ public class IngameState extends AbstractAppState {
 
 		// TODO 1: remove debug code:
 		// draw the coordinate system:
-		Jm3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(1, 0, 0),
+		Jme3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(1, 0, 0),
 				rootNode, assetManager);
-		Jm3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(0, 1, 0),
+		Jme3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(0, 1, 0),
 				rootNode, assetManager);
-		Jm3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(0, 0, 1),
+		Jme3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(0, 0, 1),
 				rootNode, assetManager);
 
 		// init stuff that is independent of whether state is PAUSED or RUNNING
