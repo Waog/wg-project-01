@@ -1,7 +1,9 @@
 package wgProject01.ingameState.gameLogic;
 
 import wgProject01.Settings;
+import wgProject01.ingameState.gameLogic.components.GravitationComponent;
 import wgProject01.ingameState.gameLogic.systems.BlockCollisionSystem;
+import wgProject01.ingameState.gameLogic.systems.GravitationSystem;
 import wgProject01.ingameState.gameLogic.systems.SimpleWalkingAiSystem;
 import wgProject01.ingameState.gameLogic.utils.EntityFactory;
 
@@ -31,7 +33,7 @@ public class GameLogic {
 	 * Greater time deltas are automatically splitted up into multiple smaller
 	 * update calls by this class.
 	 */
-	private final static float MAX_SECONDS_PER_UPDATE = 1.0f / 10.0f;
+	private final static float MAX_SECONDS_PER_UPDATE = 1.0f / 20.0f;
 
 	/**
 	 * The {@link World} object, to globally manage our entity system framework.
@@ -61,6 +63,7 @@ public class GameLogic {
 		world = new World();
 
 		world.setSystem(new SimpleWalkingAiSystem());
+		world.setSystem(new GravitationSystem());
 		world.setSystem(new BlockCollisionSystem());
 
 		EntityFactory.createEnemy(world, new Vector3f());
