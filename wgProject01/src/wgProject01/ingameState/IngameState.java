@@ -3,6 +3,7 @@ package wgProject01.ingameState;
 import java.util.Random;
 
 import jm3Utils.Jme3Utils;
+import jme3tools.optimize.GeometryBatchFactory;
 import wgProject01.GameApplication;
 import wgProject01.Settings;
 import wgProject01.ingameState.gameLogic.GameLogic;

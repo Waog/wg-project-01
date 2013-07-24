@@ -1,5 +1,7 @@
 package wgProject01.ingameState.gameLogic;
 
+import jm3Utils.Jme3Utils;
+import jme3tools.optimize.GeometryBatchFactory;
 import wgProject01.Settings;
 import wgProject01.ingameState.gameLogic.systems.BlockCollisionSystem;
 import wgProject01.ingameState.gameLogic.systems.GravitationSystem;
@@ -10,6 +12,7 @@ import com.artemis.World;
 import com.jme3.asset.AssetManager;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 
 /**
  * Class which manages the global game logic, initializes the world and entity
@@ -68,6 +71,7 @@ public class GameLogic {
 		EntityFactory.createEnemy(world, new Vector3f());
 
 		world.initialize();
+		initTestingStuff();
 	}
 
 	/**
@@ -86,6 +90,7 @@ public class GameLogic {
 	 * entity system is updated multiple time with the small time deltas.
 	 */
 	public void doUpdate(float secondsDelta) {
+		long time = System.nanoTime();
 		float leftDeltaToProcess = secondsDelta;
 
 		while (leftDeltaToProcess > 0) {
@@ -99,6 +104,7 @@ public class GameLogic {
 			world.setDelta(curDeltaToProcess);
 			world.process();
 		}
+		System.out.println("GameLogic update total used time: " + (System.nanoTime() - time) * 0.000000001);
 	}
 
 	/**
@@ -116,10 +122,7 @@ public class GameLogic {
 	 * {@link GameLogic#FLOOR_RADIUS} defines its size.
 	 */
 	private void initFloor() {
-		
-		addBlockAt(0, 2, 0);
-		
-		
+
 		for (int x = -FLOOR_RADIUS; x <= FLOOR_RADIUS; x++) {
 			for (int z = -FLOOR_RADIUS; z <= FLOOR_RADIUS; z++) {
 				addBlockAt(x, -2, z);
@@ -137,7 +140,27 @@ public class GameLogic {
 	}
 
 	/**
-	 * Adds a block at the specific position (x,y,z), using the {@link BlockManager}.
+	 * for testing
+	 */
+	private void initTestingStuff() {
+		if (Settings.debugMode < 2) {
+			return;
+		}
+		Node testNode = new Node();
+		Spatial spaten = Jme3Utils.getCubeGeom(1, assetManager);
+		spaten.setLocalTranslation(2, 0, 0);
+		testNode.attachChild(spaten);
+		testNode.attachChild(Jme3Utils.getCubeGeom(1, assetManager));
+		long time = System.nanoTime();
+		GeometryBatchFactory.optimize(testNode);
+		System.out.println("BatchingTestTime: " + (System.nanoTime() - time) * 0.000000001);
+		blockNode.attachChild(testNode);
+
+	}
+
+	/**
+	 * Adds a block at the specific position (x,y,z), using the
+	 * {@link BlockManager}.
 	 */
 	private void addBlockAt(int x, int y, int z) {
 		BlockGameObj newBlock = BlockManager.getInstance().getBlockGameObj();
