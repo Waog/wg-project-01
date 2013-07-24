@@ -1,6 +1,7 @@
 package wgProject01.ingameState.gameLogic.utils;
 
 import wgProject01.ingameState.gameLogic.components.CollisionBoxComponent;
+import wgProject01.ingameState.gameLogic.components.GravitationComponent;
 import wgProject01.ingameState.gameLogic.components.PositionComponent;
 import wgProject01.ingameState.gameLogic.components.WalkingAiComponent;
 import wgProject01.ingameState.gameLogic.view.EntityView;
@@ -92,6 +93,10 @@ public class EntityFactory {
 		CollisionBoxComponent collisionBoxComponent = new CollisionBoxComponent(
 				collisionBoxRadii);
 		e.addComponent(collisionBoxComponent);
+		
+		// add Gravitation
+		GravitationComponent gravitationComponent = new GravitationComponent();
+		e.addComponent(gravitationComponent);
 
 		e.addToWorld();
 
