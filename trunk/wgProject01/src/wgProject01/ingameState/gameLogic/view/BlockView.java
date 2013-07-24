@@ -1,6 +1,5 @@
 package wgProject01.ingameState.gameLogic.view;
 
-import jm3Utils.Jme3Utils;
 import wgProject01.ingameState.gameLogic.BlockGameObj;
 import wgProject01.ingameState.gameLogic.BlockManager;
 
@@ -109,33 +108,35 @@ public class BlockView {
 	 */
 	private void initFaceSpatials(AssetManager assetManager) {
 		float blockRadius = .5f;
+		
+		String blockType = block.blockPositionComponent.getType();
 
-		facePositiveX = BlockFaceFactory.getWoodenFace(assetManager);
+		facePositiveX = BlockFaceFactory.getFaceForType(blockType, assetManager);
 		facePositiveX.rotate(0, (float) Math.PI / 2f, 0);
 		facePositiveX.setLocalTranslation(blockRadius, -blockRadius,
 				blockRadius);
 
-		facePositiveY = BlockFaceFactory.getWoodenFace(assetManager);
+		facePositiveY = BlockFaceFactory.getFaceForType(blockType, assetManager);
 		facePositiveY.rotate((float) -Math.PI / 2f, 0, 0);
 		facePositiveY.setLocalTranslation(-blockRadius, blockRadius,
 				blockRadius);
 
-		facePositiveZ = BlockFaceFactory.getWoodenFace(assetManager);
+		facePositiveZ = BlockFaceFactory.getFaceForType(blockType, assetManager);
 		facePositiveZ.rotate(0, 0, 0);
 		facePositiveZ.setLocalTranslation(-blockRadius, -blockRadius,
 				blockRadius);
 
-		faceNegativeX = BlockFaceFactory.getWoodenFace(assetManager);
+		faceNegativeX = BlockFaceFactory.getFaceForType(blockType, assetManager);
 		faceNegativeX.rotate(0, (float) -Math.PI / 2f, 0);
 		faceNegativeX.setLocalTranslation(-blockRadius, -blockRadius,
 				-blockRadius);
 
-		faceNegativeY = BlockFaceFactory.getWoodenFace(assetManager);
+		faceNegativeY = BlockFaceFactory.getFaceForType(blockType, assetManager);
 		faceNegativeY.rotate((float) Math.PI / 2f, 0, 0);
 		faceNegativeY.setLocalTranslation(-blockRadius, -blockRadius,
 				-blockRadius);
 
-		faceNegativeZ = BlockFaceFactory.getWoodenFace(assetManager);
+		faceNegativeZ = BlockFaceFactory.getFaceForType(blockType, assetManager);
 		faceNegativeZ.rotate((float) Math.PI, 0, 0);
 		faceNegativeZ.setLocalTranslation(-blockRadius, blockRadius,
 				-blockRadius);

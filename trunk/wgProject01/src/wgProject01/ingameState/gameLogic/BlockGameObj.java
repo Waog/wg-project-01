@@ -1,6 +1,6 @@
 package wgProject01.ingameState.gameLogic;
 
-import wgProject01.ingameState.gameLogic.components.BlockPositionComponent;
+import wgProject01.ingameState.gameLogic.components.BlockPropertiesComponent;
 import wgProject01.ingameState.gameLogic.view.BlockView;
 
 import com.jme3.asset.AssetManager;
@@ -26,14 +26,19 @@ public class BlockGameObj {
 	/**
 	 * The position of this block.
 	 */
-	public BlockPositionComponent blockPositionComponent = new BlockPositionComponent();
+	public BlockPropertiesComponent blockPositionComponent;
 
 	/**
 	 * Creates a new Block game object which will attach a spatial to the given
 	 * node as soon as placed via the
 	 * {@link #doHandlePlacementAt(int, int, int)} method.
+	 * 
+	 * @param type
+	 *            for possible block types see static constants in
+	 *            {@link BlockPropertiesComponent} .
 	 */
-	BlockGameObj(Node node, AssetManager assetManager) {
+	BlockGameObj(Node node, AssetManager assetManager, String type) {
+		this.blockPositionComponent = new BlockPropertiesComponent(type);
 		blockView = new BlockView(this, node, assetManager);
 	}
 

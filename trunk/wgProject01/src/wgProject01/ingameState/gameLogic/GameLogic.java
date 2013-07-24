@@ -146,16 +146,8 @@ public class GameLogic {
 		if (Settings.debugMode < 2) {
 			return;
 		}
-		Node testNode = new Node();
-		Spatial spaten = Jme3Utils.getCubeGeom(.5f, assetManager);
-		spaten.setLocalTranslation(2, 0, 0);
-		testNode.attachChild(spaten);
-		testNode.attachChild(Jme3Utils.getCubeGeom(.5f, assetManager));
-		long time = System.nanoTime();
-		GeometryBatchFactory.optimize(testNode);
-		System.out.println("BatchingTestTime: " + (System.nanoTime() - time) * 0.000000001);
-		blockNode.attachChild(testNode);
-
+		
+		// nothing
 	}
 
 	/**

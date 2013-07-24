@@ -5,6 +5,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 
 import utils.BetterArray3D;
+import wgProject01.ingameState.gameLogic.components.BlockPropertiesComponent;
 
 /**
  * Manages all the {@link BlockGameObj Blocks}. Places them or takes them out of
@@ -79,7 +80,8 @@ public class BlockManager {
 	 * Creates and returns a new {@link BlockGameObj Block} game object.
 	 */
 	public BlockGameObj getBlockGameObj() {
-		return new BlockGameObj(this.node, this.assetManager);
+		String randomType = BlockPropertiesComponent.getRandomType();
+		return new BlockGameObj(this.node, this.assetManager, randomType);
 	}
 
 	/**
