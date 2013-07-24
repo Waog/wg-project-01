@@ -9,13 +9,9 @@ import wgProject01.ingameState.gameLogic.view.EntityView;
 import com.artemis.Entity;
 import com.artemis.World;
 import com.jme3.asset.AssetManager;
-import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.shape.Box;
 
 /**
  * Class which provies static methods, to generate new entities, generates their
