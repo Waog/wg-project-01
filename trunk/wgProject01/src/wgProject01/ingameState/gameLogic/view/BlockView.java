@@ -1,9 +1,18 @@
 package wgProject01.ingameState.gameLogic.view;
 
+import wgProject01.Settings;
 import wgProject01.ingameState.gameLogic.BlockGameObj;
 
+import com.jme3.asset.AssetManager;
+import com.jme3.material.Material;
+import com.jme3.material.RenderState.BlendMode;
+import com.jme3.math.ColorRGBA;
+import com.jme3.renderer.queue.RenderQueue.Bucket;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.shape.Box;
+import com.jme3.util.TangentBinormalGenerator;
 
 /**
  * <p>
@@ -48,9 +57,39 @@ public class BlockView {
 	 *            {@inheritDoc #node} The scene graph Node to which this Blocks
 	 *            spatial will be attached to and detached from.
 	 */
-	public BlockView(BlockGameObj block, Spatial spatial, Node blockNode) {
+	public BlockView(BlockGameObj block, Node blockNode, AssetManager assetManager) {
+		if (Settings.debugMode < 3) {
+			// in release mode create a normal textured block
+			Box mesh = new Box(0.5f, 0.5f, 0.5f);
+			spatial = new Geometry("Block", mesh);
+			TangentBinormalGenerator.generate(mesh);
+			Material shinyStoneMat = new Material(assetManager,
+					"assets/Materials/Lighting/Lighting.j3md");
+			shinyStoneMat.setTexture("DiffuseMap",
+					assetManager.loadTexture("Textures/Pond/Pond.jpg"));
+			shinyStoneMat.setTexture("NormalMap",
+					assetManager.loadTexture("Textures/Pond/Pond_normal.png"));
+			shinyStoneMat.setBoolean("UseMaterialColors", true);
+			shinyStoneMat.setColor("Diffuse", ColorRGBA.White);
+			shinyStoneMat.setColor("Specular", ColorRGBA.White);
+			shinyStoneMat.setFloat("Shininess", 64f); // [0,128]
+			spatial.setMaterial(shinyStoneMat);
+		} else {
+			// in debug mode create a transparent block
+			Box mesh = new Box(0.5f, 0.5f, 0.5f);
+			spatial = new Geometry("Block", mesh);
+			spatial.setQueueBucket(Bucket.Transparent);
+			Material debugMaterial = new Material(assetManager,
+					"Common/MatDefs/Misc/Unshaded.j3md");
+			ColorRGBA randomColor = ColorRGBA.randomColor();
+			randomColor.a = 0.5f;
+			debugMaterial.setColor("Color", randomColor);
+			debugMaterial.getAdditionalRenderState().setBlendMode(
+					BlendMode.Alpha); // !
+			spatial.setMaterial(debugMaterial);
+		}
+		
 		this.block = block;
-		this.spatial = spatial;
 		this.node = blockNode;
 	}
 

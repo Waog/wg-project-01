@@ -1,18 +1,10 @@
 package wgProject01.ingameState.gameLogic;
 
-import wgProject01.Settings;
 import wgProject01.ingameState.gameLogic.components.BlockPositionComponent;
 import wgProject01.ingameState.gameLogic.view.BlockView;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.material.Material;
-import com.jme3.material.RenderState.BlendMode;
-import com.jme3.math.ColorRGBA;
-import com.jme3.renderer.queue.RenderQueue.Bucket;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
-import com.jme3.scene.shape.Box;
-import com.jme3.util.TangentBinormalGenerator;
 
 /**
  * Objects of this class represent the logic of fixed blocks in the terrain.
@@ -42,38 +34,7 @@ public class BlockGameObj {
 	 * {@link #doHandlePlacementAt(int, int, int)} method.
 	 */
 	BlockGameObj(Node node, AssetManager assetManager) {
-		Geometry geometry;
-		if (Settings.debugMode < 3) {
-			// in release mode create a normal textured block
-			Box mesh = new Box(0.5f, 0.5f, 0.5f);
-			geometry = new Geometry("Block", mesh);
-			TangentBinormalGenerator.generate(mesh);
-			Material shinyStoneMat = new Material(assetManager,
-					"assets/Materials/Lighting/Lighting.j3md");
-			shinyStoneMat.setTexture("DiffuseMap",
-					assetManager.loadTexture("Textures/Pond/Pond.jpg"));
-			shinyStoneMat.setTexture("NormalMap",
-					assetManager.loadTexture("Textures/Pond/Pond_normal.png"));
-			shinyStoneMat.setBoolean("UseMaterialColors", true);
-			shinyStoneMat.setColor("Diffuse", ColorRGBA.White);
-			shinyStoneMat.setColor("Specular", ColorRGBA.White);
-			shinyStoneMat.setFloat("Shininess", 64f); // [0,128]
-			geometry.setMaterial(shinyStoneMat);
-		} else {
-			// in debug mode create a transparent block
-			Box mesh = new Box(0.5f, 0.5f, 0.5f);
-			geometry = new Geometry("Block", mesh);
-			geometry.setQueueBucket(Bucket.Transparent);
-			Material debugMaterial = new Material(assetManager,
-					"Common/MatDefs/Misc/Unshaded.j3md");
-			ColorRGBA randomColor = ColorRGBA.randomColor();
-			randomColor.a = 0.5f;
-			debugMaterial.setColor("Color", randomColor);
-			debugMaterial.getAdditionalRenderState().setBlendMode(
-					BlendMode.Alpha); // !
-			geometry.setMaterial(debugMaterial);
-		}
-		blockView = new BlockView(this, geometry, node);
+		blockView = new BlockView(this, node, assetManager);
 	}
 
 	/**
