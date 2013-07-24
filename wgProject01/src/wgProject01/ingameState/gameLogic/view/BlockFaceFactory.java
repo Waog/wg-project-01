@@ -84,9 +84,9 @@ public class BlockFaceFactory {
 	private static Material getMaterialWithTexture(String filePath,
 			AssetManager assetManager) {
 		Material material = new Material(assetManager,
-				"Common/MatDefs/Misc/Unshaded.j3md");
+				"Common/MatDefs/Light/Lighting.j3md");
 		Texture cube1Tex = assetManager.loadTexture(filePath);
-		material.setTexture("ColorMap", cube1Tex);
+		material.setTexture("DiffuseMap", cube1Tex);
 		return material;
 	}
 
