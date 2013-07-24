@@ -40,8 +40,16 @@ public class Jme3Utils {
 	 * "radius".
 	 */
 	public static Geometry getCubeGeom(float radius, AssetManager assetManager) {
-		Box mesh = new Box(0.1f, 0.1f, 0.1f);
-		Geometry result = new Geometry("Block", mesh);
+		return getCuboid(new Vector3f(radius, radius, radius), assetManager);
+	}
+
+	/**
+	 * Returns a random colored semi transparent quad object with the given side
+	 * length.
+	 */
+	public static Geometry getQuad(float sideLength, AssetManager assetManager) {
+		Quad mesh = new Quad(sideLength, sideLength);
+		Geometry result = new Geometry("Quad", mesh);
 		result.setQueueBucket(Bucket.Transparent);
 		Material debugMaterial = new Material(assetManager,
 				"Common/MatDefs/Misc/Unshaded.j3md");
@@ -52,14 +60,14 @@ public class Jme3Utils {
 		result.setMaterial(debugMaterial);
 		return result;
 	}
-
+	
 	/**
-	 * Returns a random colored semi transparent quad object with the given side
-	 * length.
+	 * Returns a random colored semi transparent cuboid Geometry with the given
+	 * "radii".
 	 */
-	public static Geometry getQuad(float sideLength, AssetManager assetManager) {
-		Quad mesh = new Quad(sideLength, sideLength);
-		Geometry result = new Geometry("Quad", mesh);
+	public static Geometry getCuboid(Vector3f radii, AssetManager assetManager) {
+		Box mesh = new Box(radii.x, radii.y, radii.z);
+		Geometry result = new Geometry("Block", mesh);
 		result.setQueueBucket(Bucket.Transparent);
 		Material debugMaterial = new Material(assetManager,
 				"Common/MatDefs/Misc/Unshaded.j3md");

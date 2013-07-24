@@ -14,6 +14,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 
 /**
@@ -100,8 +101,10 @@ public class EntityFactory {
 
 		e.addToWorld();
 
+		Spatial golem = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+		golem.scale(0.5f);
 		// creates the view for this enemy and attaches the entity to it.
-		Box mesh = new Box(collisionBoxRadii.x, collisionBoxRadii.y,
+	/*	Box mesh = new Box(collisionBoxRadii.x, collisionBoxRadii.y,
 				collisionBoxRadii.z);
 		Geometry geometry = new Geometry("Block", mesh);
 
@@ -110,11 +113,13 @@ public class EntityFactory {
 		enemyMaterial.setColor("Color", ColorRGBA.Red);
 		geometry.setMaterial(enemyMaterial);
 		geometry.setLocalTranslation(0, -1, 0);
-		entityNode.attachChild(geometry);
+		entityNode.attachChild(geometry);*/
+		entityNode.attachChild(golem);
 
 		// make it walk
-		EntityView entitiyView = new EntityView(e);
-		geometry.addControl(entitiyView);
+		EntityView entityView = new EntityView(e);
+		entityView.init(assetManager, entityNode);
+		golem.addControl(entityView);
 
 		return e;
 	}
