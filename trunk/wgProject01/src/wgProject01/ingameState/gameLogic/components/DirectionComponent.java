@@ -24,4 +24,16 @@ public class DirectionComponent extends Component {
 		this.direction.set(direction);
 		this.direction.normalizeLocal();
 	}
+
+	/**
+	 * Returns the current direction projected to the XZ plane and normalized.
+	 */
+	public Vector3f getProjectedDirectionXZ() {
+		Vector3f projectedDirectionXZ = new Vector3f();
+		projectedDirectionXZ.set(getDirection());
+		projectedDirectionXZ.y = 0;
+		projectedDirectionXZ.normalizeLocal();
+		return projectedDirectionXZ;
+	}
+
 }

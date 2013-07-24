@@ -45,7 +45,6 @@ public class EntityView extends AbstractControl {
 	/** for testing: line representing the direction of the entity */
 	private Spatial directionLineSpatial;
 
-	
 	/**
 	 * Constructs a new View for the given entity.
 	 */
@@ -58,7 +57,6 @@ public class EntityView extends AbstractControl {
 		this.assetManager = assetManager;
 		this.entityNode = entityNode;
 
-		
 		// TODO 2 set the right debug mode
 		if (Settings.debugMode >= 2) {
 			PositionComponent positionComponent = entity
@@ -67,14 +65,18 @@ public class EntityView extends AbstractControl {
 			CollisionBoxComponent collisionBoxComponent = entity
 					.getComponent(CollisionBoxComponent.class);
 			if (collisionBoxComponent != null && positionComponent != null) {
-				collisionBoxGeometry = Jme3Utils.getCuboid(collisionBoxComponent.radii, assetManager);
-				collisionBoxGeometry.getMaterial().getAdditionalRenderState().setWireframe(true);
+				collisionBoxGeometry = Jme3Utils.getCuboid(
+						collisionBoxComponent.radii, assetManager);
+				collisionBoxGeometry.getMaterial().getAdditionalRenderState()
+						.setWireframe(true);
 				collisionBoxGeometry.setLocalTranslation(positionComponent.pos);
 				entityNode.attachChild(collisionBoxGeometry);
 			}
-			DirectionComponent directionComponent = entity.getComponent((DirectionComponent.class));
-			if(directionComponent != null && positionComponent != null){
-				directionLineSpatial = Jme3Utils.drawLine(new Vector3f(), new Vector3f(0,3,0), entityNode, assetManager);
+			DirectionComponent directionComponent = entity
+					.getComponent((DirectionComponent.class));
+			if (directionComponent != null && positionComponent != null) {
+				directionLineSpatial = Jme3Utils.drawLine(new Vector3f(),
+						new Vector3f(0, 3, 0), entityNode, assetManager);
 			}
 		}
 	}
@@ -97,32 +99,37 @@ public class EntityView extends AbstractControl {
 		if (positionComponent != null) {
 			spatial.setLocalTranslation(positionComponent.pos);
 		}
-		DirectionComponent directionComponent = entity.getComponent((DirectionComponent.class));
-		if(directionComponent != null && positionComponent != null){
-			spatial.lookAt(positionComponent.pos.add(directionComponent.getDirection()), new Vector3f(0,1,0));
+		DirectionComponent directionComponent = entity
+				.getComponent((DirectionComponent.class));
+		if (directionComponent != null && positionComponent != null) {
+			spatial.lookAt(positionComponent.pos.add(directionComponent
+					.getProjectedDirectionXZ()), new Vector3f(0, 1, 0));
 		}
-		
-		
-		
-		
-		
-		
 
 		// TODO 2 set the right debug mode
 		if (Settings.debugMode >= 2) {
 			// show the collision box
 			CollisionBoxComponent collisionBoxComponent = entity
 					.getComponent(CollisionBoxComponent.class);
-			if (collisionBoxComponent != null && positionComponent != null && collisionBoxGeometry != null) {
+			if (collisionBoxComponent != null && positionComponent != null
+					&& collisionBoxGeometry != null) {
 				collisionBoxGeometry.setLocalTranslation(positionComponent.pos);
 				entityNode.attachChild(collisionBoxGeometry);
 			}
 		}
 
-		if(Settings.debugMode >= 2){
-			if(directionComponent != null && positionComponent != null){
-				directionLineSpatial.rotateUpTo(directionComponent.getDirection());
+		if (Settings.debugMode >= 2) {
+			if (directionComponent != null && positionComponent != null) {
+				directionLineSpatial.lookAt(
+						positionComponent.pos.add(new Vector3f(0, 1, 0)),
+						directionComponent.getProjectedDirectionXZ());
+				// TODO 2: complete the viewing of the direction in y direction
+				// by figuring out the angle between the projection and the real
+				// angle and rotaing the projected angle by the determined
+				// angle.
+
 				directionLineSpatial.setLocalTranslation(positionComponent.pos);
+
 			}
 		}
 	}
