@@ -1,6 +1,8 @@
 package wgProject01.ingameState.gameLogic;
 
 import wgProject01.Settings;
+import wgProject01.ingameState.gameLogic.components.BlockPositionComponent;
+import wgProject01.ingameState.gameLogic.view.BlockView;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
@@ -9,7 +11,6 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.util.TangentBinormalGenerator;
 
@@ -26,15 +27,14 @@ import com.jme3.util.TangentBinormalGenerator;
 public class BlockGameObj {
 
 	/**
-	 * The scene graph Node to which this Blocks spatial will be attached to and
-	 * detached from.
+	 * The View of this block.
 	 */
-	private Node node;
-
+	private BlockView blockView;
+	
 	/**
-	 * The box geometry of this block.
+	 * The position of tis block.
 	 */
-	private Geometry geometry;
+	public BlockPositionComponent blockPositionComponent = new BlockPositionComponent();
 
 	/**
 	 * Creates a new Block game object which will attach to the given node as
@@ -42,8 +42,7 @@ public class BlockGameObj {
 	 * method.
 	 */
 	BlockGameObj(Node node, AssetManager assetManager) {
-		this.node = node;
-
+		Geometry geometry;
 		if (Settings.debugMode < 3) {
 			// in release mode create a normal textured block
 			Box mesh = new Box(0.5f, 0.5f, 0.5f);
@@ -74,6 +73,7 @@ public class BlockGameObj {
 					BlendMode.Alpha); // !
 			geometry.setMaterial(debugMaterial);
 		}
+		blockView = new BlockView(this, geometry, node);
 	}
 
 	/**
@@ -82,7 +82,7 @@ public class BlockGameObj {
 	 * meshes.
 	 */
 	void doHandleNeighborChangeAt(int i, int j, int k, BlockGameObj newNeighbor) {
-		// TODO 1.
+		blockView.informBlockChange();
 	}
 
 	/**
@@ -91,9 +91,11 @@ public class BlockGameObj {
 	 * correct position.
 	 */
 	void doHandlePlacementAt(int x, int y, int z) {
-		geometry.setLocalTranslation(x, y, z);
-		// mesh.getBound().setCenter(new Vector3f(x, y, z));
-		node.attachChild(geometry);
+		this.blockPositionComponent.x = x;
+		this.blockPositionComponent.y = y;
+		this.blockPositionComponent.z = z;
+		this.blockPositionComponent.placed = true;
+		blockView.informBlockChange();
 	}
 
 	/**
@@ -101,14 +103,7 @@ public class BlockGameObj {
 	 * accordingly by removing itself from the scene graph.
 	 */
 	void doHandleRemovementFrom() {
-		geometry.removeFromParent();
-	}
-
-	/**
-	 * Returns the {@link Spatial} of this Block. The Spatial is the visualizing
-	 * JME3 part of this block.
-	 */
-	public Spatial getSpatial() {
-		return geometry;
+		this.blockPositionComponent.placed = false;
+		blockView.informBlockChange();
 	}
 }
