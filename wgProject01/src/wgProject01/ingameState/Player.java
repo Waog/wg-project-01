@@ -24,20 +24,42 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
 
+/**
+ * 
+ * @author Mirco
+ * 
+ */
 public class Player extends AbstractAppState implements ActionListener {
 
-	private static final float RAY_LIMIT = 6; // defines how long the shot ray
-	// for picking and placing is
-	private static final String SHOOTABLES = "Shootables";
-	private static final String MINEABLES = "Mineables";
+	/** defines the shot ray's length */
+	private static final float RAY_LIMIT = 6;
+
+	/** like in {@link IngameState} */
+	private Node shootables;
+
+	/** the final String for the action PlaceBlock */
 	private static final String PLACE_BLOCK = "PlaceBlock";
+	/** the final String for the action MineBlock */
 	private static final String MINE_BLOCK = "MineBlock";
+
+	/**
+	 * datafields to avoid creating new objects on every frame, used especially
+	 * in method {@link #shootRay(float)}
+	 */
 	private CollisionResults results = new CollisionResults();
-	private Geometry highlightedBlockFace = new Geometry();
-	private Stack<BlockGameObj> inventory = new Stack<BlockGameObj>();
 	private Ray ray = new Ray();
 	private Vector3f projectedVector = new Vector3f();
-	private Node shootables;
+
+	/** the geometry of the highlighter */
+	private Geometry highlightedBlockFace = new Geometry();
+
+	/** the players inventory, currently implemented as a stack */
+	private Stack<BlockGameObj> inventory = new Stack<BlockGameObj>();
+
+	/**
+	 * datafields given by the {@link GameApplication} and the
+	 * {@link AssetManager} itself
+	 */
 	private InputManager inputManager;
 	private Node rootNode;
 	private AssetManager assetManager;
@@ -46,52 +68,65 @@ public class Player extends AbstractAppState implements ActionListener {
 
 	@Override
 	public void initialize(AppStateManager stateManager, Application app) {
+		// initialize datafields
 		super.initialize(stateManager, app);
 		this.app = (GameApplication) app;
 
 		this.rootNode = this.app.getRootNode();
-		this.shootables = (Node) this.rootNode.getChild(SHOOTABLES);
+		this.shootables = (Node) this.rootNode.getChild(IngameState.SHOOTABLES);
 		;
 		this.assetManager = this.app.getAssetManager();
 		this.inputManager = this.app.getInputManager();
 		this.cam = this.app.getCamera();
 
+		// initialize material for highlighted block face
 		Material matGrid = new Material(assetManager,
 				"assets/Materials/Unshaded/Unshaded.j3md");
 		matGrid.setColor("Color", ColorRGBA.LightGray);
 		matGrid.getAdditionalRenderState().setWireframe(true);
+
+		// initialize highlightedBlockFace
 		highlightedBlockFace.setMaterial(matGrid);
 		highlightedBlockFace.setMesh(new Box(0.5f, 0f, 0.5f));
 		highlightedBlockFace.setLocalTranslation(0, 2, 0);
+
+		// make the highlighter visible
 		rootNode.attachChild(highlightedBlockFace);
+
+		// initialize the key mappings
 		initKeys();
 
 	}
 
-	public void highlightBlockFace() {
-
-		results.clear();
+	/**
+	 * Highlights the block face the player views at if the face is in the range
+	 * of {@link #RAY_LIMIT} meters
+	 */
+	private void highlightBlockFace() {
+		results.clear(); // resets the results
 		results = shootRay(RAY_LIMIT);
-		if (results.size() > 0) {
-			// Vector3f viewPoint = calculateBlockLocation(results);
-			// Box shape = new Box(0f, 0.5f, 100f);
-			// Geometry geometry = new Geometry("Block", shape);
+		if (results.size() > 0) { // case that there is at least a block in the
+									// view direction and within the range
+
+			// get the geometry of the hit spatial that is closest to the player
 			CollisionResult closest = results.getClosestCollision();
 			Geometry geom = closest.getGeometry();
 			Vector3f selectedBlockPos = geom.getWorldTranslation();
 			Vector3f vectorToNeighbor = getVectorToNeighbor(geom,
 					closest.getContactPoint());
-			Vector3f halfVecToNeigh = vectorToNeighbor.mult(0.51f);
 
+			Vector3f halfVecToNeigh = vectorToNeighbor.mult(0.51f);
 			// this is supposed to be a bit in front of the last block in a
 			// local coordinate system relative to the mid point of the hit
 			// geometry
+
 			highlightedBlockFace.setLocalTranslation(selectedBlockPos
 					.add(halfVecToNeigh));
 
 			highlightedBlockFace.rotateUpTo(vectorToNeighbor);
 			rootNode.attachChild(highlightedBlockFace);
-		} else {
+		} else { // case that no block is in range or view direction, then hide
+					// the highlighter
 			highlightedBlockFace.removeFromParent();
 		}
 	}
@@ -100,18 +135,20 @@ public class Player extends AbstractAppState implements ActionListener {
 	 * currently picks up a block and puts it into the inventory
 	 */
 	private void mineBlock() {
-		CollisionResults results = shootRay(RAY_LIMIT);
+		results.clear(); // resets the results
+		results = shootRay(RAY_LIMIT);
 		if (results.size() > 0) {
 			CollisionResult closest = results.getClosestCollision();
 			Geometry geom = closest.getGeometry();
 			Node node = geom.getParent();
-			if (node.getName().equals(MINEABLES)) {
+			if (node.getName().equals(IngameState.MINEABLES)) {
 				Vector3f clickedBlockPos = geom.getLocalTranslation();
 				BlockGameObj clickedBlock = BlockManager.getInstance()
 						.getBlock(clickedBlockPos);
 				BlockManager.getInstance().removeBlockFrom(clickedBlockPos);
 				inventory.add(clickedBlock);
 			}
+
 			// this one may be important for non-block spatials
 			else {
 			}
@@ -122,39 +159,22 @@ public class Player extends AbstractAppState implements ActionListener {
 	 * takes a spatial from the inventory and puts it onto the right place
 	 */
 	private void placeBlockFromInv() {
+		results.clear(); // resets the results
 		if (inventory.size() > 0) { // check for empty inventoryNode
-			CollisionResults results = shootRay(RAY_LIMIT);
+			results = shootRay(RAY_LIMIT);
 			if (results.size() > 0) { // check if there is a hit at all
 				Vector3f blockLocation = calculateBlockLocation(results);
 				BlockGameObj curBlock = inventory.pop();
 				BlockManager.getInstance().setBlock(blockLocation, curBlock);
 
 				// spaten.setLocalTranslation(blockLocation);
-				// mineables.attachChild(spaten); // TODO 3 is there anything
-				// that
-				// // can be set but is not
-				// // mineable?
+				// mineables.attachChild(spaten);
+				// TODO 3 is there anything that can be set but is not mineable?
 				// TODO 2 stop blocks from being placed when player is in the
 				// way
 			}
 		}
 	}
-
-	/**
-	 * places a block onto the targetted physical object relative to the
-	 * targetted face of the block. This method does not use the inventory
-	 * instead generates new blocks every time called.
-	 */
-	// private void placeBlock() {
-	// CollisionResults results = shootRay(RAY_LIMIT);
-	// if (results.size() > 0) {
-	// Vector3f blockLocation = calculateBlockLocation(results);
-	//
-	// addBlockAt((int) blockLocation.x, (int) blockLocation.y,
-	// (int) blockLocation.z);
-	// // TODO 2 stop blocks from being placed when player is in the way
-	// }
-	// }
 
 	/**
 	 * calculates the position where the block shall be set and returns it
@@ -193,12 +213,8 @@ public class Player extends AbstractAppState implements ActionListener {
 		projectedVector.set(contactPoint.add(geom.getWorldTranslation()
 				.negate()));
 
-		float xProjectionLength = projectedVector.dot(Vector3f.UNIT_X); // scalar
-																		// product
-																		// of
-		// tmp with the
-		// unit
-		// vector in x-dir'n
+		float xProjectionLength = projectedVector.dot(Vector3f.UNIT_X);
+		// scalar product of projectedVector with the unit vector in x-dir'n
 		float yProjectionLength = projectedVector.dot(Vector3f.UNIT_Y);
 		float zProjectionLength = projectedVector.dot(Vector3f.UNIT_Z);
 		// get maximum of the three projections
@@ -226,23 +242,23 @@ public class Player extends AbstractAppState implements ActionListener {
 	 * @return results the list of CollisionResults
 	 */
 	private CollisionResults shootRay(float limit) {
-		results.clear();
 		ray.setOrigin(cam.getLocation());
 		ray.setDirection(cam.getDirection());
 		ray.setLimit(limit);
 		shootables.collideWith(ray, results);
+
 		// Print the results for Testing
-		/*
-		 * System.out.println("----- Collisions? " + results.size() + "-----");
-		 * for (int i = 0; i < results.size(); i++) { // For each hit, we know
-		 * // distance, impact point, // name of geometry. float dist =
-		 * results.getCollision(i).getDistance(); Vector3f pt =
-		 * results.getCollision(i).getContactPoint(); String hit =
-		 * results.getCollision(i).getGeometry().getName();
-		 * System.out.println("* Collision #" + i);
-		 * System.out.println("  You shot " + hit + " at " + pt + ", " + dist +
-		 * " wu away."); }
-		 */
+		//
+		// System.out.println("----- Collisions? " + results.size() + "-----");
+		// for (int i = 0; i < results.size(); i++) { // For each hit, we know
+		// // distance, impact point, // name of geometry. float dist =
+		// results.getCollision(i).getDistance(); Vector3f pt =
+		// results.getCollision(i).getContactPoint(); String hit =
+		// results.getCollision(i).getGeometry().getName();
+		// System.out.println("* Collision #" + i);
+		// System.out.println("  You shot " + hit + " at " + pt + ", " + dist +
+		// " wu away."); }
+		//
 		return results;
 	}
 
@@ -264,13 +280,9 @@ public class Player extends AbstractAppState implements ActionListener {
 	 * yet, we just keep track of the direction the user pressed.
 	 */
 	public void onAction(String binding, boolean value, float tpf) {
-		// new if-statement to get the possibility of running and mining or
-		// placing at the same time
 		if (binding.equals(PLACE_BLOCK) && !value) {
-			placeBlockFromInv(); // use blocks from inventory
-			// placeBlock(); // infinite block placing
+			placeBlockFromInv();
 		} else if (binding.equals(MINE_BLOCK) && !value) {
-			System.out.println("PRESSED");
 			mineBlock();
 		}
 	}
