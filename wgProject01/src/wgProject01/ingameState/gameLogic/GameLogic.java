@@ -3,8 +3,8 @@ package wgProject01.ingameState.gameLogic;
 import wgProject01.Settings;
 import wgProject01.ingameState.BlockGameObj;
 import wgProject01.ingameState.BlockManager;
-import wgProject01.ingameState.gameLogic.control.BlockCollisionSystem;
-import wgProject01.ingameState.gameLogic.control.SimpleWalkingAiSystem;
+import wgProject01.ingameState.gameLogic.systems.BlockCollisionSystem;
+import wgProject01.ingameState.gameLogic.systems.SimpleWalkingAiSystem;
 import wgProject01.ingameState.gameLogic.utils.EntityFactory;
 
 import com.artemis.World;
@@ -12,18 +12,47 @@ import com.jme3.asset.AssetManager;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 
+/**
+ * Class which manages the global game logic, initializes the world and entity
+ * systems.
+ * 
+ * @author oli
+ * 
+ */
 public class GameLogic {
 
+	/**
+	 * The "radius" of the initial Block generation.
+	 */
 	public final static int FLOOR_RADIUS = 10;
 
+	/**
+	 * This value defins the maximal time delta which game logic updates have to
+	 * handle.
+	 * 
+	 * Greater time deltas are automatically splitted up into multiple smaller
+	 * update calls by this class.
+	 */
 	private final static float MAX_SECONDS_PER_UPDATE = 1.0f / 10.0f;
 
+	/**
+	 * The {@link World} object, to globally manage our entity system framework.
+	 */
 	private World world;
 
+	/**
+	 * The JME3 {@link Node} to which blocks are attached.
+	 */
 	private Node blockNode;
 
+	/**
+	 * The JME3 {@link AssetManager}.
+	 */
 	private AssetManager assetManager;
 
+	/**
+	 * Initializes the game logic and entity systems.
+	 */
 	public void doInit(Node blockNode, AssetManager assetManager) {
 		this.blockNode = blockNode;
 		this.assetManager = assetManager;
@@ -41,10 +70,21 @@ public class GameLogic {
 		world.initialize();
 	}
 
+	/**
+	 * Cleans up the game logic and entity systems. Not properly tested
+	 */
 	public void doCleanup() {
 		world.deleteSystem(world.getSystem(SimpleWalkingAiSystem.class));
+		world.deleteSystem(world.getSystem(BlockCollisionSystem.class));
 	}
 
+	/**
+	 * This method updates the whole game logic. The given secondsDelta is the
+	 * ingame time the game logic shall be progressed.
+	 * 
+	 * Internally the given time delta may be split into smaller parts and
+	 * entity system is updated multiple time with the small time deltas.
+	 */
 	public void doUpdate(float secondsDelta) {
 		float leftDeltaToProcess = secondsDelta;
 
@@ -62,7 +102,7 @@ public class GameLogic {
 	}
 
 	/**
-	 * Initializes the block Manager and some blocks for testing.
+	 * Initializes the block Manager.
 	 */
 	private void initBlockManager() {
 		// initialize the block manager
@@ -72,8 +112,8 @@ public class GameLogic {
 	}
 
 	/**
-	 * initializes a quadratic floor consisting of blocks, FLOOR_RADIUS defines
-	 * its size
+	 * Initializes a quadratic floor and walls consisting of blocks.
+	 * {@link GameLogic#FLOOR_RADIUS} defines its size.
 	 */
 	private void initFloor() {
 		for (int x = -FLOOR_RADIUS; x <= FLOOR_RADIUS; x++) {
@@ -93,14 +133,7 @@ public class GameLogic {
 	}
 
 	/**
-	 * adds a block at the specific position (x,y,z)
-	 * 
-	 * @param x
-	 *            the x-coordinate
-	 * @param y
-	 *            the y-coordinate
-	 * @param z
-	 *            the z-coordinate
+	 * Adds a block at the specific position (x,y,z), using the {@link BlockManager}.
 	 */
 	private void addBlockAt(int x, int y, int z) {
 		BlockGameObj newBlock = BlockManager.getInstance().getBlockGameObj();

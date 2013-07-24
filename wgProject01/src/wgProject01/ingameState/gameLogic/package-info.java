@@ -1,5 +1,5 @@
 /**
- * Contains all the game logic, this means the non-visual part of the game.
+ * Contains all the game logic.
  * 
  * @author oli
  *
