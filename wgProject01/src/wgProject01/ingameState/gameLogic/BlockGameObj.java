@@ -15,7 +15,7 @@ import com.jme3.scene.shape.Box;
 import com.jme3.util.TangentBinormalGenerator;
 
 /**
- * Objects of this class represent fixed blocks in the terrain.
+ * Objects of this class represent the logic of fixed blocks in the terrain.
  * 
  * They are managed by the {@link BlockManager}. They need to be informed,
  * whenever they are moved or their neighborhood changed, using this classes
@@ -30,16 +30,16 @@ public class BlockGameObj {
 	 * The View of this block.
 	 */
 	private BlockView blockView;
-	
+
 	/**
-	 * The position of tis block.
+	 * The position of this block.
 	 */
 	public BlockPositionComponent blockPositionComponent = new BlockPositionComponent();
 
 	/**
-	 * Creates a new Block game object which will attach to the given node as
-	 * soon as placed via the {@link #doHandlePlacementAt(int, int, int)}
-	 * method.
+	 * Creates a new Block game object which will attach a spatial to the given
+	 * node as soon as placed via the
+	 * {@link #doHandlePlacementAt(int, int, int)} method.
 	 */
 	BlockGameObj(Node node, AssetManager assetManager) {
 		Geometry geometry;
@@ -87,8 +87,7 @@ public class BlockGameObj {
 
 	/**
 	 * Informs the block that it was placed at the given position. The block
-	 * acts accordingly by attaching itself to the scene graph node at the
-	 * correct position.
+	 * updates its model and view accordingly.
 	 */
 	void doHandlePlacementAt(int x, int y, int z) {
 		this.blockPositionComponent.x = x;
@@ -99,8 +98,8 @@ public class BlockGameObj {
 	}
 
 	/**
-	 * Informs the block that it was removed from it's position. The block acts
-	 * accordingly by removing itself from the scene graph.
+	 * Informs the block that it was removed. The block updates its model and
+	 * view accordingly.
 	 */
 	void doHandleRemovementFrom() {
 		this.blockPositionComponent.placed = false;
