@@ -13,6 +13,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
 
 /**
@@ -42,7 +43,7 @@ public class EntityView extends AbstractControl {
 	private Geometry collisionBoxGeometry;
 
 	/** for testing: line representing the direction of the entity */
-	private Geometry directionLineGeometry;
+	private Spatial directionLineSpatial;
 
 	
 	/**
@@ -73,7 +74,7 @@ public class EntityView extends AbstractControl {
 			}
 			DirectionComponent directionComponent = entity.getComponent((DirectionComponent.class));
 			if(directionComponent != null && positionComponent != null){
-				directionLineGeometry = Jme3Utils.drawLine(new Vector3f(), new Vector3f(0,3,0), entityNode, assetManager);
+				directionLineSpatial = Jme3Utils.drawLine(new Vector3f(), new Vector3f(0,3,0), entityNode, assetManager);
 			}
 		}
 	}
@@ -120,8 +121,8 @@ public class EntityView extends AbstractControl {
 
 		if(Settings.debugMode >= 2){
 			if(directionComponent != null && positionComponent != null){
-				directionLineGeometry.rotateUpTo(directionComponent.getDirection());
-				directionLineGeometry.setLocalTranslation(positionComponent.pos);
+				directionLineSpatial.rotateUpTo(directionComponent.getDirection());
+				directionLineSpatial.setLocalTranslation(positionComponent.pos);
 			}
 		}
 	}

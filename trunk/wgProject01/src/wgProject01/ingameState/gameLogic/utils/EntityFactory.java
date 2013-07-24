@@ -87,7 +87,7 @@ public class EntityFactory {
 		WalkingAiComponent walkingAiComponent = new WalkingAiComponent();
 		e.addComponent(walkingAiComponent);
 
-		Vector3f collisionBoxRadii = new Vector3f(0.5f, 1.5f, 0.5f);
+		Vector3f collisionBoxRadii = new Vector3f(1f, 2.35f, 1f);
 		CollisionBoxComponent collisionBoxComponent = new CollisionBoxComponent(
 				collisionBoxRadii);
 		e.addComponent(collisionBoxComponent);

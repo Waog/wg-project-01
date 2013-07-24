@@ -8,6 +8,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Line;
 import com.jme3.scene.shape.Quad;
@@ -22,20 +23,22 @@ public class Jme3Utils {
 
 	/**
 	 * Places a visible line in the coordinate system of the given node, between
-	 * the given end points and returns the corresponding Geometry
+	 * the given end points and returns the corresponding Spatial, which can
+	 * easily be rotated around the start point.
 	 */
-	public static Geometry drawLine(Vector3f start, Vector3f end, Node node,
+	public static Spatial drawLine(Vector3f start, Vector3f end, Node node,
 			AssetManager assetManager) {
+		Node result = new Node();
+		node.attachChild(result);
 		Line line = new Line(start, end);
 		Geometry geometry = new Geometry("Line", line);
 		Material mat = new Material(assetManager,
 				"Common/MatDefs/Misc/Unshaded.j3md");
 		mat.setColor("Color", ColorRGBA.White);
 		geometry.setMaterial(mat);
-		node.attachChild(geometry);
-		return geometry;
+		result.attachChild(geometry);
+		return result;
 	}
-	
 
 	/**
 	 * Returns a random colored semi transparent cube Geometry with the given
@@ -62,7 +65,7 @@ public class Jme3Utils {
 		result.setMaterial(debugMaterial);
 		return result;
 	}
-	
+
 	/**
 	 * Returns a random colored semi transparent cuboid Geometry with the given
 	 * "radii".

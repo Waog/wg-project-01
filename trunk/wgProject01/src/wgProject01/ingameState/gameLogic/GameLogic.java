@@ -65,7 +65,7 @@ public class GameLogic {
 		world.setSystem(new GravitationSystem());
 		world.setSystem(new BlockCollisionSystem());
 
-		EntityFactory.createEnemy(world, new Vector3f());
+		EntityFactory.createEnemy(world, new Vector3f(0, 5, 0));
 
 		world.initialize();
 		initTestingStuff();
