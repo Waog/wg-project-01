@@ -1,7 +1,9 @@
 package wgProject01.ingameState.gameLogic.view;
 
+import jm3Utils.Jme3Utils;
 import wgProject01.Settings;
 import wgProject01.ingameState.gameLogic.BlockGameObj;
+import wgProject01.ingameState.gameLogic.BlockManager;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
@@ -10,7 +12,6 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.util.TangentBinormalGenerator;
 
@@ -31,24 +32,26 @@ import com.jme3.util.TangentBinormalGenerator;
 public class BlockView {
 
 	/**
-	 * The Component which stores the position of this
-	 */
-
-	/**
 	 * The wrapped block, which is visualized by this view.
 	 */
 	private BlockGameObj block;
 
 	/**
-	 * The wrapped spatial which represents the block of this view.
+	 * The wrapped JME3 Node which represents the block of this view.
 	 */
-	private Spatial spatial;
+	private Node blockNode;
+
+	/**
+	 * The spatial of one face of this block.
+	 */
+	private Geometry facePositiveX, facePositiveY, facePositiveZ,
+			faceNegativeX, faceNegativeY, faceNegativeZ;
 
 	/**
 	 * The scene graph Node to which this Blocks spatial will be attached to and
 	 * detached from.
 	 */
-	private Node node;
+	private Node parentNode;
 
 	/**
 	 * Constructs a new View for the given block and spatial.
@@ -57,11 +60,17 @@ public class BlockView {
 	 *            {@inheritDoc #node} The scene graph Node to which this Blocks
 	 *            spatial will be attached to and detached from.
 	 */
-	public BlockView(BlockGameObj block, Node blockNode, AssetManager assetManager) {
+	public BlockView(BlockGameObj block, Node parentNode,
+			AssetManager assetManager) {
+		this.parentNode = parentNode;
+		this.block = block;
+		initFaceSpatials(assetManager);
+
+		Geometry boxGeometry;
 		if (Settings.debugMode < 3) {
 			// in release mode create a normal textured block
 			Box mesh = new Box(0.5f, 0.5f, 0.5f);
-			spatial = new Geometry("Block", mesh);
+			boxGeometry = new Geometry("Block", mesh);
 			TangentBinormalGenerator.generate(mesh);
 			Material shinyStoneMat = new Material(assetManager,
 					"assets/Materials/Lighting/Lighting.j3md");
@@ -73,12 +82,12 @@ public class BlockView {
 			shinyStoneMat.setColor("Diffuse", ColorRGBA.White);
 			shinyStoneMat.setColor("Specular", ColorRGBA.White);
 			shinyStoneMat.setFloat("Shininess", 64f); // [0,128]
-			spatial.setMaterial(shinyStoneMat);
+			boxGeometry.setMaterial(shinyStoneMat);
 		} else {
 			// in debug mode create a transparent block
 			Box mesh = new Box(0.5f, 0.5f, 0.5f);
-			spatial = new Geometry("Block", mesh);
-			spatial.setQueueBucket(Bucket.Transparent);
+			boxGeometry = new Geometry("Block", mesh);
+			boxGeometry.setQueueBucket(Bucket.Transparent);
 			Material debugMaterial = new Material(assetManager,
 					"Common/MatDefs/Misc/Unshaded.j3md");
 			ColorRGBA randomColor = ColorRGBA.randomColor();
@@ -86,11 +95,10 @@ public class BlockView {
 			debugMaterial.setColor("Color", randomColor);
 			debugMaterial.getAdditionalRenderState().setBlendMode(
 					BlendMode.Alpha); // !
-			spatial.setMaterial(debugMaterial);
+			boxGeometry.setMaterial(debugMaterial);
 		}
-		
-		this.block = block;
-		this.node = blockNode;
+		this.blockNode = new Node();
+		this.blockNode.attachChild(boxGeometry);
 	}
 
 	/**
@@ -100,12 +108,56 @@ public class BlockView {
 	 */
 	public void informBlockChange() {
 		// TODO 2: move this code, to be executed in the render thread somehow.
-		this.spatial.setLocalTranslation(block.blockPositionComponent.x,
+		this.blockNode.setLocalTranslation(block.blockPositionComponent.x,
 				block.blockPositionComponent.y, block.blockPositionComponent.z);
 		if (block.blockPositionComponent.placed) {
-			this.node.attachChild(spatial);
+			this.parentNode.attachChild(blockNode);
 		} else {
-			this.spatial.removeFromParent();
+			this.blockNode.removeFromParent();
 		}
+
+		// update each face depending on the blocks neighbor
+		checkNeighbor(1, 0, 0, facePositiveX);
+		checkNeighbor(0, 1, 0, facePositiveY);
+		checkNeighbor(0, 0, 1, facePositiveZ);
+		checkNeighbor(-1, 0, 0, faceNegativeX);
+		checkNeighbor(0, -1, 0, faceNegativeY);
+		checkNeighbor(0, 0, -1, faceNegativeZ);
+	}
+
+	/**
+	 * Checks if there is a block at the given relative position and attaches
+	 * the given geometry to the blockNode if so or detached it, if not.
+	 */
+	private void checkNeighbor(int xOffset, int yOffset, int zOffset,
+			Geometry dependentGeometry) {
+		BlockGameObj checkedBlock = BlockManager.getInstance().getBlock(
+				block.blockPositionComponent.x + xOffset,
+				block.blockPositionComponent.y + yOffset,
+				block.blockPositionComponent.z + zOffset);
+		if (checkedBlock == null) {
+			blockNode.attachChild(dependentGeometry);
+		} else {
+			dependentGeometry.removeFromParent();
+		}
+	}
+
+	/**
+	 * Creates a spatial for each side of the block and stores them in the
+	 * instance variables.
+	 */
+	private void initFaceSpatials(AssetManager assetManager) {
+		facePositiveX = Jme3Utils.getCubeGeom(.1f, assetManager);
+		facePositiveX.setLocalTranslation(.5f, 0, 0);
+		facePositiveY = Jme3Utils.getCubeGeom(.1f, assetManager);
+		facePositiveY.setLocalTranslation(0, .5f, 0);
+		facePositiveZ = Jme3Utils.getCubeGeom(.1f, assetManager);
+		facePositiveZ.setLocalTranslation(0, 0, .5f);
+		faceNegativeX = Jme3Utils.getCubeGeom(.1f, assetManager);
+		faceNegativeX.setLocalTranslation(-.5f, 0, 0);
+		faceNegativeY = Jme3Utils.getCubeGeom(.1f, assetManager);
+		faceNegativeY.setLocalTranslation(0, -.5f, 0);
+		faceNegativeZ = Jme3Utils.getCubeGeom(.1f, assetManager);
+		faceNegativeZ.setLocalTranslation(0, 0, -.5f);
 	}
 }

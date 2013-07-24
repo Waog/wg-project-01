@@ -2,7 +2,7 @@ package wgProject01.ingameState;
 
 import java.util.Stack;
 
-import jm3Utils.Jm3Utils;
+import jm3Utils.Jme3Utils;
 import wgProject01.GameApplication;
 import wgProject01.ingameState.gameLogic.BlockGameObj;
 import wgProject01.ingameState.gameLogic.BlockManager;
@@ -142,9 +142,13 @@ public class Player extends AbstractAppState implements ActionListener {
 		if (results.size() > 0) {
 			CollisionResult closest = results.getClosestCollision();
 			Geometry geom = closest.getGeometry();
-			Node node = geom.getParent();
-			if (node.getName().equals(IngameState.MINEABLES)) {
-				Vector3f clickedBlockPos = geom.getLocalTranslation();
+			Node aBlockNode = geom.getParent();
+			Node minablesNode  = null;
+			if (aBlockNode != null) {
+				minablesNode = aBlockNode.getParent();
+			}
+			if (minablesNode.getName().equals(IngameState.MINEABLES)) {
+				Vector3f clickedBlockPos = aBlockNode.getLocalTranslation();
 				BlockGameObj clickedBlock = BlockManager.getInstance()
 						.getBlock(clickedBlockPos);
 				BlockManager.getInstance().removeBlockFrom(clickedBlockPos);
@@ -194,7 +198,7 @@ public class Player extends AbstractAppState implements ActionListener {
 		// System.out.println(geom.getLocalTranslation().toString());
 		Vector3f blockLocation = selectedGeom.getWorldTranslation().add(
 				vectorToNeighbor);
-		Jm3Utils.drawLine(selectedGeom.getWorldTranslation(), blockLocation,
+		Jme3Utils.drawLine(selectedGeom.getWorldTranslation(), blockLocation,
 				rootNode, assetManager);
 		return blockLocation;
 	}
