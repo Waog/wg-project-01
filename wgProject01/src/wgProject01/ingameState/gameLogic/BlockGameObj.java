@@ -1,4 +1,4 @@
-package wgProject01.ingameState;
+package wgProject01.ingameState.gameLogic;
 
 import wgProject01.Settings;
 

@@ -1,4 +1,4 @@
-package wgProject01.ingameState;
+package wgProject01.ingameState.gameLogic;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.math.Vector3f;
@@ -144,7 +144,7 @@ public class BlockManager {
 	 * parameter. The given vector's coordinates are rounded to their next
 	 * integers.
 	 */
-	BlockGameObj getBlock(Vector3f pos) {
+	public BlockGameObj getBlock(Vector3f pos) {
 		int intPosX = Math.round(pos.x);
 		int intPosY = Math.round(pos.y);
 		int intPosZ = Math.round(pos.z);
@@ -156,7 +156,7 @@ public class BlockManager {
 	 * position parameter. The given vector's coordinates are rounded to their
 	 * next integers.
 	 */
-	void setBlock(Vector3f pos, BlockGameObj block) {
+	public void setBlock(Vector3f pos, BlockGameObj block) {
 		int intPosX = Math.round(pos.x);
 		int intPosY = Math.round(pos.y);
 		int intPosZ = Math.round(pos.z);

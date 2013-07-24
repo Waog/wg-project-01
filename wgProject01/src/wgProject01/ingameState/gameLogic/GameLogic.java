@@ -1,8 +1,6 @@
 package wgProject01.ingameState.gameLogic;
 
 import wgProject01.Settings;
-import wgProject01.ingameState.BlockGameObj;
-import wgProject01.ingameState.BlockManager;
 import wgProject01.ingameState.gameLogic.systems.BlockCollisionSystem;
 import wgProject01.ingameState.gameLogic.systems.SimpleWalkingAiSystem;
 import wgProject01.ingameState.gameLogic.utils.EntityFactory;
