@@ -3,10 +3,13 @@ package wgProject01.ingameState.gameLogic.view;
 import jm3Utils.Jme3Utils;
 import wgProject01.Settings;
 import wgProject01.ingameState.gameLogic.components.CollisionBoxComponent;
+import wgProject01.ingameState.gameLogic.components.DirectionComponent;
 import wgProject01.ingameState.gameLogic.components.PositionComponent;
 
 import com.artemis.Entity;
 import com.jme3.asset.AssetManager;
+import com.jme3.math.Matrix3f;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
@@ -36,8 +39,13 @@ public class EntityView extends AbstractControl {
 	 */
 	Node entityNode;
 
+	/** for testing: geometry representing the collision box */
 	private Geometry collisionBoxGeometry;
 
+	/** for testing: line representing the direction of the entity */
+	private Geometry directionLineGeometry;
+
+	
 	/**
 	 * Constructs a new View for the given entity.
 	 */
@@ -64,6 +72,10 @@ public class EntityView extends AbstractControl {
 				collisionBoxGeometry.setLocalTranslation(positionComponent.pos);
 				entityNode.attachChild(collisionBoxGeometry);
 			}
+			DirectionComponent directionComponent = entity.getComponent((DirectionComponent.class));
+			if(directionComponent != null && positionComponent != null){
+				directionLineGeometry = Jme3Utils.drawLine(new Vector3f(), new Vector3f(0,3,0), entityNode, assetManager);
+			}
 		}
 	}
 
@@ -85,6 +97,16 @@ public class EntityView extends AbstractControl {
 		if (positionComponent != null) {
 			spatial.setLocalTranslation(positionComponent.pos);
 		}
+		DirectionComponent directionComponent = entity.getComponent((DirectionComponent.class));
+		if(directionComponent != null && positionComponent != null){
+			spatial.lookAt(positionComponent.pos.add(directionComponent.getDirection()), Vector3f.UNIT_Y);
+		}
+		
+		
+		
+		
+		
+		
 
 		// TODO 2 set the right debug mode
 		if (Settings.debugMode >= 2) {
@@ -94,6 +116,13 @@ public class EntityView extends AbstractControl {
 			if (collisionBoxComponent != null && positionComponent != null && collisionBoxGeometry != null) {
 				collisionBoxGeometry.setLocalTranslation(positionComponent.pos);
 				entityNode.attachChild(collisionBoxGeometry);
+			}
+		}
+
+		if(Settings.debugMode >= 2){
+			if(directionComponent != null && positionComponent != null){
+				directionLineGeometry.rotateUpTo(directionComponent.getDirection());
+				directionLineGeometry.setLocalTranslation(positionComponent.pos);
 			}
 		}
 	}

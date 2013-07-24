@@ -87,7 +87,8 @@ public class GameLogic {
 	 * entity system is updated multiple time with the small time deltas.
 	 */
 	public void doUpdate(float secondsDelta) {
-		long time = System.nanoTime();
+		long time = 0;
+		if(Settings.debugMode > 0 )  time = System.nanoTime();
 		float leftDeltaToProcess = secondsDelta;
 
 		while (leftDeltaToProcess > 0) {
@@ -101,7 +102,7 @@ public class GameLogic {
 			world.setDelta(curDeltaToProcess);
 			world.process();
 		}
-		System.out.println("GameLogic update total used time: " + (System.nanoTime() - time) * 0.000000001);
+		if(Settings.debugMode > 0 ) System.out.println("GameLogic update total used time: " + (System.nanoTime() - time) * 0.000000001);
 	}
 
 	/**

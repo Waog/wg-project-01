@@ -2,6 +2,9 @@ package wgProject01.ingameState.gameLogic.systems;
 
 import java.util.Random;
 
+import jm3Utils.Jme3Utils;
+
+import wgProject01.ingameState.gameLogic.components.DirectionComponent;
 import wgProject01.ingameState.gameLogic.components.PositionComponent;
 import wgProject01.ingameState.gameLogic.components.WalkingAiComponent;
 
@@ -39,6 +42,12 @@ public class SimpleWalkingAiSystem extends EntityProcessingSystem {
 	ComponentMapper<WalkingAiComponent> walkingAiManager;
 
 	/**
+	 * Automagical creation of a ComponentMapper to extract a component from the
+	 * entities.
+	 */
+	@Mapper
+	ComponentMapper<DirectionComponent> directionManager;
+	/**
 	 * Used for randomly generating walking directions and times.
 	 */
 	Random random = new Random();
@@ -57,7 +66,7 @@ public class SimpleWalkingAiSystem extends EntityProcessingSystem {
 	@SuppressWarnings("unchecked")
 	public SimpleWalkingAiSystem() {
 		super(Aspect.getAspectForAll(PositionComponent.class,
-				WalkingAiComponent.class));
+				WalkingAiComponent.class, DirectionComponent.class));
 	}
 
 	/**
@@ -76,6 +85,7 @@ public class SimpleWalkingAiSystem extends EntityProcessingSystem {
 		// extract needed components from entity
 		PositionComponent positionComponent = positionManager.get(e);
 		WalkingAiComponent walkingAiComponent = walkingAiManager.get(e);
+		DirectionComponent directionComponent = directionManager.get(e);
 		// extract the time delta
 		float timeDelta = world.getDelta();
 
@@ -86,6 +96,7 @@ public class SimpleWalkingAiSystem extends EntityProcessingSystem {
 			walkingAiComponent.curDirection.y = 0;
 			walkingAiComponent.curDirection.z = random.nextFloat() - 0.5f;
 			walkingAiComponent.curDirection.normalizeLocal();
+			directionComponent.setDirection(walkingAiComponent.curDirection);
 		}
 
 		Vector3f moveOffset = walkingAiComponent.curDirection.mult(timeDelta)

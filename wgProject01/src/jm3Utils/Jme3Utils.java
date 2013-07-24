@@ -22,9 +22,9 @@ public class Jme3Utils {
 
 	/**
 	 * Places a visible line in the coordinate system of the given node, between
-	 * the given end points.
+	 * the given end points and returns the corresponding Geometry
 	 */
-	public static void drawLine(Vector3f start, Vector3f end, Node node,
+	public static Geometry drawLine(Vector3f start, Vector3f end, Node node,
 			AssetManager assetManager) {
 		Line line = new Line(start, end);
 		Geometry geometry = new Geometry("Line", line);
@@ -33,7 +33,9 @@ public class Jme3Utils {
 		mat.setColor("Color", ColorRGBA.White);
 		geometry.setMaterial(mat);
 		node.attachChild(geometry);
+		return geometry;
 	}
+	
 
 	/**
 	 * Returns a random colored semi transparent cube Geometry with the given
