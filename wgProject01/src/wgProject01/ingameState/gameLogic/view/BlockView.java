@@ -66,39 +66,7 @@ public class BlockView {
 		this.block = block;
 		initFaceSpatials(assetManager);
 
-		Geometry boxGeometry;
-		if (Settings.debugMode < 3) {
-			// in release mode create a normal textured block
-			Box mesh = new Box(0.5f, 0.5f, 0.5f);
-			boxGeometry = new Geometry("Block", mesh);
-			TangentBinormalGenerator.generate(mesh);
-			Material shinyStoneMat = new Material(assetManager,
-					"assets/Materials/Lighting/Lighting.j3md");
-			shinyStoneMat.setTexture("DiffuseMap",
-					assetManager.loadTexture("Textures/Pond/Pond.jpg"));
-			shinyStoneMat.setTexture("NormalMap",
-					assetManager.loadTexture("Textures/Pond/Pond_normal.png"));
-			shinyStoneMat.setBoolean("UseMaterialColors", true);
-			shinyStoneMat.setColor("Diffuse", ColorRGBA.White);
-			shinyStoneMat.setColor("Specular", ColorRGBA.White);
-			shinyStoneMat.setFloat("Shininess", 64f); // [0,128]
-			boxGeometry.setMaterial(shinyStoneMat);
-		} else {
-			// in debug mode create a transparent block
-			Box mesh = new Box(0.5f, 0.5f, 0.5f);
-			boxGeometry = new Geometry("Block", mesh);
-			boxGeometry.setQueueBucket(Bucket.Transparent);
-			Material debugMaterial = new Material(assetManager,
-					"Common/MatDefs/Misc/Unshaded.j3md");
-			ColorRGBA randomColor = ColorRGBA.randomColor();
-			randomColor.a = 0.5f;
-			debugMaterial.setColor("Color", randomColor);
-			debugMaterial.getAdditionalRenderState().setBlendMode(
-					BlendMode.Alpha); // !
-			boxGeometry.setMaterial(debugMaterial);
-		}
 		this.blockNode = new Node();
-		this.blockNode.attachChild(boxGeometry);
 	}
 
 	/**
@@ -147,17 +115,36 @@ public class BlockView {
 	 * instance variables.
 	 */
 	private void initFaceSpatials(AssetManager assetManager) {
-		facePositiveX = Jme3Utils.getCubeGeom(.1f, assetManager);
-		facePositiveX.setLocalTranslation(.5f, 0, 0);
-		facePositiveY = Jme3Utils.getCubeGeom(.1f, assetManager);
-		facePositiveY.setLocalTranslation(0, .5f, 0);
-		facePositiveZ = Jme3Utils.getCubeGeom(.1f, assetManager);
-		facePositiveZ.setLocalTranslation(0, 0, .5f);
-		faceNegativeX = Jme3Utils.getCubeGeom(.1f, assetManager);
-		faceNegativeX.setLocalTranslation(-.5f, 0, 0);
-		faceNegativeY = Jme3Utils.getCubeGeom(.1f, assetManager);
-		faceNegativeY.setLocalTranslation(0, -.5f, 0);
-		faceNegativeZ = Jme3Utils.getCubeGeom(.1f, assetManager);
-		faceNegativeZ.setLocalTranslation(0, 0, -.5f);
+		float blockRadius = .5f;
+
+		facePositiveX = Jme3Utils.getQuad(1f, assetManager);
+		facePositiveX.rotate(0, (float) Math.PI / 2f, 0);
+		facePositiveX.setLocalTranslation(blockRadius, -blockRadius,
+				blockRadius);
+
+		facePositiveY = Jme3Utils.getQuad(1f, assetManager);
+		facePositiveY.rotate((float) -Math.PI / 2f, 0, 0);
+		facePositiveY.setLocalTranslation(-blockRadius, blockRadius,
+				blockRadius);
+
+		facePositiveZ = Jme3Utils.getQuad(1f, assetManager);
+		facePositiveZ.rotate(0, 0, 0);
+		facePositiveZ.setLocalTranslation(-blockRadius, -blockRadius,
+				blockRadius);
+
+		faceNegativeX = Jme3Utils.getQuad(1f, assetManager);
+		faceNegativeX.rotate(0, (float) -Math.PI / 2f, 0);
+		faceNegativeX.setLocalTranslation(-blockRadius, -blockRadius,
+				-blockRadius);
+
+		faceNegativeY = Jme3Utils.getQuad(1f, assetManager);
+		faceNegativeY.rotate((float) Math.PI / 2f, 0, 0);
+		faceNegativeY.setLocalTranslation(-blockRadius, -blockRadius,
+				-blockRadius);
+
+		faceNegativeZ = Jme3Utils.getQuad(1f, assetManager);
+		faceNegativeZ.rotate((float) Math.PI, 0, 0);
+		faceNegativeZ.setLocalTranslation(-blockRadius, blockRadius,
+				-blockRadius);
 	}
 }
