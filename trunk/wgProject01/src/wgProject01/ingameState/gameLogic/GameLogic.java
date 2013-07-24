@@ -1,5 +1,6 @@
 package wgProject01.ingameState.gameLogic;
 
+import wgProject01.Settings;
 import wgProject01.ingameState.BlockGameObj;
 import wgProject01.ingameState.BlockManager;
 import wgProject01.ingameState.gameLogic.control.BlockCollisionSystem;
@@ -12,7 +13,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 
 public class GameLogic {
-	
+
 	public final static int FLOOR_RADIUS = 10;
 
 	private final static float MAX_SECONDS_PER_UPDATE = 1.0f / 10.0f;
@@ -26,10 +27,10 @@ public class GameLogic {
 	public void doInit(Node blockNode, AssetManager assetManager) {
 		this.blockNode = blockNode;
 		this.assetManager = assetManager;
-		
+
 		initBlockManager();
 		initFloor();
-		
+
 		world = new World();
 
 		world.setSystem(new SimpleWalkingAiSystem());
@@ -52,11 +53,14 @@ public class GameLogic {
 					MAX_SECONDS_PER_UPDATE);
 			leftDeltaToProcess -= curDeltaToProcess;
 
+			if (Settings.debugMode >= 1) {
+				System.out.println("update with delta: " + curDeltaToProcess);
+			}
 			world.setDelta(curDeltaToProcess);
 			world.process();
 		}
 	}
-	
+
 	/**
 	 * Initializes the block Manager and some blocks for testing.
 	 */
@@ -66,7 +70,7 @@ public class GameLogic {
 		// rootNode.attachChild(blockNode);
 		blockManager.initData(blockNode, assetManager);
 	}
-	
+
 	/**
 	 * initializes a quadratic floor consisting of blocks, FLOOR_RADIUS defines
 	 * its size
@@ -87,7 +91,7 @@ public class GameLogic {
 			}
 		}
 	}
-	
+
 	/**
 	 * adds a block at the specific position (x,y,z)
 	 * 

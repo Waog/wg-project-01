@@ -35,5 +35,5 @@ public class Settings {
 	 * <li> <code>debugMode = 4</code>: anything allowed</li>
 	 * <ul>
 	 */
-	public static int debugMode = 2 ;
+	public static int debugMode = 2;
 }
