@@ -117,6 +117,10 @@ public class GameLogic {
 	 * {@link GameLogic#FLOOR_RADIUS} defines its size.
 	 */
 	private void initFloor() {
+		
+		addBlockAt(0, 2, 0);
+		
+		
 		for (int x = -FLOOR_RADIUS; x <= FLOOR_RADIUS; x++) {
 			for (int z = -FLOOR_RADIUS; z <= FLOOR_RADIUS; z++) {
 				addBlockAt(x, -2, z);
