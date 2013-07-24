@@ -1,24 +1,26 @@
-package wgProject01.ingameState.gameLogic.control;
+package wgProject01.ingameState.gameLogic.systems;
 
 import wgProject01.ingameState.BlockGameObj;
 import wgProject01.ingameState.BlockManager;
-import wgProject01.ingameState.gameLogic.model.CollisionBoxComponent;
-import wgProject01.ingameState.gameLogic.model.PositionComponent;
+import wgProject01.ingameState.gameLogic.components.CollisionBoxComponent;
+import wgProject01.ingameState.gameLogic.components.PositionComponent;
 
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
+import com.artemis.World;
 import com.artemis.annotations.Mapper;
 import com.artemis.systems.EntityProcessingSystem;
 import com.jme3.math.Vector3f;
 
 /**
- * This is an entity system to handle collision with the terrain
+ * <p>
+ * This is an entity system to handle collision of entities with the terrain
  * {@link BlockGameObj Blocks} with very high performance.
+ * </p>
  * 
  * <p>
- * Attach it to any spatial which is not allowed to intersect with blocks. A
- * {@link BlockManager} must be initialized before using this class.
+ * A {@link BlockManager} must be initialized before using this class.
  * </p>
  * 
  * @author oli
@@ -26,13 +28,30 @@ import com.jme3.math.Vector3f;
  */
 public class BlockCollisionSystem extends EntityProcessingSystem {
 
+	/**
+	 * Automagical creation of a ComponentMapper to extract a component from the
+	 * entities.
+	 */
 	@Mapper
 	ComponentMapper<PositionComponent> positionManager;
+
+	/**
+	 * Automagical creation of a ComponentMapper to extract a component from the
+	 * entities.
+	 */
 	@Mapper
 	ComponentMapper<CollisionBoxComponent> collisionBoxManager;
 
 	/**
-	 * Creates a new control with a collision box of the given size.
+	 * <p>
+	 * Create a new BlockCollision instance, which handles block collision of
+	 * the entities if appropriate.
+	 * </p>
+	 * <p>
+	 * Like all EntitySystems the constructed instance must be attached to a
+	 * {@link World} to work.
+	 * </p>
+	 * 
 	 * <p>
 	 * A {@link BlockManager} must be initialized before using this class.
 	 * </p>
@@ -45,9 +64,15 @@ public class BlockCollisionSystem extends EntityProcessingSystem {
 	}
 
 	/**
-	 * JME3 calls this method automatically every frame. Checks if the spatials
-	 * collision box is colliding with any blocks of the {@link BlockManager}
-	 * and "pushes" the spatial out of them, if so.
+	 * <p>
+	 * The Artemis framework calls this method automatically once every time
+	 * {@link World#process()} is called.
+	 * </p>
+	 * 
+	 * <p>
+	 * Checks if the entities collision box is colliding with any blocks of the
+	 * {@link BlockManager} and "pushes" the entity out of them, if so.
+	 * </p>
 	 */
 	@Override
 	protected void process(Entity e) {
@@ -111,7 +136,7 @@ public class BlockCollisionSystem extends EntityProcessingSystem {
 	}
 
 	/**
-	 * Returns the intersection volume of the spatials collision box and the
+	 * Returns the intersection volume of the entites collision box and the
 	 * block at the given position. Returns 0 if there is no block or no
 	 * collision.
 	 */
@@ -154,10 +179,10 @@ public class BlockCollisionSystem extends EntityProcessingSystem {
 	}
 
 	/**
-	 * Moves the spatial, so that it's collision box is not colliding with the
+	 * Moves the entity, so that it's collision box is not colliding with the
 	 * block at the given position anymore.
 	 * <p>
-	 * The spatial is moved the shortest possible way possible to reach a non
+	 * The entity is moved the shortest possible way possible to reach a non
 	 * colliding position.
 	 * </p>
 	 */
