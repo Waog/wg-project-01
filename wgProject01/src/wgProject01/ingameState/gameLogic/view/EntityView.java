@@ -8,7 +8,6 @@ import wgProject01.ingameState.gameLogic.components.PositionComponent;
 
 import com.artemis.Entity;
 import com.jme3.asset.AssetManager;
-import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -99,7 +98,7 @@ public class EntityView extends AbstractControl {
 		}
 		DirectionComponent directionComponent = entity.getComponent((DirectionComponent.class));
 		if(directionComponent != null && positionComponent != null){
-			spatial.lookAt(positionComponent.pos.add(directionComponent.getDirection()), Vector3f.UNIT_Y);
+			spatial.lookAt(positionComponent.pos.add(directionComponent.getDirection()), new Vector3f(0,1,0));
 		}
 		
 		
