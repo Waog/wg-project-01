@@ -2,8 +2,6 @@ package wgProject01.ingameState.gameLogic.systems;
 
 import java.util.Random;
 
-import jm3Utils.Jme3Utils;
-
 import wgProject01.ingameState.gameLogic.components.DirectionComponent;
 import wgProject01.ingameState.gameLogic.components.PositionComponent;
 import wgProject01.ingameState.gameLogic.components.WalkingAiComponent;
