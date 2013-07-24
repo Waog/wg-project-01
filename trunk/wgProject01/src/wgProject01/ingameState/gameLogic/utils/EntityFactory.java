@@ -1,6 +1,7 @@
 package wgProject01.ingameState.gameLogic.utils;
 
 import wgProject01.ingameState.gameLogic.components.CollisionBoxComponent;
+import wgProject01.ingameState.gameLogic.components.DirectionComponent;
 import wgProject01.ingameState.gameLogic.components.GravitationComponent;
 import wgProject01.ingameState.gameLogic.components.PositionComponent;
 import wgProject01.ingameState.gameLogic.components.WalkingAiComponent;
@@ -94,6 +95,10 @@ public class EntityFactory {
 		// add Gravitation
 		GravitationComponent gravitationComponent = new GravitationComponent();
 		e.addComponent(gravitationComponent);
+		
+		//add direction
+		DirectionComponent directionComponent = new DirectionComponent();
+		e.addComponent(directionComponent);
 
 		e.addToWorld();
 
