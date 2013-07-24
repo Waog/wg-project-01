@@ -4,6 +4,8 @@ import java.util.Stack;
 
 import jm3Utils.Jm3Utils;
 import wgProject01.GameApplication;
+import wgProject01.ingameState.gameLogic.BlockGameObj;
+import wgProject01.ingameState.gameLogic.BlockManager;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;

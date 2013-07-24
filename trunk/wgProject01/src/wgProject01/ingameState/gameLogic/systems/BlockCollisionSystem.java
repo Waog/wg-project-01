@@ -1,7 +1,7 @@
 package wgProject01.ingameState.gameLogic.systems;
 
-import wgProject01.ingameState.BlockGameObj;
-import wgProject01.ingameState.BlockManager;
+import wgProject01.ingameState.gameLogic.BlockGameObj;
+import wgProject01.ingameState.gameLogic.BlockManager;
 import wgProject01.ingameState.gameLogic.components.CollisionBoxComponent;
 import wgProject01.ingameState.gameLogic.components.PositionComponent;
 
