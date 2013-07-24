@@ -110,32 +110,32 @@ public class BlockView {
 	private void initFaceSpatials(AssetManager assetManager) {
 		float blockRadius = .5f;
 
-		facePositiveX = Jme3Utils.getQuad(1f, assetManager);
+		facePositiveX = BlockFaceFactory.getWoodenFace(assetManager);
 		facePositiveX.rotate(0, (float) Math.PI / 2f, 0);
 		facePositiveX.setLocalTranslation(blockRadius, -blockRadius,
 				blockRadius);
 
-		facePositiveY = Jme3Utils.getQuad(1f, assetManager);
+		facePositiveY = BlockFaceFactory.getWoodenFace(assetManager);
 		facePositiveY.rotate((float) -Math.PI / 2f, 0, 0);
 		facePositiveY.setLocalTranslation(-blockRadius, blockRadius,
 				blockRadius);
 
-		facePositiveZ = Jme3Utils.getQuad(1f, assetManager);
+		facePositiveZ = BlockFaceFactory.getWoodenFace(assetManager);
 		facePositiveZ.rotate(0, 0, 0);
 		facePositiveZ.setLocalTranslation(-blockRadius, -blockRadius,
 				blockRadius);
 
-		faceNegativeX = Jme3Utils.getQuad(1f, assetManager);
+		faceNegativeX = BlockFaceFactory.getWoodenFace(assetManager);
 		faceNegativeX.rotate(0, (float) -Math.PI / 2f, 0);
 		faceNegativeX.setLocalTranslation(-blockRadius, -blockRadius,
 				-blockRadius);
 
-		faceNegativeY = Jme3Utils.getQuad(1f, assetManager);
+		faceNegativeY = BlockFaceFactory.getWoodenFace(assetManager);
 		faceNegativeY.rotate((float) Math.PI / 2f, 0, 0);
 		faceNegativeY.setLocalTranslation(-blockRadius, -blockRadius,
 				-blockRadius);
 
-		faceNegativeZ = Jme3Utils.getQuad(1f, assetManager);
+		faceNegativeZ = BlockFaceFactory.getWoodenFace(assetManager);
 		faceNegativeZ.rotate((float) Math.PI, 0, 0);
 		faceNegativeZ.setLocalTranslation(-blockRadius, blockRadius,
 				-blockRadius);
