@@ -1,5 +1,7 @@
 package wgProject01.ingameState.gameLogic.view;
 
+import wgProject01.ingameState.gameLogic.components.BlockPropertiesComponent;
+
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.scene.Geometry;
@@ -13,6 +15,23 @@ import com.jme3.texture.Texture;
  * 
  */
 public class BlockFaceFactory {
+
+	/**
+	 * Returns a new block face (Quad Geometry) for the given block type.
+	 * 
+	 * @param blockType
+	 *            See static constants in {@link BlockPropertiesComponent} for
+	 *            possible block types.
+	 */
+	public static Geometry getFaceForType(String blockType, AssetManager assetManager) {
+		if (blockType.equals(BlockPropertiesComponent.TYPE_WOOD)) {
+			return getFaceWithTexture("./assets/Textures/Wood/wood.png", assetManager);
+		} else if (blockType.equals(BlockPropertiesComponent.TYPE_STONE)) {
+			return getFaceWithTexture("./assets/Textures/Pond/Pond.jpg", assetManager);
+		} else {
+			return getFaceWithTexture("./assets/Textures/unknown.png", assetManager);
+		}
+	}
 
 	/**
 	 * Returns a wooden Block face (Quad Geometry).
