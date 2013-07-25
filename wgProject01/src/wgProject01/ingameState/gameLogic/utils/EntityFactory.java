@@ -6,6 +6,7 @@ import wgProject01.ingameState.gameLogic.GameLogic;
 import wgProject01.ingameState.gameLogic.components.CollisionBoxComponent;
 import wgProject01.ingameState.gameLogic.components.DirectionComponent;
 import wgProject01.ingameState.gameLogic.components.GravitationComponent;
+import wgProject01.ingameState.gameLogic.components.InputReactingComponent;
 import wgProject01.ingameState.gameLogic.components.PointLightComponent;
 import wgProject01.ingameState.gameLogic.components.PositionComponent;
 import wgProject01.ingameState.gameLogic.components.RotationPropertiesComponent;
@@ -224,6 +225,9 @@ public class EntityFactory {
 		// add direction
 		DirectionComponent directionComponent = new DirectionComponent();
 		e.addComponent(directionComponent);
+		
+		InputReactingComponent inputReactingComponent = new InputReactingComponent();
+		e.addComponent(inputReactingComponent);
 
 		e.addToWorld();
 

@@ -4,6 +4,7 @@ import jm3Utils.Jme3Utils;
 import wgProject01.GameApplication;
 import wgProject01.ingameState.gameLogic.GameLogic;
 import wgProject01.ingameState.gameLogic.utils.EntityFactory;
+import wgProject01.ingameState.gameLogic.view.InputHandler;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
@@ -62,7 +63,6 @@ public class IngameState extends AbstractAppState {
 		this.stateManager = this.app.getStateManager();
 		this.app.getInputManager();
 		this.viewPort = this.app.getViewPort();
-		this.stateManager.getState(BulletAppState.class);
 		this.cam = this.app.getCamera();
 		this.flyCam = this.app.getFlyByCamera();
 		this.guiNode = this.app.getGuiNode();
@@ -87,6 +87,7 @@ public class IngameState extends AbstractAppState {
 		gameLogic.doInit(rootNode, mineables, assetManager);
 		
 		stateManager.attach(new Player());
+		stateManager.attach(new InputHandler());
 
 		initGeneralLights();
 		viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f)); // makes
