@@ -66,6 +66,7 @@ public class GameLogic {
 		world.setSystem(new BlockCollisionSystem());
 
 		EntityFactory.createEnemy(world, new Vector3f(0, 5, 0));
+		EntityFactory.createPlayer(world, new Vector3f(1,10,1));
 
 		world.initialize();
 		initTestingStuff();
