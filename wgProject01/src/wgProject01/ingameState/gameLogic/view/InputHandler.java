@@ -28,9 +28,9 @@ public class InputHandler extends AbstractAppState implements ActionListener {
 	/** for moving right */
 	private static final String RIGHT = "Right";
 	/** for moving down */
-	private static final String DOWN = "Down";
+	private static final String BACK = "Back";
 	/** for moving up */
-	private static final String UP = "Up";
+	private static final String FORWARD = "Forward";
 	
 	
 	@Override
@@ -48,12 +48,12 @@ public class InputHandler extends AbstractAppState implements ActionListener {
 	private void initKeys() {
 		inputManager.addMapping(LEFT, new KeyTrigger(KeyInput.KEY_A));
 		inputManager.addMapping(RIGHT, new KeyTrigger(KeyInput.KEY_D));
-		inputManager.addMapping(DOWN, new KeyTrigger(KeyInput.KEY_S));
-		inputManager.addMapping(UP, new KeyTrigger(KeyInput.KEY_W));
+		inputManager.addMapping(BACK, new KeyTrigger(KeyInput.KEY_S));
+		inputManager.addMapping(FORWARD, new KeyTrigger(KeyInput.KEY_W));
 		inputManager.addListener(this, LEFT);
 		inputManager.addListener(this, RIGHT);
-		inputManager.addListener(this, DOWN);
-		inputManager.addListener(this, UP);
+		inputManager.addListener(this, BACK);
+		inputManager.addListener(this, FORWARD);
 		
 	}
 
@@ -61,12 +61,21 @@ public class InputHandler extends AbstractAppState implements ActionListener {
 
 	@Override
 	public void onAction(String name, boolean isPressed, float tpf) {
-		if(name.equals(LEFT) && !isPressed) { // reacts only when key was released
+		if(name.equals(LEFT)){
 			InputHandlingSystem.moveLeftActivated = isPressed;
 		}
-		if(name.equals(LEFT) && isPressed) { // reacts only when key was pushed down
-			InputHandlingSystem.moveLeftActivated = isPressed;
+		if(name.equals(RIGHT)){
+			InputHandlingSystem.moveRightActivated = isPressed;
 		}
+		
+		if(name.equals(BACK)){
+			InputHandlingSystem.moveBackActivated = isPressed;
+		}
+		
+		if(name.equals(FORWARD)){
+			InputHandlingSystem.moveForwardActivated = isPressed;
+		}
+		
 		
 	}
 
