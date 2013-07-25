@@ -24,9 +24,9 @@ public class InputHandlingSystem extends EntityProcessingSystem {
 	/** flag marking if entity shall move to right, set by external class */
 	public static boolean moveRightActivated;
 	/** flag marking if entity shall move to down, set by external class */
-	public static boolean moveDownActivated;
+	public static boolean moveBackActivated;
 	/** flag marking if entity shall move to up, set by external class */
-	public static boolean moveUpActivated;
+	public static boolean moveForwardActivated;
 
 	/**
 	 * Automagical creation of a ComponentMapper to extract a component from the
@@ -59,8 +59,18 @@ public class InputHandlingSystem extends EntityProcessingSystem {
 		InputReactingComponent inputReactingComponent = inputReactingManager
 				.get(e);
 		if (moveLeftActivated) {
-			positionComponent.pos.x += -inputReactingComponent.speed * delta;
+			positionComponent.pos.x -= inputReactingComponent.speed * delta;
 		}
+		if(moveRightActivated){
+			positionComponent.pos.x += inputReactingComponent.speed * delta;
+		}
+		if(moveBackActivated){
+			positionComponent.pos.z -= inputReactingComponent.speed * delta;
+		}
+		if(moveForwardActivated){
+			positionComponent.pos.z += inputReactingComponent.speed * delta;
+		}
+		
 
 	}
 }
