@@ -6,7 +6,7 @@ import wgProject01.ingameState.gameLogic.GameLogic;
 import wgProject01.ingameState.gameLogic.components.CollisionBoxComponent;
 import wgProject01.ingameState.gameLogic.components.DirectionComponent;
 import wgProject01.ingameState.gameLogic.components.GravitationComponent;
-import wgProject01.ingameState.gameLogic.components.InputReactingComponent;
+import wgProject01.ingameState.gameLogic.components.PlayerControlComponent;
 import wgProject01.ingameState.gameLogic.components.PointLightComponent;
 import wgProject01.ingameState.gameLogic.components.PositionComponent;
 import wgProject01.ingameState.gameLogic.components.RotationPropertiesComponent;
@@ -209,16 +209,18 @@ public class EntityFactory {
 		// Creates the entity + components, adds it to the world and returns it.
 		Entity e = world.createEntity();
 
+		// add position
 		PositionComponent position = new PositionComponent();
 		position.pos.set(pos);
 		e.addComponent(position);
 
+		// add collision
 		Vector3f collisionBoxRadii = new Vector3f(1f, 2.35f, 1f);
 		CollisionBoxComponent collisionBoxComponent = new CollisionBoxComponent(
 				collisionBoxRadii);
 		e.addComponent(collisionBoxComponent);
 
-		// add Gravitation
+		// add gravitation
 		GravitationComponent gravitationComponent = new GravitationComponent();
 		e.addComponent(gravitationComponent);
 
@@ -226,8 +228,9 @@ public class EntityFactory {
 		DirectionComponent directionComponent = new DirectionComponent();
 		e.addComponent(directionComponent);
 		
-		InputReactingComponent inputReactingComponent = new InputReactingComponent();
-		e.addComponent(inputReactingComponent);
+		// add input handling
+		PlayerControlComponent playerControlComponent = new PlayerControlComponent();
+		e.addComponent(playerControlComponent);
 
 		e.addToWorld();
 
