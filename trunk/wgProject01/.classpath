@@ -31,10 +31,19 @@
 	<classpathentry kind="lib" path="lib/jME3_2013-05-26/lib/nifty-style-black.jar"/>
 	<classpathentry kind="lib" path="lib/jME3_2013-05-26/lib/nifty.jar"/>
 	<classpathentry kind="lib" path="lib/jME3_2013-05-26/lib/stack-alloc.jar"/>
-	<classpathentry kind="lib" path="lib/jME3_2013-05-26/lib/vecmath.jar"/>
+	<classpathentry kind="lib" path="lib/jME3_2013-05-26/lib/vecmath.jar" sourcepath="lib/JSci/JSci/source.zip"/>
 	<classpathentry kind="lib" path="lib/jME3_2013-05-26/lib/xmlpull-xpp3.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/Entreri/entreri-1.7.0.jar" sourcepath="lib/Entreri/entreri-1.7.0.jar"/>
 	<classpathentry kind="lib" path="lib/Artemis/artemis-a609b2076aacc0ef5ecf0b390205d01bb88ceae2.jar" sourcepath="lib/Artemis/artemis-a609b2076aacc0ef5ecf0b390205d01bb88ceae2-src.jar"/>
+	<classpathentry kind="lib" path="lib/JSci/JSci/classes/jsci-astro.jar"/>
+	<classpathentry kind="lib" path="lib/JSci/JSci/classes/jsci-beans.jar"/>
+	<classpathentry kind="lib" path="lib/JSci/JSci/classes/jsci-bio.jar"/>
+	<classpathentry kind="lib" path="lib/JSci/JSci/classes/jsci-core.jar" sourcepath="lib/JSci/JSci/source.zip"/>
+	<classpathentry kind="lib" path="lib/JSci/JSci/classes/jsci-instr.jar"/>
+	<classpathentry kind="lib" path="lib/JSci/JSci/classes/jsci-mathmlimpl.jar"/>
+	<classpathentry kind="lib" path="lib/JSci/JSci/classes/jsci-sci.jar"/>
+	<classpathentry kind="lib" path="lib/JSci/JSci/classes/jsci-wavelet.jar"/>
+	<classpathentry kind="lib" path="lib/JSci/JSci/classes/jsci-xtra.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

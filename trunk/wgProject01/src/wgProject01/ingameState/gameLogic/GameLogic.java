@@ -4,7 +4,7 @@ import wgProject01.Settings;
 import wgProject01.ingameState.gameLogic.systems.BlockCollisionSystem;
 import wgProject01.ingameState.gameLogic.systems.GravitationSystem;
 import wgProject01.ingameState.gameLogic.systems.PlayerControlSystem;
-import wgProject01.ingameState.gameLogic.systems.RotationSystem;
+import wgProject01.ingameState.gameLogic.systems.OrbitingSystem;
 import wgProject01.ingameState.gameLogic.systems.SimpleWalkingAiSystem;
 import wgProject01.ingameState.gameLogic.utils.EntityFactory;
 
@@ -68,7 +68,7 @@ public class GameLogic {
 		
 		world.setSystem(new PlayerControlSystem());
 		world.setSystem(new SimpleWalkingAiSystem());
-		world.setSystem(new RotationSystem());
+		world.setSystem(new OrbitingSystem());
 		world.setSystem(new GravitationSystem());
 		world.setSystem(new BlockCollisionSystem());
 
@@ -89,7 +89,7 @@ public class GameLogic {
 		world.deleteSystem(world.getSystem(SimpleWalkingAiSystem.class));
 		world.deleteSystem(world.getSystem(BlockCollisionSystem.class));
 		world.deleteSystem(world.getSystem(GravitationSystem.class));
-		world.deleteSystem(world.getSystem(RotationSystem.class));
+		world.deleteSystem(world.getSystem(OrbitingSystem.class));
 		world.deleteSystem(world.getSystem(PlayerControlSystem.class));
 	}
 
