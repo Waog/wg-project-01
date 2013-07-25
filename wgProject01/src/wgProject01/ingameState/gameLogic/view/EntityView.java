@@ -4,10 +4,12 @@ import jm3Utils.Jme3Utils;
 import wgProject01.Settings;
 import wgProject01.ingameState.gameLogic.components.CollisionBoxComponent;
 import wgProject01.ingameState.gameLogic.components.DirectionComponent;
+import wgProject01.ingameState.gameLogic.components.PointLightComponent;
 import wgProject01.ingameState.gameLogic.components.PositionComponent;
 
 import com.artemis.Entity;
 import com.jme3.asset.AssetManager;
+import com.jme3.light.PointLight;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -15,6 +17,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
+import com.jme3.scene.control.LightControl;
 
 /**
  * Wraps an (Artemis) Entity object and is attached to a visual model (a JME
@@ -45,11 +48,16 @@ public class EntityView extends AbstractControl {
 	/** for testing: line representing the direction of the entity */
 	private Spatial directionLineSpatial;
 
+	private PointLight pointLightSource;
+
+	private Node rootNode;
+
 	/**
 	 * Constructs a new View for the given entity.
 	 */
-	public EntityView(Entity entity) {
+	public EntityView(Entity entity, Node rootNode) {
 		this.entity = entity;
+		this.rootNode = rootNode;
 	}
 
 	/** initializes the entity viewers datafields */
@@ -105,6 +113,22 @@ public class EntityView extends AbstractControl {
 			spatial.lookAt(positionComponent.pos.add(directionComponent
 					.getProjectedDirectionXZ()), new Vector3f(0, 1, 0));
 		}
+		PointLightComponent pointLightComponent = entity
+				.getComponent((PointLightComponent.class));
+		if (pointLightComponent != null && positionComponent != null) {
+			if (this.pointLightSource == null) {
+				 // the point light
+				 this.pointLightSource = new PointLight();
+				 pointLightSource.setColor(pointLightComponent.color);
+				 pointLightSource.setRadius(pointLightComponent.radius);
+				 rootNode.addLight(pointLightSource);
+				 LightControl lightControl = new LightControl(pointLightSource);
+				 spatial.addControl(lightControl); // this spatial controls the
+				 // position of this light.
+			}
+			pointLightSource.setColor(pointLightComponent.color);
+			pointLightSource.setRadius(pointLightComponent.radius);
+		}
 
 		// TODO 2 set the right debug mode
 		if (Settings.debugMode >= 2) {
@@ -141,5 +165,4 @@ public class EntityView extends AbstractControl {
 	protected void controlRender(RenderManager rm, ViewPort vp) {
 		// nothing
 	}
-
 }

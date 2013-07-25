@@ -3,6 +3,7 @@ package wgProject01.ingameState.gameLogic;
 import wgProject01.Settings;
 import wgProject01.ingameState.gameLogic.systems.BlockCollisionSystem;
 import wgProject01.ingameState.gameLogic.systems.GravitationSystem;
+import wgProject01.ingameState.gameLogic.systems.RotationSystem;
 import wgProject01.ingameState.gameLogic.systems.SimpleWalkingAiSystem;
 import wgProject01.ingameState.gameLogic.utils.EntityFactory;
 
@@ -49,10 +50,13 @@ public class GameLogic {
 	 */
 	private AssetManager assetManager;
 
+	private Node rootNode;
+
 	/**
 	 * Initializes the game logic and entity systems.
 	 */
-	public void doInit(Node blockNode, AssetManager assetManager) {
+	public void doInit(Node rootNode, Node blockNode, AssetManager assetManager) {
+		this.rootNode = rootNode;
 		this.blockNode = blockNode;
 		this.assetManager = assetManager;
 
@@ -62,11 +66,15 @@ public class GameLogic {
 		world = new World();
 
 		world.setSystem(new SimpleWalkingAiSystem());
+		world.setSystem(new RotationSystem());
 		world.setSystem(new GravitationSystem());
 		world.setSystem(new BlockCollisionSystem());
 
-		EntityFactory.createEnemy(world, new Vector3f(0, 5, 0));
-		EntityFactory.createPlayer(world, new Vector3f(1,10,1));
+		EntityFactory.createEnemy(this.rootNode, world, new Vector3f(0, 5, 0));
+		EntityFactory.createPlayer(this.rootNode, world, new Vector3f(1,10,1));
+		for (int i = 0; i <= Settings.debugMode; i++) {
+			EntityFactory.createSun(this.rootNode, world);
+		}
 
 		world.initialize();
 		initTestingStuff();
@@ -78,6 +86,8 @@ public class GameLogic {
 	public void doCleanup() {
 		world.deleteSystem(world.getSystem(SimpleWalkingAiSystem.class));
 		world.deleteSystem(world.getSystem(BlockCollisionSystem.class));
+		world.deleteSystem(world.getSystem(GravitationSystem.class));
+		world.deleteSystem(world.getSystem(RotationSystem.class));
 	}
 
 	/**

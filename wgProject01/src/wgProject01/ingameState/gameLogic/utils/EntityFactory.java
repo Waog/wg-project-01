@@ -1,18 +1,31 @@
 package wgProject01.ingameState.gameLogic.utils;
 
+import java.util.Random;
+
+import wgProject01.ingameState.gameLogic.GameLogic;
 import wgProject01.ingameState.gameLogic.components.CollisionBoxComponent;
 import wgProject01.ingameState.gameLogic.components.DirectionComponent;
 import wgProject01.ingameState.gameLogic.components.GravitationComponent;
+import wgProject01.ingameState.gameLogic.components.PointLightComponent;
 import wgProject01.ingameState.gameLogic.components.PositionComponent;
+import wgProject01.ingameState.gameLogic.components.RotationPropertiesComponent;
 import wgProject01.ingameState.gameLogic.components.WalkingAiComponent;
 import wgProject01.ingameState.gameLogic.view.EntityView;
 
 import com.artemis.Entity;
 import com.artemis.World;
 import com.jme3.asset.AssetManager;
+import com.jme3.light.PointLight;
+import com.jme3.material.Material;
+import com.jme3.material.RenderState.BlendMode;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.queue.RenderQueue.Bucket;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.shape.Sphere;
 
 /**
  * Class which provies static methods, to generate new entities, generates their
@@ -74,9 +87,81 @@ public class EntityFactory {
 	}
 
 	/**
+	 * Initializes a randomly colored sun, with a random rotation speed, which
+	 * uses the {@link RotationSystem} to fly around and acts as a point light of it's
+	 * color source as well.
+	 * 
+	 * @see PointLightComponent
+	 * @see PointLight
+	 */
+	public static Entity createSun(Node rootNode, World world) {
+		// some properties which determine the suns appearance and behavior.
+		float geometryRadius = 20;
+		float geometryRadius2 = 30;
+		float rotationRadius = GameLogic.FLOOR_RADIUS + 2 * geometryRadius2;
+		ColorRGBA innerColor = ColorRGBA.randomColor();
+		ColorRGBA outerColor = innerColor.clone();
+		outerColor.a = .5f;
+		Random rand = new Random();
+		float randomSpeedX = rand.nextFloat();
+		float randomSpeedY = rand.nextFloat();
+		float randomSpeedZ = rand.nextFloat();
+
+		// Creates the entity + components, adds it to the world and returns it.
+		Entity e = world.createEntity();
+
+		PositionComponent position = new PositionComponent();
+		e.addComponent(position);
+
+		RotationPropertiesComponent rotationPropertiesComponent = new RotationPropertiesComponent();
+		rotationPropertiesComponent.radii = new Vector3f(rotationRadius,
+				rotationRadius, rotationRadius);
+		rotationPropertiesComponent.speeds = new Vector3f(randomSpeedX,
+				randomSpeedY, randomSpeedZ);
+		e.addComponent(rotationPropertiesComponent);
+
+		PointLightComponent pointLightComponent = new PointLightComponent();
+		pointLightComponent.color.set(innerColor);
+		e.addComponent(pointLightComponent);
+
+		e.addToWorld();
+
+		// create the spatials and attach them to each other
+		Node sunNode = new Node();
+		entityNode.attachChild(sunNode);
+
+		// inner non-transparent sphere
+		Mesh sphereMesh = new Sphere(20, 20, geometryRadius);
+		Spatial sphereSpacial = new Geometry("Sphere", sphereMesh);
+		Material sphereMat = new Material(assetManager,
+				"Common/MatDefs/Misc/Unshaded.j3md");
+		sphereMat.setColor("Color", innerColor);
+		sphereSpacial.setMaterial(sphereMat);
+		sunNode.attachChild(sphereSpacial);
+
+		// outer semi transparent sphere
+		Sphere sphereMesh2 = new Sphere(20, 20, geometryRadius2);
+		Spatial sphereSpacial2 = new Geometry("Sphere", sphereMesh2);
+		sphereSpacial2.setQueueBucket(Bucket.Transparent);
+		Material mat_aSun2 = new Material(assetManager,
+				"Common/MatDefs/Misc/Unshaded.j3md");
+		mat_aSun2.setColor("Color", outerColor);
+		mat_aSun2.getAdditionalRenderState().setBlendMode(BlendMode.Alpha); // !
+		sphereSpacial2.setMaterial(mat_aSun2);
+		sunNode.attachChild(sphereSpacial2);
+
+		// make it visible (connect model and view)
+		EntityView entityView = new EntityView(e, rootNode);
+		entityView.init(assetManager, entityNode);
+		sunNode.addControl(entityView);
+
+		return e;
+	}
+
+	/**
 	 * Creates a new Enemy at the given position.
 	 */
-	public static Entity createEnemy(World world, Vector3f pos) {
+	public static Entity createEnemy(Node rootNode, World world, Vector3f pos) {
 		// Creates the entity + components, adds it to the world and returns it.
 		Entity e = world.createEntity();
 
@@ -91,44 +176,35 @@ public class EntityFactory {
 		CollisionBoxComponent collisionBoxComponent = new CollisionBoxComponent(
 				collisionBoxRadii);
 		e.addComponent(collisionBoxComponent);
-		
+
 		// add Gravitation
 		GravitationComponent gravitationComponent = new GravitationComponent();
 		e.addComponent(gravitationComponent);
-		
-		//add direction
+
+		// add direction
 		DirectionComponent directionComponent = new DirectionComponent();
 		e.addComponent(directionComponent);
 
 		e.addToWorld();
 
-		Spatial golem = assetManager.loadModel("./assets/Models/Oto/Oto.mesh.xml");
-		golem.scale(0.5f);
 		// creates the view for this enemy and attaches the entity to it.
-	/*	Box mesh = new Box(collisionBoxRadii.x, collisionBoxRadii.y,
-				collisionBoxRadii.z);
-		Geometry geometry = new Geometry("Block", mesh);
-
-		Material enemyMaterial = new Material(assetManager,
-				"Common/MatDefs/Misc/Unshaded.j3md");
-		enemyMaterial.setColor("Color", ColorRGBA.Red);
-		geometry.setMaterial(enemyMaterial);
-		geometry.setLocalTranslation(0, -1, 0);
-		entityNode.attachChild(geometry);*/
+		Spatial golem = assetManager
+				.loadModel("./assets/Models/Oto/Oto.mesh.xml");
+		golem.scale(0.5f);
 		entityNode.attachChild(golem);
 
-		// make it walk
-		EntityView entityView = new EntityView(e);
+		// make it visible (connect model and view)
+		EntityView entityView = new EntityView(e, rootNode);
 		entityView.init(assetManager, entityNode);
 		golem.addControl(entityView);
 
 		return e;
 	}
-	
+
 	/**
 	 * Creates a new Enemy at the given position.
 	 */
-	public static Entity createPlayer(World world, Vector3f pos) {
+	public static Entity createPlayer(Node rootNode, World world, Vector3f pos) {
 		// Creates the entity + components, adds it to the world and returns it.
 		Entity e = world.createEntity();
 
@@ -140,12 +216,12 @@ public class EntityFactory {
 		CollisionBoxComponent collisionBoxComponent = new CollisionBoxComponent(
 				collisionBoxRadii);
 		e.addComponent(collisionBoxComponent);
-		
+
 		// add Gravitation
 		GravitationComponent gravitationComponent = new GravitationComponent();
 		e.addComponent(gravitationComponent);
-		
-		//add direction
+
+		// add direction
 		DirectionComponent directionComponent = new DirectionComponent();
 		e.addComponent(directionComponent);
 
@@ -155,8 +231,8 @@ public class EntityFactory {
 		golem.scale(0.5f);
 		entityNode.attachChild(golem);
 
-		// make it walk
-		EntityView entityView = new EntityView(e);
+		// make it visible (connect model and view)
+		EntityView entityView = new EntityView(e, rootNode);
 		entityView.init(assetManager, entityNode);
 		golem.addControl(entityView);
 

@@ -1,10 +1,7 @@
 package wgProject01.ingameState;
 
-import java.util.Random;
-
 import jm3Utils.Jme3Utils;
 import wgProject01.GameApplication;
-import wgProject01.Settings;
 import wgProject01.ingameState.gameLogic.GameLogic;
 import wgProject01.ingameState.gameLogic.utils.EntityFactory;
 
@@ -18,20 +15,12 @@ import com.jme3.font.BitmapText;
 import com.jme3.input.FlyByCamera;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
-import com.jme3.light.PointLight;
-import com.jme3.material.Material;
-import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
-import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
-import com.jme3.scene.control.LightControl;
-import com.jme3.scene.shape.Sphere;
 
 public class IngameState extends AbstractAppState {
 	
@@ -89,22 +78,17 @@ public class IngameState extends AbstractAppState {
 
 		// init stuff that is independent of whether state is PAUSED or RUNNING
 		guiNode.addLight(new AmbientLight());
-
+		
 		initNodes();
 		initCrossHairs();		
 		EntityFactory.initData(rootNode, assetManager);
 		
 		gameLogic = new GameLogic();
-		gameLogic.doInit(mineables, assetManager);
-		
-		// initOneBlockFloor(); // take either one of the floor initializations
-		initGeneralLights();
-		for (int i = 0; i <= Settings.debugMode; i++) {
-			initRandomSun();
-		}
+		gameLogic.doInit(rootNode, mineables, assetManager);
 		
 		stateManager.attach(new Player());
 
+		initGeneralLights();
 		viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f)); // makes
 																		// the
 																		// background
@@ -112,62 +96,6 @@ public class IngameState extends AbstractAppState {
 																		// blue
 		// TODO 2 the movementspeed setting does not work at all
 		flyCam.setMoveSpeed(10);
-	}
-
-	/**
-	 * Initializes a randomly colored sun, with a random rotation speed, which
-	 * uses the rotation control to fly around and acts as a point light of it's
-	 * color source as well.
-	 */
-	private void initRandomSun() {
-		float geometryRadius = 20;
-		float geometryRadius2 = 30;
-		float rotationRadius = GameLogic.FLOOR_RADIUS + 2 * geometryRadius2;
-		ColorRGBA innerColor = ColorRGBA.randomColor();
-		ColorRGBA outerColor = innerColor.clone();
-		outerColor.a = .5f;
-		Random rand = new Random();
-		float randomSpeedX = rand.nextFloat();
-		float randomSpeedY = rand.nextFloat();
-		float randomSpeedZ = rand.nextFloat();
-
-		Node sunNode = new Node();
-		rootNode.attachChild(sunNode);
-
-		// inner non-transparent sphere
-		Mesh sphereMesh = new Sphere(20, 20, geometryRadius);
-		Spatial sphereSpacial = new Geometry("Sphere", sphereMesh);
-		Material sphereMat = new Material(assetManager,
-				"Common/MatDefs/Misc/Unshaded.j3md");
-		sphereMat.setColor("Color", innerColor);
-		sphereSpacial.setMaterial(sphereMat);
-		sunNode.attachChild(sphereSpacial);
-
-		// outer semi transparent sphere
-		Sphere sphereMesh2 = new Sphere(20, 20, geometryRadius2);
-		Spatial sphereSpacial2 = new Geometry("Sphere", sphereMesh2);
-		sphereSpacial2.setQueueBucket(Bucket.Transparent);
-		Material mat_aSun2 = new Material(assetManager,
-				"Common/MatDefs/Misc/Unshaded.j3md");
-		mat_aSun2.setColor("Color", outerColor);
-		mat_aSun2.getAdditionalRenderState().setBlendMode(BlendMode.Alpha); // !
-		sphereSpacial2.setMaterial(mat_aSun2);
-		sunNode.attachChild(sphereSpacial2);
-
-		// the point light
-		PointLight myLight = new PointLight();
-		myLight.setColor(innerColor);
-		rootNode.addLight(myLight);
-		LightControl lightControl = new LightControl(myLight);
-		sphereSpacial.addControl(lightControl); // this spatial controls the
-												// position of this light.
-
-		// the rotational movement
-		RotationControl rotationControl = new RotationControl(rotationRadius,
-				rotationRadius, rotationRadius);
-		rotationControl.setSpeeds(new Vector3f(randomSpeedX, randomSpeedY,
-				randomSpeedZ));
-		sunNode.addControl(rotationControl);
 	}
 
 	@Override
