@@ -10,7 +10,6 @@ import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
-import com.jme3.bullet.BulletAppState;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.input.FlyByCamera;
@@ -32,7 +31,6 @@ public class IngameState extends AbstractAppState {
 	private GameApplication app;
 	private Node rootNode, guiNode;
 	private AssetManager assetManager;
-	private AppStateManager stateManager;
 	private ViewPort viewPort;
 	private Camera cam;
 	private FlyByCamera flyCam;
@@ -60,7 +58,6 @@ public class IngameState extends AbstractAppState {
 		this.app = (GameApplication) app; // cast to a more specific class
 		this.rootNode = this.app.getRootNode();
 		this.assetManager = this.app.getAssetManager();
-		this.stateManager = this.app.getStateManager();
 		this.app.getInputManager();
 		this.viewPort = this.app.getViewPort();
 		this.cam = this.app.getCamera();

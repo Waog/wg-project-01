@@ -9,7 +9,7 @@ import wgProject01.ingameState.gameLogic.components.GravitationComponent;
 import wgProject01.ingameState.gameLogic.components.PlayerControlComponent;
 import wgProject01.ingameState.gameLogic.components.PointLightComponent;
 import wgProject01.ingameState.gameLogic.components.PositionComponent;
-import wgProject01.ingameState.gameLogic.components.RotationPropertiesComponent;
+import wgProject01.ingameState.gameLogic.components.OrbitingPropertiesComponent;
 import wgProject01.ingameState.gameLogic.components.WalkingAiComponent;
 import wgProject01.ingameState.gameLogic.view.EntityView;
 
@@ -20,6 +20,7 @@ import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
@@ -89,8 +90,8 @@ public class EntityFactory {
 
 	/**
 	 * Initializes a randomly colored sun, with a random rotation speed, which
-	 * uses the {@link RotationSystem} to fly around and acts as a point light of it's
-	 * color source as well.
+	 * uses the {@link OrbitingSystem} to fly around and acts as a point light
+	 * of it's color source as well.
 	 * 
 	 * @see PointLightComponent
 	 * @see PointLight
@@ -104,21 +105,21 @@ public class EntityFactory {
 		ColorRGBA outerColor = innerColor.clone();
 		outerColor.a = .5f;
 		Random rand = new Random();
-		float randomSpeedX = rand.nextFloat();
-		float randomSpeedY = rand.nextFloat();
-		float randomSpeedZ = rand.nextFloat();
+		float randomSpeedTheta = 0.1f * rand.nextFloat();
+		float randomSpeedPhi = 0.1f * rand.nextFloat();
 
 		// Creates the entity + components, adds it to the world and returns it.
 		Entity e = world.createEntity();
 
 		PositionComponent position = new PositionComponent();
+		position.pos = new Vector3f(-1, -1, 1);
 		e.addComponent(position);
 
-		RotationPropertiesComponent rotationPropertiesComponent = new RotationPropertiesComponent();
-		rotationPropertiesComponent.radii = new Vector3f(rotationRadius,
-				rotationRadius, rotationRadius);
-		rotationPropertiesComponent.speeds = new Vector3f(randomSpeedX,
-				randomSpeedY, randomSpeedZ);
+		OrbitingPropertiesComponent rotationPropertiesComponent = new OrbitingPropertiesComponent();
+		rotationPropertiesComponent.center = new Vector3f(0, 0, 0);
+		rotationPropertiesComponent.radius = rotationRadius;
+		rotationPropertiesComponent.speeds = new Vector2f(randomSpeedTheta,
+				randomSpeedPhi);
 		e.addComponent(rotationPropertiesComponent);
 
 		PointLightComponent pointLightComponent = new PointLightComponent();
@@ -227,7 +228,7 @@ public class EntityFactory {
 		// add direction
 		DirectionComponent directionComponent = new DirectionComponent();
 		e.addComponent(directionComponent);
-		
+
 		// add input handling
 		PlayerControlComponent playerControlComponent = new PlayerControlComponent();
 		e.addComponent(playerControlComponent);
