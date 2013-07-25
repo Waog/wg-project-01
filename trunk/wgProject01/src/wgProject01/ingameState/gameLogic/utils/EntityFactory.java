@@ -102,7 +102,7 @@ public class EntityFactory {
 
 		e.addToWorld();
 
-		Spatial golem = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+		Spatial golem = assetManager.loadModel("./assets/Models/Oto/Oto.mesh.xml");
 		golem.scale(0.5f);
 		// creates the view for this enemy and attaches the entity to it.
 	/*	Box mesh = new Box(collisionBoxRadii.x, collisionBoxRadii.y,
