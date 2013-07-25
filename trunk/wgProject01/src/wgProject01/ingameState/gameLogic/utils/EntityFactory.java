@@ -124,4 +124,42 @@ public class EntityFactory {
 
 		return e;
 	}
+	
+	/**
+	 * Creates a new Enemy at the given position.
+	 */
+	public static Entity createPlayer(World world, Vector3f pos) {
+		// Creates the entity + components, adds it to the world and returns it.
+		Entity e = world.createEntity();
+
+		PositionComponent position = new PositionComponent();
+		position.pos.set(pos);
+		e.addComponent(position);
+
+		Vector3f collisionBoxRadii = new Vector3f(1f, 2.35f, 1f);
+		CollisionBoxComponent collisionBoxComponent = new CollisionBoxComponent(
+				collisionBoxRadii);
+		e.addComponent(collisionBoxComponent);
+		
+		// add Gravitation
+		GravitationComponent gravitationComponent = new GravitationComponent();
+		e.addComponent(gravitationComponent);
+		
+		//add direction
+		DirectionComponent directionComponent = new DirectionComponent();
+		e.addComponent(directionComponent);
+
+		e.addToWorld();
+
+		Spatial golem = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+		golem.scale(0.5f);
+		entityNode.attachChild(golem);
+
+		// make it walk
+		EntityView entityView = new EntityView(e);
+		entityView.init(assetManager, entityNode);
+		golem.addControl(entityView);
+
+		return e;
+	}
 }
