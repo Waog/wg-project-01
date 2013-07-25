@@ -3,23 +3,23 @@ package wgProject01.ingameState.gameLogic.systems;
 import java.util.HashMap;
 import java.util.Map;
 
-import wgProject01.ingameState.gameLogic.components.InputReactingComponent;
+import wgProject01.ingameState.gameLogic.components.PlayerControlComponent;
 import wgProject01.ingameState.gameLogic.components.PositionComponent;
 
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
+import com.artemis.World;
 import com.artemis.annotations.Mapper;
 import com.artemis.systems.EntityProcessingSystem;
 
 /**
- * An entity system handling the given user inputs. The inputs commands are
- * stored in a queue.
+ * An entity system handling the given user commands. The commands are managed with a map from Strings to boolean flags. 
  * 
  * @author Mirco
  * 
  */
-public class InputHandlingSystem extends EntityProcessingSystem {
+public class PlayerControlSystem extends EntityProcessingSystem {
 	
 	/** names for commands */
 	/** for moving left */ 
@@ -46,23 +46,33 @@ public class InputHandlingSystem extends EntityProcessingSystem {
 	 * entities.
 	 */
 	@Mapper
-	ComponentMapper<InputReactingComponent> inputReactingManager;
+	ComponentMapper<PlayerControlComponent> inputReactingManager;
 
 	/**
 	 * constructs a new InputHandlingSystem for all Entities that have a
 	 * InputReactionComponent and a PositionComponent
 	 */
 	@SuppressWarnings("unchecked")
-	public InputHandlingSystem() {
-		super(Aspect.getAspectForAll(InputReactingComponent.class,
+	public PlayerControlSystem() {
+		super(Aspect.getAspectForAll(PlayerControlComponent.class,
 				PositionComponent.class));
 	}
 
+	/**
+	 * <p>
+	 * The Artemis framework calls this method automatically once every time
+	 * {@link World#process()} is called.
+	 * </p>
+	 * 
+	 * <p>
+	 * Works off the Commands given to the entity
+	 * </p>
+	 */
 	@Override
 	protected void process(Entity e) {
 		float delta = world.getDelta();
 		PositionComponent positionComponent = positionManager.get(e);
-		InputReactingComponent inputReactingComponent = inputReactingManager
+		PlayerControlComponent inputReactingComponent = inputReactingManager
 				.get(e);
 		if(getMappedValue(LEFT)){
 			positionComponent.pos.x -= inputReactingComponent.speed * delta;
@@ -76,7 +86,6 @@ public class InputHandlingSystem extends EntityProcessingSystem {
 		if(getMappedValue(FORWARD)){
 			positionComponent.pos.z += inputReactingComponent.speed * delta;
 		}
-		
 	}
 	
 	/**

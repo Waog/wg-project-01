@@ -1,7 +1,7 @@
 package wgProject01.ingameState.gameLogic.view;
 
 import wgProject01.GameApplication;
-import wgProject01.ingameState.gameLogic.systems.InputHandlingSystem;
+import wgProject01.ingameState.gameLogic.systems.PlayerControlSystem;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
@@ -13,9 +13,12 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 
 /**
+ * the Listener for user inputs. Informs the PlayerControlSystem by settings its
+ * boolean flags. This Listener informs the PlayerControlSystem when pushing a
+ * key and informs it again when the key is released.
  * 
  * @author Mirco
- *
+ * 
  */
 public class InputHandler extends AbstractAppState implements ActionListener {
 
@@ -34,25 +37,32 @@ public class InputHandler extends AbstractAppState implements ActionListener {
 		initKeys();
 	}
 
+	/**
+	 * initializes the specific key for a command and adds listeners to this
+	 * command
+	 */
 	private void initKeys() {
-		inputManager.addMapping(InputHandlingSystem.LEFT, new KeyTrigger(
+		inputManager.addMapping(PlayerControlSystem.LEFT, new KeyTrigger(
 				KeyInput.KEY_A));
-		inputManager.addMapping(InputHandlingSystem.RIGHT, new KeyTrigger(
+		inputManager.addMapping(PlayerControlSystem.RIGHT, new KeyTrigger(
 				KeyInput.KEY_D));
-		inputManager.addMapping(InputHandlingSystem.BACK, new KeyTrigger(
+		inputManager.addMapping(PlayerControlSystem.BACK, new KeyTrigger(
 				KeyInput.KEY_S));
-		inputManager.addMapping(InputHandlingSystem.FORWARD, new KeyTrigger(
+		inputManager.addMapping(PlayerControlSystem.FORWARD, new KeyTrigger(
 				KeyInput.KEY_W));
-		inputManager.addListener(this, InputHandlingSystem.LEFT);
-		inputManager.addListener(this, InputHandlingSystem.RIGHT);
-		inputManager.addListener(this, InputHandlingSystem.BACK);
-		inputManager.addListener(this, InputHandlingSystem.FORWARD);
+		inputManager.addListener(this, PlayerControlSystem.LEFT);
+		inputManager.addListener(this, PlayerControlSystem.RIGHT);
+		inputManager.addListener(this, PlayerControlSystem.BACK);
+		inputManager.addListener(this, PlayerControlSystem.FORWARD);
 
 	}
 
+	/**
+	 * sets the PlayerControlSystem by using its Map
+	 */
 	@Override
 	public void onAction(String name, boolean isPressed, float tpf) {
-		InputHandlingSystem.mapper.put(name, isPressed);
+		PlayerControlSystem.mapper.put(name, isPressed);
 	}
 
 }
