@@ -94,7 +94,7 @@ public class SimpleWalkingAiSystem extends EntityProcessingSystem {
 			walkingAiComponent.curDirection.y = 0;
 			walkingAiComponent.curDirection.z = random.nextFloat() - 0.5f;
 			walkingAiComponent.curDirection.normalizeLocal();
-			directionComponent.setDirection(walkingAiComponent.curDirection);
+			directionComponent.setCartesianDirection(walkingAiComponent.curDirection);
 		}
 
 		Vector3f moveOffset = walkingAiComponent.curDirection.mult(timeDelta)
