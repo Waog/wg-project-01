@@ -112,7 +112,7 @@ public class EntityFactory {
 		Entity e = world.createEntity();
 
 		PositionComponent position = new PositionComponent();
-		position.pos = new Vector3f(-1, -1, 1);
+		position.pos = new Vector3f(0, 0, 0);
 		e.addComponent(position);
 
 		OrbitingPropertiesComponent rotationPropertiesComponent = new OrbitingPropertiesComponent();

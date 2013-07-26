@@ -32,4 +32,10 @@ public class OrbitingPropertiesComponent extends Component {
 	 * circulations per second.
 	 */
 	public Vector2f speeds = new Vector2f(1, 1);
+
+	/**
+	 * Internal variable to remember if phi has to be raised or lowered the
+	 * next frame.
+	 */
+	public boolean raiseTheta = true;
 }

@@ -72,6 +72,11 @@ public class OrbitingSystem extends EntityProcessingSystem {
 
 		Vector3f curLocalCartesianPos = positionComponent.pos
 				.subtract(orbitingComponent.center);
+		
+		// calculating sphere coordinates for the zero vector fails, so prevent it.
+		if (curLocalCartesianPos.length() == 0f) {
+			curLocalCartesianPos.x += 0.000001f;
+		}
 
 		Vector3f curSphericalPos = getSphericalCoord(curLocalCartesianPos);
 
@@ -80,34 +85,51 @@ public class OrbitingSystem extends EntityProcessingSystem {
 		// try to converge the current radius to the desired radius slowly.
 		newDesiredSphericalPos.x = (curSphericalPos.x + orbitingComponent.radius) / 2f;
 		// try to rotate along the theta angle with the defined speed.
-		newDesiredSphericalPos.y = curSphericalPos.y + timeDelta
-				* orbitingComponent.speeds.x * 2f * ((float) Math.PI);
+		float thetaDelta = timeDelta * orbitingComponent.speeds.x * 2f
+				* ((float) Math.PI);
+		if (orbitingComponent.raiseTheta) {
+			newDesiredSphericalPos.y = curSphericalPos.y + thetaDelta;
+		} else {
+			newDesiredSphericalPos.y = curSphericalPos.y - thetaDelta;
+		}
 		// try to rotate along the phi angle with the defined speed.
 		newDesiredSphericalPos.z = curSphericalPos.z + timeDelta
 				* orbitingComponent.speeds.y * 2f * ((float) Math.PI);
-		
-//		if (newDesiredSphericalPos.y >= 2 * Math.PI) {
-//			newDesiredSphericalPos.y -= 2 * Math.PI;
-//		}
-//		if (newDesiredSphericalPos.z >= 2 * Math.PI) {
-//			newDesiredSphericalPos.z -= 2 * Math.PI;
-//		}
+
+		// theta
+		if (newDesiredSphericalPos.y >= Math.PI) {
+			newDesiredSphericalPos.y = (float) Math.PI - 0.000001f;
+			newDesiredSphericalPos.z += Math.PI;
+			orbitingComponent.raiseTheta = false;
+		} else if (newDesiredSphericalPos.y <= 0) {
+			newDesiredSphericalPos.y = 0.000001f;
+			newDesiredSphericalPos.z += Math.PI;
+			orbitingComponent.raiseTheta = true;
+		}
+		// phi
+		if (newDesiredSphericalPos.z >= Math.PI) {
+			newDesiredSphericalPos.z -= 2 * Math.PI;
+		}
 
 		// the desired new position in Cartesian coordinates
 		Vector3f newDesiredLocalCartesianPos = getCartesianCoord(newDesiredSphericalPos);
-		Vector3f newDesiredGlobalCartesianPos = newDesiredLocalCartesianPos.add(orbitingComponent.center);
+		Vector3f newDesiredGlobalCartesianPos = newDesiredLocalCartesianPos
+				.add(orbitingComponent.center);
 
 		// potentially determine a final position which differs from the desired
 		// position here (for example due to speed limitations).
 
 		// set the entity to it's new position
 		positionComponent.pos = newDesiredGlobalCartesianPos;
-		
+
 		System.out.println("--- DEBUG: orbiting system frame: ---");
 		System.out.println("curSphericalPos            : " + curSphericalPos);
-		System.out.println("newDesiredSphericalPos     : " + newDesiredSphericalPos);
-		System.out.println("curLocalCartesianPos       : " + curLocalCartesianPos);
-		System.out.println("newDesiredLocalCartesianPos: " + newDesiredLocalCartesianPos);
+		System.out.println("newDesiredSphericalPos     : "
+				+ newDesiredSphericalPos);
+		System.out.println("curLocalCartesianPos       : "
+				+ curLocalCartesianPos);
+		System.out.println("newDesiredLocalCartesianPos: "
+				+ newDesiredLocalCartesianPos);
 	}
 
 	private Vector3f getSphericalCoord(Vector3f cartesianCoord) {
