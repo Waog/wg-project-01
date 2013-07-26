@@ -3,6 +3,7 @@ package wgProject01.ingameState.gameLogic.systems;
 import java.util.HashMap;
 import java.util.Map;
 
+import wgProject01.ingameState.gameLogic.components.DirectionComponent;
 import wgProject01.ingameState.gameLogic.components.PlayerControlComponent;
 import wgProject01.ingameState.gameLogic.components.PositionComponent;
 
@@ -14,7 +15,7 @@ import com.artemis.annotations.Mapper;
 import com.artemis.systems.EntityProcessingSystem;
 
 /**
- * An entity system handling the given user commands. The commands are managed with a map from Strings to boolean flags. 
+ * An entity (processing) system handling the given user commands. The commands are managed with a {@link Map} from Strings to boolean flags. 
  * 
  * @author Mirco
  * 
@@ -22,6 +23,7 @@ import com.artemis.systems.EntityProcessingSystem;
 public class PlayerControlSystem extends EntityProcessingSystem {
 	
 	/** names for commands */
+	/** the digital commands */
 	/** for moving left */ 
 	public static final String LEFT = "Left";
 	/** for moving right */
@@ -30,8 +32,18 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	public static final String BACK = "Back";
 	/** for moving up */
 	public static final String FORWARD = "Forward";
-
-	/** the map mapping the keys given as Strings into boolean values */
+	
+	/** the analogue commands */
+	/** mouse movement in negative x-direction, i.e. to the left */
+	public static final String MOUSE_LEFT  = "MouseLeft";
+	/** mouse movement in positive x-direction, i.e. to the right */
+	public static final String MOUSE_RIGHT  = "MouseRight";
+	/** mouse movement in positive y-direction, i.e. upwards */
+	public static final String MOUSE_UP = "MouseUp";
+	/** mouse movement in negative x-direction, i.e. downwards */
+	public static final String MOUSE_DOWN  = "MouseDown";
+	
+	/** the {@link Map} mapping the keys given as Strings to boolean values */
 	public static Map<String, Boolean> mapper = new HashMap<String, Boolean>();;
 	
 	/**
@@ -46,10 +58,17 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	 * entities.
 	 */
 	@Mapper
-	ComponentMapper<PlayerControlComponent> inputReactingManager;
+	ComponentMapper<PlayerControlComponent> playerControlManager;
+	/**
+	 * 
+	 * Automagical creation of a ComponentMapper to extract a component from the
+	 * entities.
+	 */
+	@Mapper
+	ComponentMapper<DirectionComponent> directionComponentManager;
 
 	/**
-	 * constructs a new InputHandlingSystem for all Entities that have a
+	 * constructs a new PlayerControlSystem for all Entities that have a
 	 * InputReactionComponent and a PositionComponent
 	 */
 	@SuppressWarnings("unchecked")
@@ -72,7 +91,7 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	protected void process(Entity e) {
 		float delta = world.getDelta();
 		PositionComponent positionComponent = positionManager.get(e);
-		PlayerControlComponent inputReactingComponent = inputReactingManager
+		PlayerControlComponent inputReactingComponent = playerControlManager
 				.get(e);
 		if(getMappedValue(LEFT)){
 			positionComponent.pos.x -= inputReactingComponent.speed * delta;
