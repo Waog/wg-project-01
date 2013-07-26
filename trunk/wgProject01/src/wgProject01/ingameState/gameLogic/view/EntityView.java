@@ -111,7 +111,7 @@ public class EntityView extends AbstractControl {
 				.getComponent((DirectionComponent.class));
 		if (directionComponent != null && positionComponent != null) {
 			spatial.lookAt(positionComponent.pos.add(directionComponent
-					.getProjectedDirectionXZ()), new Vector3f(0, 1, 0));
+					.getCatesianProjectedDirectionXZ()), new Vector3f(0, 1, 0));
 		}
 		PointLightComponent pointLightComponent = entity
 				.getComponent((PointLightComponent.class));
@@ -146,7 +146,7 @@ public class EntityView extends AbstractControl {
 			if (directionComponent != null && positionComponent != null) {
 				directionLineSpatial.lookAt(
 						positionComponent.pos.add(new Vector3f(0, 1, 0)),
-						directionComponent.getProjectedDirectionXZ());
+						directionComponent.getCatesianProjectedDirectionXZ());
 				// TODO 2: complete the viewing of the direction in y direction
 				// by figuring out the angle between the projection and the real
 				// angle and rotaing the projected angle by the determined
