@@ -42,7 +42,7 @@ public class InputHandler extends AbstractAppState implements ActionListener,
 		super.initialize(stateManager, app);
 		this.inputManager = app.getInputManager();
 
-		initDigitalKeys();
+		//TODO remove the comment  initDigitalKeys();
 		initAnalogueKeys();
 	}
 
@@ -65,7 +65,7 @@ public class InputHandler extends AbstractAppState implements ActionListener,
 		inputManager.addMapping(PlayerControlSystem.MOUSE_UP,
 				new MouseAxisTrigger(MouseInput.AXIS_Y, false));
 		inputManager.addListener(this, PlayerControlSystem.MOUSE_UP);
-		
+
 		// mouse movement in negative y-direction, i.e. upwards
 		inputManager.addMapping(PlayerControlSystem.MOUSE_DOWN,
 				new MouseAxisTrigger(MouseInput.AXIS_Y, true));
@@ -113,18 +113,21 @@ public class InputHandler extends AbstractAppState implements ActionListener,
 	@Override
 	public void onAnalog(String name, float value, float tpf) {
 		if (name.equals(PlayerControlSystem.MOUSE_LEFT)) {
-			
+			PlayerControlSystem.turnHorizontal += value;
 		}
 
 		if (name.equals(PlayerControlSystem.MOUSE_RIGHT)) {
+			PlayerControlSystem.turnHorizontal -= value;
 		}
 
-		//TODO 2 add handling in y-direction
-		if (name.equals(PlayerControlSystem.MOUSE_UP)) {
-		}
-
-		if (name.equals(PlayerControlSystem.MOUSE_DOWN)) {
-		}
+		// TODO 2 add handling in y-direction
+//		if (name.equals(PlayerControlSystem.MOUSE_UP)) {
+//			PlayerControlSystem.turnVertical += value*10;
+//		}
+//
+//		if (name.equals(PlayerControlSystem.MOUSE_DOWN)) {
+//			PlayerControlSystem.turnVertical -= value*10;
+//		}
 
 	}
 

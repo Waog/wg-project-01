@@ -4,6 +4,7 @@ import jm3Utils.Jme3Utils;
 import wgProject01.Settings;
 import wgProject01.ingameState.gameLogic.components.CollisionBoxComponent;
 import wgProject01.ingameState.gameLogic.components.DirectionComponent;
+import wgProject01.ingameState.gameLogic.components.PlayerControlComponent;
 import wgProject01.ingameState.gameLogic.components.PointLightComponent;
 import wgProject01.ingameState.gameLogic.components.PositionComponent;
 
@@ -109,10 +110,21 @@ public class EntityView extends AbstractControl {
 		}
 		DirectionComponent directionComponent = entity
 				.getComponent((DirectionComponent.class));
-		if (directionComponent != null && positionComponent != null) {
+		PlayerControlComponent playerControlComponent = entity.getComponent(PlayerControlComponent.class);
+		
+		// case that the entity is a npc
+		if (directionComponent != null && positionComponent != null && playerControlComponent == null) {
 			spatial.lookAt(positionComponent.pos.add(directionComponent
 					.getCatesianProjectedDirectionXZ()), new Vector3f(0, 1, 0));
 		}
+		//TODO 2 is this extra case neccesary
+		//case that the entity is a playable character
+		else if(directionComponent != null && positionComponent != null && playerControlComponent != null){
+			Vector3f direction = directionComponent.getCartesianDirection();
+			spatial.lookAt(positionComponent.pos.add(direction), new Vector3f(0, 1, 0));
+			
+		}
+		
 		PointLightComponent pointLightComponent = entity
 				.getComponent((PointLightComponent.class));
 		if (pointLightComponent != null && positionComponent != null) {

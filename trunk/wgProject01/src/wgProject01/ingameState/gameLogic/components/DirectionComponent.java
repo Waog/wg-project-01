@@ -69,6 +69,33 @@ public class DirectionComponent extends Component {
 	}
 
 	/**
+	 * ATTENTION: switches y and z axis
+	 * 
+	 * @return a unit vector describing the direction the entity is pointing at
+	 *         in cartesian coordinates with y and z axis switched.
+	 */
+	public Vector3f getSwitchedCartesianDirection() {
+		double[] cartesianArray = CoordinateMath.sphericalToCartesian(radius,
+				direction.x, direction.y);
+		Vector3f result = new Vector3f((float) cartesianArray[0],
+				(float) cartesianArray[2], (float) cartesianArray[1]);
+		return result;
+	}
+
+	/**
+	 * ATTENTION: switches y and z axis sets the direction vector to the given
+	 * direction in cartesian coordinates with y and z coordinate switched and
+	 * normalizes it,
+	 */
+	public void setSwitchedCartesianDirection(Vector3f direction) {
+		double[] sphericalArray = CoordinateMath.cartesianToSpherical(
+				direction.x, direction.y, direction.z);
+		Vector2f result = new Vector2f((float) sphericalArray[2],
+				(float) sphericalArray[1]);
+		this.direction.set(result);
+	}
+
+	/**
 	 * sets the direction vector to the given direction in cartesian coordinates
 	 * and normalizes it
 	 */
