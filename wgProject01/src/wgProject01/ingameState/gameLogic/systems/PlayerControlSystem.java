@@ -13,6 +13,7 @@ import com.artemis.Entity;
 import com.artemis.World;
 import com.artemis.annotations.Mapper;
 import com.artemis.systems.EntityProcessingSystem;
+import com.jme3.math.Vector2f;
 
 /**
  * An entity (processing) system handling the given user commands. The commands are managed with a {@link Map} from Strings to boolean flags. 
@@ -43,8 +44,11 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	/** mouse movement in negative x-direction, i.e. downwards */
 	public static final String MOUSE_DOWN  = "MouseDown";
 	
+	public static float turnHorizontal = 0;
+	public static float turnVertical;
+
 	/** the {@link Map} mapping the keys given as Strings to boolean values */
-	public static Map<String, Boolean> mapper = new HashMap<String, Boolean>();;
+	public static Map<String, Boolean> mapper = new HashMap<String, Boolean>();
 	
 	/**
 	 * Automagical creation of a ComponentMapper to extract a component from the
@@ -74,7 +78,7 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	@SuppressWarnings("unchecked")
 	public PlayerControlSystem() {
 		super(Aspect.getAspectForAll(PlayerControlComponent.class,
-				PositionComponent.class));
+				PositionComponent.class, DirectionComponent.class));
 	}
 
 	/**
@@ -91,8 +95,11 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	protected void process(Entity e) {
 		float delta = world.getDelta();
 		PositionComponent positionComponent = positionManager.get(e);
+		DirectionComponent directionComponent = directionComponentManager.get(e);
 		PlayerControlComponent inputReactingComponent = playerControlManager
 				.get(e);
+		
+		
 		if(getMappedValue(LEFT)){
 			positionComponent.pos.x -= inputReactingComponent.speed * delta;
 		}
@@ -105,6 +112,19 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 		if(getMappedValue(FORWARD)){
 			positionComponent.pos.z += inputReactingComponent.speed * delta;
 		}
+		if(turnHorizontal != 0){
+			Vector2f curDirection = directionComponent.getSphericalDirection();
+			Vector2f newDirection = new Vector2f(curDirection.x , curDirection.y + turnHorizontal);
+			directionComponent.setSphericalDirection(newDirection);
+			turnHorizontal = 0; //reset the turning
+		}
+		if(turnVertical != 0){
+			Vector2f curDirection = directionComponent.getSphericalDirection();
+			Vector2f newDirection = new Vector2f(curDirection.x +turnVertical, curDirection.y);
+			directionComponent.setSphericalDirection(newDirection);
+			turnVertical = 0; //reset the turning
+		}
+		
 	}
 	
 	/**
