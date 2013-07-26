@@ -121,15 +121,15 @@ public class OrbitingSystem extends EntityProcessingSystem {
 
 		// set the entity to it's new position
 		positionComponent.pos = newDesiredGlobalCartesianPos;
-
-		System.out.println("--- DEBUG: orbiting system frame: ---");
-		System.out.println("curSphericalPos            : " + curSphericalPos);
-		System.out.println("newDesiredSphericalPos     : "
-				+ newDesiredSphericalPos);
-		System.out.println("curLocalCartesianPos       : "
-				+ curLocalCartesianPos);
-		System.out.println("newDesiredLocalCartesianPos: "
-				+ newDesiredLocalCartesianPos);
+//TODO 2 toggle this on debugging mode
+//		System.out.println("--- DEBUG: orbiting system frame: ---");
+//		System.out.println("curSphericalPos            : " + curSphericalPos);
+//		System.out.println("newDesiredSphericalPos     : "
+//				+ newDesiredSphericalPos);
+//		System.out.println("curLocalCartesianPos       : "
+//				+ curLocalCartesianPos);
+//		System.out.println("newDesiredLocalCartesianPos: "
+//				+ newDesiredLocalCartesianPos);
 	}
 
 	private Vector3f getSphericalCoord(Vector3f cartesianCoord) {
