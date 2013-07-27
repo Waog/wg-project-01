@@ -2,6 +2,7 @@ package wgProject01.ingameState.gameLogic.utils;
 
 import java.util.Random;
 
+import jm3Utils.Jme3Utils;
 import wgProject01.ingameState.gameLogic.GameLogic;
 import wgProject01.ingameState.gameLogic.components.CollisionBoxComponent;
 import wgProject01.ingameState.gameLogic.components.DirectionComponent;
@@ -199,6 +200,31 @@ public class EntityFactory {
 		EntityView entityView = new EntityView(e, rootNode);
 		entityView.init(assetManager, entityNode);
 		golem.addControl(entityView);
+
+		return e;
+	}
+	
+	/**
+	 * Creates a small visible cubic entity at the given position.
+	 */
+	public static Entity createSmallCube(Node rootNode, World world, Vector3f pos) {
+		// Creates the entity + components, adds it to the world and returns it.
+		Entity e = world.createEntity();
+
+		// add position
+		PositionComponent position = new PositionComponent();
+		position.pos.set(pos);
+		e.addComponent(position);
+		
+		e.addToWorld();
+
+		Spatial spatial = Jme3Utils.getCubeGeom(0.1f, assetManager);
+		entityNode.attachChild(spatial);
+
+		// make it visible (connect model and view)
+		EntityView entityView = new EntityView(e, rootNode);
+		entityView.init(assetManager, entityNode);
+		spatial.addControl(entityView);
 
 		return e;
 	}
