@@ -16,16 +16,17 @@ import com.artemis.systems.EntityProcessingSystem;
 import com.jme3.math.Vector2f;
 
 /**
- * An entity (processing) system handling the given user commands. The commands are managed with a {@link Map} from Strings to boolean flags. 
+ * An entity (processing) system handling the given user commands. The commands
+ * are managed with a {@link Map} from Strings to boolean flags.
  * 
  * @author Mirco
  * 
  */
 public class PlayerControlSystem extends EntityProcessingSystem {
-	
+
 	/** names for commands */
 	/** the digital commands */
-	/** for moving left */ 
+	/** for moving left */
 	public static final String LEFT = "Left";
 	/** for moving right */
 	public static final String RIGHT = "Right";
@@ -33,23 +34,23 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	public static final String BACK = "Back";
 	/** for moving up */
 	public static final String FORWARD = "Forward";
-	
+
 	/** the analogue commands */
 	/** mouse movement in negative x-direction, i.e. to the left */
-	public static final String MOUSE_LEFT  = "MouseLeft";
+	public static final String MOUSE_LEFT = "MouseLeft";
 	/** mouse movement in positive x-direction, i.e. to the right */
-	public static final String MOUSE_RIGHT  = "MouseRight";
+	public static final String MOUSE_RIGHT = "MouseRight";
 	/** mouse movement in positive y-direction, i.e. upwards */
 	public static final String MOUSE_UP = "MouseUp";
 	/** mouse movement in negative x-direction, i.e. downwards */
-	public static final String MOUSE_DOWN  = "MouseDown";
-	
+	public static final String MOUSE_DOWN = "MouseDown";
+
 	public static float turnHorizontal = 0;
-	public static float turnVertical;
+	public static float turnVertical = 0;
 
 	/** the {@link Map} mapping the keys given as Strings to boolean values */
 	public static Map<String, Boolean> mapper = new HashMap<String, Boolean>();
-	
+
 	/**
 	 * Automagical creation of a ComponentMapper to extract a component from the
 	 * entities.
@@ -95,42 +96,48 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	protected void process(Entity e) {
 		float delta = world.getDelta();
 		PositionComponent positionComponent = positionManager.get(e);
-		DirectionComponent directionComponent = directionComponentManager.get(e);
+		DirectionComponent directionComponent = directionComponentManager
+				.get(e);
 		PlayerControlComponent inputReactingComponent = playerControlManager
 				.get(e);
-		
-		
-		if(getMappedValue(LEFT)){
+
+		if (getMappedValue(LEFT)) {
 			positionComponent.pos.x -= inputReactingComponent.speed * delta;
 		}
-		if(getMappedValue(RIGHT)){
+		if (getMappedValue(RIGHT)) {
 			positionComponent.pos.x += inputReactingComponent.speed * delta;
 		}
-		if(getMappedValue(BACK)){
+		if (getMappedValue(BACK)) {
 			positionComponent.pos.z -= inputReactingComponent.speed * delta;
 		}
-		if(getMappedValue(FORWARD)){
+		if (getMappedValue(FORWARD)) {
 			positionComponent.pos.z += inputReactingComponent.speed * delta;
 		}
-		if(turnHorizontal != 0){
+		if (turnHorizontal != 0) {
 			Vector2f curDirection = directionComponent.getSphericalDirection();
-			Vector2f newDirection = new Vector2f(curDirection.x , curDirection.y + turnHorizontal);
+			Vector2f newDirection = new Vector2f(curDirection.x, curDirection.y
+					- turnHorizontal);
 			directionComponent.setSphericalDirection(newDirection);
-			turnHorizontal = 0; //reset the turning
+			turnHorizontal = 0; // reset the turning
 		}
-		if(turnVertical != 0){
+		if (turnVertical != 0) {
 			Vector2f curDirection = directionComponent.getSphericalDirection();
-			Vector2f newDirection = new Vector2f(curDirection.x +turnVertical, curDirection.y);
+			float newTheta = curDirection.x - turnVertical;
+			newTheta = Math.max(newTheta, 0.0001f);
+			newTheta = Math.min(newTheta, (float) Math.PI - 0.0001f);
+			Vector2f newDirection = new Vector2f(newTheta,
+					curDirection.y);
 			directionComponent.setSphericalDirection(newDirection);
-			turnVertical = 0; //reset the turning
+			turnVertical = 0; // reset the turning
 		}
-		
+
 	}
-	
+
 	/**
-	 * returns the mapped value for the given key from the mapper variable or false if the given key is not defined 
+	 * returns the mapped value for the given key from the mapper variable or
+	 * false if the given key is not defined
 	 */
-	private boolean getMappedValue(String key){
+	private boolean getMappedValue(String key) {
 		return (mapper.get(key) != null && mapper.get(key));
 	}
 }
