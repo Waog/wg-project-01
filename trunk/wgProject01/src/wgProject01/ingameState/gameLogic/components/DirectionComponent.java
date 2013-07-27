@@ -120,6 +120,18 @@ public class DirectionComponent extends Component {
 	}
 
 	/**
+	 * Returns the current z-y-switched direction in cartesian coordinates
+	 * projected to the XZ plane and normalized.
+	 */
+	public Vector3f getSwitchedCatesianProjectedDirectionXZ() {
+		Vector3f projectedDirectionXZ = new Vector3f();
+		projectedDirectionXZ.set(getSwitchedCartesianDirection());
+		projectedDirectionXZ.y = 0;
+		projectedDirectionXZ.normalizeLocal();
+		return projectedDirectionXZ;
+	}
+
+	/**
 	 * Normalizes a given spherical coordinate (theta, phi) to match:
 	 * <p>
 	 * theta in [0, pi]
