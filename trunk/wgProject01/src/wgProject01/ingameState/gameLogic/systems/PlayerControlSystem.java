@@ -13,6 +13,7 @@ import wgProject01.ingameState.gameLogic.BlockManager;
 import wgProject01.ingameState.gameLogic.components.DirectionComponent;
 import wgProject01.ingameState.gameLogic.components.PlayerControlComponent;
 import wgProject01.ingameState.gameLogic.components.PositionComponent;
+import wgProject01.ingameState.gameLogic.utils.EntityFactory;
 
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
@@ -80,6 +81,9 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	 */
 	@Mapper
 	ComponentMapper<DirectionComponent> directionComponentManager;
+	
+	//TODO 2 remove debug crab
+	private Entity smallDebugCube;
 
 	/**
 	 * constructs a new PlayerControlSystem for all Entities that have a
@@ -89,6 +93,12 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	public PlayerControlSystem() {
 		super(Aspect.getAspectForAll(PlayerControlComponent.class,
 				PositionComponent.class, DirectionComponent.class));
+	}
+	
+	@Override
+	protected void initialize() {
+		super.initialize();
+		this.smallDebugCube = EntityFactory.createSmallCube( world, new Vector3f());
 	}
 
 	/**
@@ -116,10 +126,10 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 		doHandleRotation(directionComponent);
 
 		// determine blocks on player ray
-		// pairs of unique blocks and their collision points
-		Set<Pair<BlockGameObj, Vector3f>> blocksOnRay = new HashSet<Pair<BlockGameObj, Vector3f>>();
+		// pairs of lengthes of dir'n and collision points with blocks
+		List<Pair<Float, Vector3f>> blocksOnRayList = new ArrayList<Pair<Float, Vector3f>>();
 		float lengthOfRay = 6;
-		Vector3f dir = directionComponent.getCartesianDirection();
+		Vector3f dir = directionComponent.getSwitchedCartesianDirection();
 
 		Vector3f endOfRay = positionComponent.pos.add(dir.mult(lengthOfRay));
 		float minX = Math.min(positionComponent.pos.x, endOfRay.x);
@@ -128,6 +138,7 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 		int roundedMinX = Math.round(minX);
 		int roundedMaxX = Math.round(maxX);
 
+		// calculates collision points and length from player to collision point
 		for (int curRoundedX = roundedMinX; curRoundedX < roundedMaxX; curRoundedX++) {
 			float curBorderX = curRoundedX + 0.5f;
 			float walkParameter = (curBorderX - positionComponent.pos.x)
@@ -140,13 +151,33 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 			collisionPoint.z = positionComponent.pos.z + walkParameter * dir.z;
 			// move the collision point slightly to leave block border
 			collisionPoint.addLocal(dir.mult(0.0001f));
-			BlockGameObj collidingBlock = BlockManager.getInstance().getBlock(collisionPoint);
-			if(collidingBlock != null){
-				Pair<BlockGameObj, Vector3f> blockOnRayPair = new Pair<BlockGameObj, Vector3f>(collidingBlock, collisionPoint);
-				blocksOnRay.add(blockOnRayPair);
+			BlockGameObj collidingBlock = BlockManager.getInstance().getBlock(
+					collisionPoint);
+			if (collidingBlock != null) {
+				Pair<Float, Vector3f> blockOnRayPair = new Pair<Float, Vector3f>(
+						walkParameter, collisionPoint);
+				blocksOnRayList.add(blockOnRayPair);
 			}
 		}
 
+		// find closest collision point
+		Pair<Float, Vector3f> closestPair = null;
+		if (blocksOnRayList.size() != 0) {
+			closestPair = blocksOnRayList.get(0);
+
+		}
+		for (Pair<Float, Vector3f> pair : blocksOnRayList) {
+			if (pair.first < closestPair.first) {
+				closestPair = pair;
+			}
+		}
+		BlockGameObj collidingBlock = null;
+		if (closestPair != null) {
+			collidingBlock = BlockManager.getInstance().getBlock(
+					closestPair.second);
+			smallDebugCube.getComponent(PositionComponent.class).pos = closestPair.second;
+		}
+		
 	}
 
 	/**
