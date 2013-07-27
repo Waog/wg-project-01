@@ -71,45 +71,4 @@ public class BlockGameObj {
 		this.blockPositionComponent.placed = false;
 		blockView.informBlockChange();
 	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime
-				* result
-				+ ((blockPositionComponent == null) ? 0
-						: blockPositionComponent.hashCode());
-		result = prime * result
-				+ ((blockView == null) ? 0 : blockView.hashCode());
-		return result;
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		BlockGameObj other = (BlockGameObj) obj;
-		if (blockPositionComponent == null) {
-			if (other.blockPositionComponent != null)
-				return false;
-		} else if (!blockPositionComponent.equals(other.blockPositionComponent))
-			return false;
-		if (blockView == null) {
-			if (other.blockView != null)
-				return false;
-		} else if (!blockView.equals(other.blockView))
-			return false;
-		return true;
-	}
 }
