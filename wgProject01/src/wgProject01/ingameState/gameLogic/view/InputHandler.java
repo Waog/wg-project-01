@@ -47,8 +47,7 @@ public class InputHandler extends AbstractAppState implements ActionListener,
 		super.initialize(stateManager, app);
 		this.inputManager = app.getInputManager();
 
-		// TODO uncomment both lines
-		// initDigitalInputs(); // e.g. mouse motion
+		initDigitalInputs(); // e.g. mouse motion
 		initAnalogueInputs(); // e.g. key strokes
 	}
 

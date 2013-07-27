@@ -14,6 +14,7 @@ import com.artemis.World;
 import com.artemis.annotations.Mapper;
 import com.artemis.systems.EntityProcessingSystem;
 import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 
 /**
  * An entity (processing) system handling the given user commands. The commands
@@ -98,20 +99,38 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 		PositionComponent positionComponent = positionManager.get(e);
 		DirectionComponent directionComponent = directionComponentManager
 				.get(e);
-		PlayerControlComponent inputReactingComponent = playerControlManager
-				.get(e);
+		PlayerControlComponent playerComponent = playerControlManager.get(e);
 
 		if (getMappedValue(LEFT)) {
-			positionComponent.pos.x -= inputReactingComponent.speed * delta;
+			Vector3f directionXZ = directionComponent
+					.getSwitchedCatesianProjectedDirectionXZ();
+			Vector3f directionLeft = directionXZ.cross(new Vector3f(0, 1, 0))
+					.mult(-1f);
+			directionLeft.normalizeLocal();
+			Vector3f positionDelta = directionLeft.mult(playerComponent.speed
+					* delta);
+			positionComponent.pos.addLocal(positionDelta);
 		}
 		if (getMappedValue(RIGHT)) {
-			positionComponent.pos.x += inputReactingComponent.speed * delta;
+			Vector3f directionXZ = directionComponent
+					.getSwitchedCatesianProjectedDirectionXZ();
+			Vector3f directionRight = directionXZ.cross(new Vector3f(0, 1, 0));
+			directionRight.normalizeLocal();
+			Vector3f positionDelta = directionRight.mult(playerComponent.speed
+					* delta);
+			positionComponent.pos.addLocal(positionDelta);
 		}
 		if (getMappedValue(BACK)) {
-			positionComponent.pos.z -= inputReactingComponent.speed * delta;
+			Vector3f positionDelta = directionComponent
+					.getSwitchedCatesianProjectedDirectionXZ().mult(
+							-1 * playerComponent.speed * delta);
+			positionComponent.pos.addLocal(positionDelta);
 		}
 		if (getMappedValue(FORWARD)) {
-			positionComponent.pos.z += inputReactingComponent.speed * delta;
+			Vector3f positionDelta = directionComponent
+					.getSwitchedCatesianProjectedDirectionXZ().mult(
+							playerComponent.speed * delta);
+			positionComponent.pos.addLocal(positionDelta);
 		}
 		if (turnHorizontal != 0) {
 			Vector2f curDirection = directionComponent.getSphericalDirection();
@@ -125,8 +144,7 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 			float newTheta = curDirection.x - turnVertical;
 			newTheta = Math.max(newTheta, 0.0001f);
 			newTheta = Math.min(newTheta, (float) Math.PI - 0.0001f);
-			Vector2f newDirection = new Vector2f(newTheta,
-					curDirection.y);
+			Vector2f newDirection = new Vector2f(newTheta, curDirection.y);
 			directionComponent.setSphericalDirection(newDirection);
 			turnVertical = 0; // reset the turning
 		}
