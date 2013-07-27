@@ -85,7 +85,7 @@ public class EntityView extends AbstractControl {
 					.getComponent((DirectionComponent.class));
 			if (directionComponent != null && positionComponent != null) {
 				directionLineSpatial = Jme3Utils.drawLine(new Vector3f(),
-						new Vector3f(0, 3, 0), entityNode, assetManager);
+						new Vector3f(0, 0, 3), entityNode, assetManager);
 			}
 		}
 	}
@@ -125,9 +125,9 @@ public class EntityView extends AbstractControl {
 		// from ego perspective.
 		else if (directionComponent != null && positionComponent != null
 				&& playerControlComponent != null) {
-			Vector3f direction = directionComponent
-					.getSwitchedCartesianDirection();
-			spatial.lookAt(positionComponent.pos.add(direction), new Vector3f(
+			Vector3f spatialDirection = directionComponent
+					.getSwitchedCatesianProjectedDirectionXZ();
+			spatial.lookAt(positionComponent.pos.add(spatialDirection), new Vector3f(
 					0, 1, 0));
 
 		}
@@ -163,15 +163,12 @@ public class EntityView extends AbstractControl {
 
 		if (Settings.debugMode >= 2) {
 			if (directionComponent != null && positionComponent != null) {
-				directionLineSpatial.lookAt(
-						positionComponent.pos.add(new Vector3f(0, 1, 0)),
-						directionComponent.getCatesianProjectedDirectionXZ());
-				// TODO 2: complete the viewing of the direction in y direction
-				// by figuring out the angle between the projection and the real
-				// angle and rotaing the projected angle by the determined
-				// angle.
-
 				directionLineSpatial.setLocalTranslation(positionComponent.pos);
+
+				Vector3f direction = directionComponent
+						.getSwitchedCartesianDirection();
+				directionLineSpatial.lookAt(positionComponent.pos
+						.add(direction), new Vector3f(0, 1, 0));
 
 			}
 		}
