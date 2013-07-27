@@ -1,5 +1,7 @@
 package jm3Utils;
 
+import JSci.maths.CoordinateMath;
+
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
@@ -81,6 +83,30 @@ public class Jme3Utils {
 		debugMaterial.setColor("Color", randomColor);
 		debugMaterial.getAdditionalRenderState().setBlendMode(BlendMode.Alpha); // !
 		result.setMaterial(debugMaterial);
+		return result;
+	}
+
+	/**
+	 * Returns the spherical coordinates (r, theta, phi) for the given cartesian
+	 * coordinate (x,y,z).
+	 */
+	public static Vector3f getSphericalCoord(Vector3f cartesianCoord) {
+		double[] sphericalArray = CoordinateMath.cartesianToSpherical(
+				cartesianCoord.x, cartesianCoord.y, cartesianCoord.z);
+		Vector3f result = new Vector3f((float) sphericalArray[0],
+				(float) sphericalArray[1], (float) sphericalArray[2]);
+		return result;
+	}
+
+	/**
+	 * Returns the cartesian coordinate (x,y,z) for the given spherical
+	 * coordinates (r, theta, phi).
+	 */
+	public static Vector3f getCartesianCoord(Vector3f sphericalCoord) {
+		double[] cartesianArray = CoordinateMath.sphericalToCartesian(
+				sphericalCoord.x, sphericalCoord.y, sphericalCoord.z);
+		Vector3f result = new Vector3f((float) cartesianArray[0],
+				(float) cartesianArray[1], (float) cartesianArray[2]);
 		return result;
 	}
 }

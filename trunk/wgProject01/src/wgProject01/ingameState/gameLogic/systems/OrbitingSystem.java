@@ -1,8 +1,8 @@
 package wgProject01.ingameState.gameLogic.systems;
 
-import wgProject01.ingameState.gameLogic.components.PositionComponent;
+import jm3Utils.Jme3Utils;
 import wgProject01.ingameState.gameLogic.components.OrbitingPropertiesComponent;
-import JSci.maths.CoordinateMath;
+import wgProject01.ingameState.gameLogic.components.PositionComponent;
 
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
@@ -13,11 +13,14 @@ import com.artemis.systems.EntityProcessingSystem;
 import com.jme3.math.Vector3f;
 
 /**
- * This is a {@link com.jme3.scene.control.Control Control} to handle rotational
- * movement around a central point.
+ * <p>
+ * This is an entity system to handle rotational movement around a central
+ * point.
+ * </p>
  * 
  * <p>
- * Attach it to any spatial which shall move around a center point.
+ * it doen't change the direction of the entities. It just changes the position,
+ * to slowly adopt the orbit path.
  * </p>
  * 
  * @author oli
@@ -41,9 +44,11 @@ public class OrbitingSystem extends EntityProcessingSystem {
 
 	/**
 	 * <p>
-	 * Create a new SimpleWalkingAiSystem instance, which lets the appropriate
-	 * entities walk randomly around in the x-z-plane.
+	 * Create a new Entity System instance, which lets the appropriate entities
+	 * orbit around, like specified in their {@link OrbitingPropertiesComponent}
+	 * .
 	 * </p>
+	 * 
 	 * <p>
 	 * Like all EntitySystems the constructed instance must be attached to a
 	 * {@link World} to work.
@@ -57,10 +62,14 @@ public class OrbitingSystem extends EntityProcessingSystem {
 	}
 
 	/**
-	 * JME3 calls this method automatically every frame.
+	 * <p>
+	 * The Artemis framework calls this method automatically once every time
+	 * {@link World#process()} is called.
+	 * </p>
 	 * 
-	 * Updates the position of the spatial. Currently just sets a new position
-	 * instead of moving the spatial, so it still can pass walls.
+	 * <p>
+	 * Moves the entities position to slowly adopt it's specified orbit.
+	 * <p>
 	 */
 	@Override
 	protected void process(Entity e) {
@@ -72,19 +81,22 @@ public class OrbitingSystem extends EntityProcessingSystem {
 
 		Vector3f curLocalCartesianPos = positionComponent.pos
 				.subtract(orbitingComponent.center);
-		
-		// calculating sphere coordinates for the zero vector fails, so prevent it.
+
+		// calculating sphere coordinates for the zero vector fails, so prevent
+		// it.
 		if (curLocalCartesianPos.length() == 0f) {
 			curLocalCartesianPos.x += 0.000001f;
 		}
 
-		Vector3f curSphericalPos = getSphericalCoord(curLocalCartesianPos);
+		Vector3f curSphericalPos = Jme3Utils
+				.getSphericalCoord(curLocalCartesianPos);
 
-		// determine the desired new position
+		// determine the desired new position by ...
 		Vector3f newDesiredSphericalPos = new Vector3f();
-		// try to converge the current radius to the desired radius slowly.
+		// ... trying to converge the current radius to the desired radius
+		// slowly.
 		newDesiredSphericalPos.x = (curSphericalPos.x + orbitingComponent.radius) / 2f;
-		// try to rotate along the theta angle with the defined speed.
+		// ... trying to rotate along the theta angle with the defined speed.
 		float thetaDelta = timeDelta * orbitingComponent.speeds.x * 2f
 				* ((float) Math.PI);
 		if (orbitingComponent.raiseTheta) {
@@ -92,11 +104,12 @@ public class OrbitingSystem extends EntityProcessingSystem {
 		} else {
 			newDesiredSphericalPos.y = curSphericalPos.y - thetaDelta;
 		}
-		// try to rotate along the phi angle with the defined speed.
+		// ... trying to rotate along the phi angle with the defined speed.
 		newDesiredSphericalPos.z = curSphericalPos.z + timeDelta
 				* orbitingComponent.speeds.y * 2f * ((float) Math.PI);
 
-		// theta
+		// normalize the angles theta into [0, PI] and phi into [-PI, PI]
+		// normalize theta
 		if (newDesiredSphericalPos.y >= Math.PI) {
 			newDesiredSphericalPos.y = (float) Math.PI - 0.000001f;
 			newDesiredSphericalPos.z += Math.PI;
@@ -106,45 +119,22 @@ public class OrbitingSystem extends EntityProcessingSystem {
 			newDesiredSphericalPos.z += Math.PI;
 			orbitingComponent.raiseTheta = true;
 		}
-		// phi
+		// normalize phi
 		if (newDesiredSphericalPos.z >= Math.PI) {
 			newDesiredSphericalPos.z -= 2 * Math.PI;
 		}
 
 		// the desired new position in Cartesian coordinates
-		Vector3f newDesiredLocalCartesianPos = getCartesianCoord(newDesiredSphericalPos);
+		Vector3f newDesiredLocalCartesianPos = Jme3Utils
+				.getCartesianCoord(newDesiredSphericalPos);
 		Vector3f newDesiredGlobalCartesianPos = newDesiredLocalCartesianPos
 				.add(orbitingComponent.center);
 
 		// potentially determine a final position which differs from the desired
-		// position here (for example due to speed limitations).
+		// position here (for example due to cartesian speed limitations).
+		// nothing yet
 
 		// set the entity to it's new position
 		positionComponent.pos = newDesiredGlobalCartesianPos;
-//TODO 2 toggle this on debugging mode
-//		System.out.println("--- DEBUG: orbiting system frame: ---");
-//		System.out.println("curSphericalPos            : " + curSphericalPos);
-//		System.out.println("newDesiredSphericalPos     : "
-//				+ newDesiredSphericalPos);
-//		System.out.println("curLocalCartesianPos       : "
-//				+ curLocalCartesianPos);
-//		System.out.println("newDesiredLocalCartesianPos: "
-//				+ newDesiredLocalCartesianPos);
-	}
-
-	private Vector3f getSphericalCoord(Vector3f cartesianCoord) {
-		double[] sphericalArray = CoordinateMath.cartesianToSpherical(
-				cartesianCoord.x, cartesianCoord.y, cartesianCoord.z);
-		Vector3f result = new Vector3f((float) sphericalArray[0],
-				(float) sphericalArray[1], (float) sphericalArray[2]);
-		return result;
-	}
-
-	private Vector3f getCartesianCoord(Vector3f sphericalCoord) {
-		double[] cartesianArray = CoordinateMath.sphericalToCartesian(
-				sphericalCoord.x, sphericalCoord.y, sphericalCoord.z);
-		Vector3f result = new Vector3f((float) cartesianArray[0],
-				(float) cartesianArray[1], (float) cartesianArray[2]);
-		return result;
 	}
 }
