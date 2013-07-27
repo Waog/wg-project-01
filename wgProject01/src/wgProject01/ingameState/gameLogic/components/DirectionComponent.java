@@ -27,7 +27,9 @@ public class DirectionComponent extends Component {
 	 * phi in [-pi, pi]
 	 * </p>
 	 */
-	private Vector2f direction = new Vector2f((float) Math.PI / 2f, 0); // points in z-direction
+	private Vector2f direction = new Vector2f((float) Math.PI / 2f, 0); // points
+																		// in
+																		// z-direction
 
 	/**
 	 * returns the direction vector in spherical coordinates (theta, phi).
@@ -54,7 +56,7 @@ public class DirectionComponent extends Component {
 	 */
 	public void setSphericalDirection(Vector2f direction) {
 		this.direction.set(direction);
-		normalize(this.direction);
+		normalizeToSphericalParams(this.direction);
 	}
 
 	/**
@@ -102,7 +104,7 @@ public class DirectionComponent extends Component {
 		Vector2f result = new Vector2f((float) sphericalArray[1],
 				(float) sphericalArray[2]);
 		this.direction.set(result);
-		normalize(this.direction);
+		normalizeToSphericalParams(this.direction);
 	}
 
 	/**
@@ -126,7 +128,7 @@ public class DirectionComponent extends Component {
 	 * phi in [-pi, pi]
 	 * </p>
 	 */
-	private void normalize(Vector2f sphereCoord) {
+	private void normalizeToSphericalParams(Vector2f sphereCoord) {
 		// normalize the angles theta into [0, PI] and phi into [-PI, PI]
 		// normalize theta
 		while (sphereCoord.x < 0) {
