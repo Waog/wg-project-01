@@ -51,13 +51,10 @@ public class GameLogic {
 	 */
 	private AssetManager assetManager;
 
-	private Node rootNode;
-
 	/**
 	 * Initializes the game logic and entity systems.
 	 */
-	public void doInit(Node rootNode, Node blockNode, AssetManager assetManager) {
-		this.rootNode = rootNode;
+	public void doInit(Node blockNode, AssetManager assetManager) {
 		this.blockNode = blockNode;
 		this.assetManager = assetManager;
 
@@ -72,11 +69,11 @@ public class GameLogic {
 		world.setSystem(new GravitationSystem());
 		world.setSystem(new BlockCollisionSystem());
 
-		EntityFactory.createEnemy(this.rootNode, world, new Vector3f(0, 5, 0));
-		EntityFactory.createPlayer(this.rootNode, world, new Vector3f(1,10,1));
+		EntityFactory.createEnemy(world, new Vector3f(0, 5, 0));
+		EntityFactory.createPlayer(world, new Vector3f(1,10,1));
 		// create more suns for higher debug modes.
 		for (int i = 0; i <= Settings.debugMode; i++) {
-			EntityFactory.createSun(this.rootNode, world);
+			EntityFactory.createSun(world);
 		}
 
 		world.initialize();

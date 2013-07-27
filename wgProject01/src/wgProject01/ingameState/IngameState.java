@@ -78,10 +78,10 @@ public class IngameState extends AbstractAppState {
 		
 		initNodes();
 		initCrossHairs();		
-		EntityFactory.initData(rootNode, assetManager);
+		EntityFactory.initData(rootNode, assetManager, rootNode);
 		
 		gameLogic = new GameLogic();
-		gameLogic.doInit(rootNode, mineables, assetManager);
+		gameLogic.doInit(mineables, assetManager);
 		
 		stateManager.attach(new Player());
 		stateManager.attach(new InputHandler());

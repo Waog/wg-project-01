@@ -57,6 +57,11 @@ public class EntityFactory {
 	private static AssetManager assetManager;
 
 	/**
+	 * The node to which light sources are attached.
+	 */
+	private static Node lightNode;
+
+	/**
 	 * Private constructor to enforce the use of the {@link #getInstance()}
 	 * method.
 	 */
@@ -84,9 +89,10 @@ public class EntityFactory {
 	 *            the Node to which all blocks of the BlockManager shall be
 	 *            attached.
 	 */
-	public static void initData(Node entityNode, AssetManager assetManager) {
+	public static void initData(Node entityNode, AssetManager assetManager, Node lightNode) {
 		EntityFactory.entityNode = entityNode;
 		EntityFactory.assetManager = assetManager;
+		EntityFactory.lightNode = lightNode;
 	}
 
 	/**
@@ -97,7 +103,7 @@ public class EntityFactory {
 	 * @see PointLightComponent
 	 * @see PointLight
 	 */
-	public static Entity createSun(Node rootNode, World world) {
+	public static Entity createSun(World world) {
 		// some properties which determine the suns appearance and behavior.
 		float geometryRadius = 20;
 		float geometryRadius2 = 30;
@@ -154,7 +160,7 @@ public class EntityFactory {
 		sunNode.attachChild(sphereSpacial2);
 
 		// make it visible (connect model and view)
-		EntityView entityView = new EntityView(e, rootNode);
+		EntityView entityView = new EntityView(e, lightNode);
 		entityView.init(assetManager, entityNode);
 		sunNode.addControl(entityView);
 
@@ -164,7 +170,7 @@ public class EntityFactory {
 	/**
 	 * Creates a new Enemy at the given position.
 	 */
-	public static Entity createEnemy(Node rootNode, World world, Vector3f pos) {
+	public static Entity createEnemy(World world, Vector3f pos) {
 		// Creates the entity + components, adds it to the world and returns it.
 		Entity e = world.createEntity();
 
@@ -197,7 +203,7 @@ public class EntityFactory {
 		entityNode.attachChild(golem);
 
 		// make it visible (connect model and view)
-		EntityView entityView = new EntityView(e, rootNode);
+		EntityView entityView = new EntityView(e, lightNode);
 		entityView.init(assetManager, entityNode);
 		golem.addControl(entityView);
 
@@ -207,7 +213,7 @@ public class EntityFactory {
 	/**
 	 * Creates a small visible cubic entity at the given position.
 	 */
-	public static Entity createSmallCube(Node rootNode, World world, Vector3f pos) {
+	public static Entity createSmallCube(World world, Vector3f pos) {
 		// Creates the entity + components, adds it to the world and returns it.
 		Entity e = world.createEntity();
 
@@ -222,7 +228,7 @@ public class EntityFactory {
 		entityNode.attachChild(spatial);
 
 		// make it visible (connect model and view)
-		EntityView entityView = new EntityView(e, rootNode);
+		EntityView entityView = new EntityView(e, lightNode);
 		entityView.init(assetManager, entityNode);
 		spatial.addControl(entityView);
 
@@ -232,7 +238,7 @@ public class EntityFactory {
 	/**
 	 * Creates a new Enemy at the given position.
 	 */
-	public static Entity createPlayer(Node rootNode, World world, Vector3f pos) {
+	public static Entity createPlayer(World world, Vector3f pos) {
 		// Creates the entity + components, adds it to the world and returns it.
 		Entity e = world.createEntity();
 
@@ -266,7 +272,7 @@ public class EntityFactory {
 		entityNode.attachChild(golem);
 
 		// make it visible (connect model and view)
-		EntityView entityView = new EntityView(e, rootNode);
+		EntityView entityView = new EntityView(e, lightNode);
 		entityView.init(assetManager, entityNode);
 		golem.addControl(entityView);
 
