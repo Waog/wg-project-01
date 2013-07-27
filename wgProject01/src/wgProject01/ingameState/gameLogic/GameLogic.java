@@ -74,6 +74,7 @@ public class GameLogic {
 
 		EntityFactory.createEnemy(this.rootNode, world, new Vector3f(0, 5, 0));
 		EntityFactory.createPlayer(this.rootNode, world, new Vector3f(1,10,1));
+		// create more suns for higher debug modes.
 		for (int i = 0; i <= Settings.debugMode; i++) {
 			EntityFactory.createSun(this.rootNode, world);
 		}
