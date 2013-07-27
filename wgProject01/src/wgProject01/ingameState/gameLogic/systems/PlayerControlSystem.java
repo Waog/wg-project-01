@@ -1,8 +1,15 @@
 package wgProject01.ingameState.gameLogic.systems;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import utils.Pair;
+import wgProject01.ingameState.gameLogic.BlockGameObj;
+import wgProject01.ingameState.gameLogic.BlockManager;
 import wgProject01.ingameState.gameLogic.components.DirectionComponent;
 import wgProject01.ingameState.gameLogic.components.PlayerControlComponent;
 import wgProject01.ingameState.gameLogic.components.PositionComponent;
@@ -13,6 +20,7 @@ import com.artemis.Entity;
 import com.artemis.World;
 import com.artemis.annotations.Mapper;
 import com.artemis.systems.EntityProcessingSystem;
+import com.bulletphysics.collision.dispatch.PairCachingGhostObject;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 
@@ -95,12 +103,81 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	 */
 	@Override
 	protected void process(Entity e) {
+		// prepare some variables
 		float delta = world.getDelta();
 		PositionComponent positionComponent = positionManager.get(e);
 		DirectionComponent directionComponent = directionComponentManager
 				.get(e);
 		PlayerControlComponent playerComponent = playerControlManager.get(e);
 
+		// handle movement and rotation
+		doHandleTranslation(delta, positionComponent, directionComponent,
+				playerComponent);
+		doHandleRotation(directionComponent);
+
+		// determine blocks on player ray
+		// pairs of unique blocks and their collision points
+		Set<Pair<BlockGameObj, Vector3f>> blocksOnRay = new HashSet<Pair<BlockGameObj, Vector3f>>();
+		float lengthOfRay = 6;
+		Vector3f dir = directionComponent.getCartesianDirection();
+
+		Vector3f endOfRay = positionComponent.pos.add(dir.mult(lengthOfRay));
+		float minX = Math.min(positionComponent.pos.x, endOfRay.x);
+		float maxX = Math.max(positionComponent.pos.x, endOfRay.x);
+
+		int roundedMinX = Math.round(minX);
+		int roundedMaxX = Math.round(maxX);
+
+		for (int curRoundedX = roundedMinX; curRoundedX < roundedMaxX; curRoundedX++) {
+			float curBorderX = curRoundedX + 0.5f;
+			float walkParameter = (curBorderX - positionComponent.pos.x)
+					/ dir.x;
+
+			// define collision point
+			Vector3f collisionPoint = new Vector3f();
+			collisionPoint.x = positionComponent.pos.x + walkParameter * dir.x;
+			collisionPoint.y = positionComponent.pos.y + walkParameter * dir.y;
+			collisionPoint.z = positionComponent.pos.z + walkParameter * dir.z;
+			// move the collision point slightly to leave block border
+			collisionPoint.addLocal(dir.mult(0.0001f));
+			BlockGameObj collidingBlock = BlockManager.getInstance().getBlock(collisionPoint);
+			if(collidingBlock != null){
+				Pair<BlockGameObj, Vector3f> blockOnRayPair = new Pair<BlockGameObj, Vector3f>(collidingBlock, collisionPoint);
+				blocksOnRay.add(blockOnRayPair);
+			}
+		}
+
+	}
+
+	/**
+	 * changes the direction according to the corresponding turning commands.
+	 */
+	private void doHandleRotation(DirectionComponent directionComponent) {
+		if (turnHorizontal != 0) {
+			Vector2f curDirection = directionComponent.getSphericalDirection();
+			Vector2f newDirection = new Vector2f(curDirection.x, curDirection.y
+					- turnHorizontal);
+			directionComponent.setSphericalDirection(newDirection);
+			turnHorizontal = 0; // reset the turning
+		}
+		if (turnVertical != 0) {
+			Vector2f curDirection = directionComponent.getSphericalDirection();
+			float newTheta = curDirection.x - turnVertical;
+			newTheta = Math.max(newTheta, 0.0001f);
+			newTheta = Math.min(newTheta, (float) Math.PI - 0.0001f);
+			Vector2f newDirection = new Vector2f(newTheta, curDirection.y);
+			directionComponent.setSphericalDirection(newDirection);
+			turnVertical = 0; // reset the turning
+		}
+	}
+
+	/**
+	 * changes position according to the corresponding command flags.
+	 */
+	private void doHandleTranslation(float delta,
+			PositionComponent positionComponent,
+			DirectionComponent directionComponent,
+			PlayerControlComponent playerComponent) {
 		if (getMappedValue(LEFT)) {
 			Vector3f directionXZ = directionComponent
 					.getSwitchedCatesianProjectedDirectionXZ();
@@ -132,23 +209,6 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 							playerComponent.speed * delta);
 			positionComponent.pos.addLocal(positionDelta);
 		}
-		if (turnHorizontal != 0) {
-			Vector2f curDirection = directionComponent.getSphericalDirection();
-			Vector2f newDirection = new Vector2f(curDirection.x, curDirection.y
-					- turnHorizontal);
-			directionComponent.setSphericalDirection(newDirection);
-			turnHorizontal = 0; // reset the turning
-		}
-		if (turnVertical != 0) {
-			Vector2f curDirection = directionComponent.getSphericalDirection();
-			float newTheta = curDirection.x - turnVertical;
-			newTheta = Math.max(newTheta, 0.0001f);
-			newTheta = Math.min(newTheta, (float) Math.PI - 0.0001f);
-			Vector2f newDirection = new Vector2f(newTheta, curDirection.y);
-			directionComponent.setSphericalDirection(newDirection);
-			turnVertical = 0; // reset the turning
-		}
-
 	}
 
 	/**
