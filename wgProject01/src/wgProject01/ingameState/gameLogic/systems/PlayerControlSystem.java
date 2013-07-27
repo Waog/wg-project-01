@@ -55,7 +55,15 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	/** mouse movement in negative x-direction, i.e. downwards */
 	public static final String MOUSE_DOWN = "MouseDown";
 
+	/**
+	 * command for turning players direction horizontally - negative values
+	 * indicate turning left, positive values indicate turning right.
+	 */
 	public static float turnHorizontal = 0;
+	/**
+	 * command for turning players direction vertically - negative values
+	 * indicate turning downwards, positive values indicate turning upwards.
+	 */
 	public static float turnVertical = 0;
 
 	/** the {@link Map} mapping the keys given as Strings to boolean values */
@@ -81,8 +89,8 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	 */
 	@Mapper
 	ComponentMapper<DirectionComponent> directionComponentManager;
-	
-	//TODO 2 remove debug crab
+
+	// TODO 2 remove debug crab
 	private Entity smallDebugCube;
 
 	/**
@@ -94,11 +102,13 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 		super(Aspect.getAspectForAll(PlayerControlComponent.class,
 				PositionComponent.class, DirectionComponent.class));
 	}
-	
+
+	/** TODO 2 does only debug crab, remove */
 	@Override
 	protected void initialize() {
 		super.initialize();
-		this.smallDebugCube = EntityFactory.createSmallCube( world, new Vector3f());
+		this.smallDebugCube = EntityFactory.createSmallCube(world,
+				new Vector3f());
 	}
 
 	/**
@@ -126,20 +136,28 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 		doHandleRotation(directionComponent);
 
 		// determine blocks on player ray
+		doCalculateRayCollision(positionComponent, directionComponent);
+
+	}
+
+	/**
+	 * TODO comment correctly and possibly change method signature
+	 * 
+	 * @param positionComponent
+	 * @param directionComponent
+	 */
+	private void doCalculateRayCollision(PositionComponent positionComponent,
+			DirectionComponent directionComponent) {
 		// pairs of lengthes of dir'n and collision points with blocks
 		List<Pair<Float, Vector3f>> collisionPointList = new ArrayList<Pair<Float, Vector3f>>();
-		float lengthOfRay = 6;
-		Vector3f dir = directionComponent.getSwitchedCartesianDirection();
+		doFillCollisionPointList(collisionPointList, new Vector3f(1, 0, 0),
+				positionComponent, directionComponent);
 
-		Vector3f endOfRay = positionComponent.pos.add(dir.mult(lengthOfRay));
-		fillCollisionPointList(positionComponent, collisionPointList, dir,
-				endOfRay, new Vector3f(1,0,0));
+		doFillCollisionPointList(collisionPointList, new Vector3f(0, 1, 0),
+				positionComponent, directionComponent);
 
-		fillCollisionPointList(positionComponent, collisionPointList, dir,
-				endOfRay, new Vector3f(0,1,0));
-
-		fillCollisionPointList(positionComponent, collisionPointList, dir,
-				endOfRay, new Vector3f(0,0,1));
+		doFillCollisionPointList(collisionPointList, new Vector3f(0, 0, 1),
+				positionComponent, directionComponent);
 
 		// find closest collision point
 		Pair<Float, Vector3f> closestPair = null;
@@ -158,20 +176,37 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 					closestPair.second);
 			smallDebugCube.getComponent(PositionComponent.class).pos = closestPair.second;
 		}
-		
 	}
 
 	/**
+	 * calculates the collision points with blocks (only those in the
+	 * perpendicular plane to given axis) and the distance of it to the player
+	 * and adds the corresponding pair to the given list.
+	 * 
+	 * @param collisionPointList
+	 *            the list to be filled with pairs of the distance to collision
+	 *            point and the collision point with block.
+	 * @param axis
+	 *            one of the three standard basis vectors ((1,0,0) , (0,1,0) or
+	 *            (0,0,1)).
 	 * @param positionComponent
-	 * @param blocksOnRayList
-	 * @param dir
-	 * @param endOfRay
+	 *            the position component of the entity.
+	 * @param directionComponent
+	 *            the direction component of the entity.
 	 */
-	private void fillCollisionPointList(PositionComponent positionComponent,
-			List<Pair<Float, Vector3f>> blocksOnRayList, Vector3f dir,
-			Vector3f endOfRay, Vector3f axis) {
-		float minCoord = Math.min(positionComponent.pos.dot(axis), endOfRay.dot(axis));
-		float maxCoord = Math.max(positionComponent.pos.dot(axis), endOfRay.dot(axis));
+	private void doFillCollisionPointList(
+			List<Pair<Float, Vector3f>> collisionPointList, Vector3f axis,
+			PositionComponent positionComponent,
+			DirectionComponent directionComponent) {
+		Vector3f dir = directionComponent.getSwitchedCartesianDirection();
+		float lengthOfRay = 6;
+
+		Vector3f endOfRay = positionComponent.pos.add(dir.mult(lengthOfRay));
+
+		float minCoord = Math.min(positionComponent.pos.dot(axis),
+				endOfRay.dot(axis));
+		float maxCoord = Math.max(positionComponent.pos.dot(axis),
+				endOfRay.dot(axis));
 
 		int roundedMinCoord = Math.round(minCoord);
 		int roundedMaxCoord = Math.round(maxCoord);
@@ -179,8 +214,8 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 		// calculates collision points and length from player to collision point
 		for (int curRoundedCoord = roundedMinCoord; curRoundedCoord < roundedMaxCoord; curRoundedCoord++) {
 			float curBorderCoord = curRoundedCoord + 0.5f;
-			float walkParameter = (curBorderCoord - positionComponent.pos.dot(axis))
-					/ dir.dot(axis);
+			float walkParameter = (curBorderCoord - positionComponent.pos
+					.dot(axis)) / dir.dot(axis);
 
 			// define collision point
 			Vector3f collisionPoint = new Vector3f();
@@ -194,7 +229,7 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 			if (collidingBlock != null) {
 				Pair<Float, Vector3f> blockOnRayPair = new Pair<Float, Vector3f>(
 						walkParameter, collisionPoint);
-				blocksOnRayList.add(blockOnRayPair);
+				collisionPointList.add(blockOnRayPair);
 			}
 		}
 	}
