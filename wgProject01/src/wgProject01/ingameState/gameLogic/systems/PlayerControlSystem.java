@@ -127,22 +127,60 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 
 		// determine blocks on player ray
 		// pairs of lengthes of dir'n and collision points with blocks
-		List<Pair<Float, Vector3f>> blocksOnRayList = new ArrayList<Pair<Float, Vector3f>>();
+		List<Pair<Float, Vector3f>> collisionPointList = new ArrayList<Pair<Float, Vector3f>>();
 		float lengthOfRay = 6;
 		Vector3f dir = directionComponent.getSwitchedCartesianDirection();
 
 		Vector3f endOfRay = positionComponent.pos.add(dir.mult(lengthOfRay));
-		float minX = Math.min(positionComponent.pos.x, endOfRay.x);
-		float maxX = Math.max(positionComponent.pos.x, endOfRay.x);
+		fillCollisionPointList(positionComponent, collisionPointList, dir,
+				endOfRay, new Vector3f(1,0,0));
 
-		int roundedMinX = Math.round(minX);
-		int roundedMaxX = Math.round(maxX);
+		fillCollisionPointList(positionComponent, collisionPointList, dir,
+				endOfRay, new Vector3f(0,1,0));
+
+		fillCollisionPointList(positionComponent, collisionPointList, dir,
+				endOfRay, new Vector3f(0,0,1));
+
+		// find closest collision point
+		Pair<Float, Vector3f> closestPair = null;
+		if (collisionPointList.size() != 0) {
+			closestPair = collisionPointList.get(0);
+
+		}
+		for (Pair<Float, Vector3f> pair : collisionPointList) {
+			if (pair.first < closestPair.first) {
+				closestPair = pair;
+			}
+		}
+		BlockGameObj collidingBlock = null;
+		if (closestPair != null) {
+			collidingBlock = BlockManager.getInstance().getBlock(
+					closestPair.second);
+			smallDebugCube.getComponent(PositionComponent.class).pos = closestPair.second;
+		}
+		
+	}
+
+	/**
+	 * @param positionComponent
+	 * @param blocksOnRayList
+	 * @param dir
+	 * @param endOfRay
+	 */
+	private void fillCollisionPointList(PositionComponent positionComponent,
+			List<Pair<Float, Vector3f>> blocksOnRayList, Vector3f dir,
+			Vector3f endOfRay, Vector3f axis) {
+		float minCoord = Math.min(positionComponent.pos.dot(axis), endOfRay.dot(axis));
+		float maxCoord = Math.max(positionComponent.pos.dot(axis), endOfRay.dot(axis));
+
+		int roundedMinCoord = Math.round(minCoord);
+		int roundedMaxCoord = Math.round(maxCoord);
 
 		// calculates collision points and length from player to collision point
-		for (int curRoundedX = roundedMinX; curRoundedX < roundedMaxX; curRoundedX++) {
-			float curBorderX = curRoundedX + 0.5f;
-			float walkParameter = (curBorderX - positionComponent.pos.x)
-					/ dir.x;
+		for (int curRoundedCoord = roundedMinCoord; curRoundedCoord < roundedMaxCoord; curRoundedCoord++) {
+			float curBorderCoord = curRoundedCoord + 0.5f;
+			float walkParameter = (curBorderCoord - positionComponent.pos.dot(axis))
+					/ dir.dot(axis);
 
 			// define collision point
 			Vector3f collisionPoint = new Vector3f();
@@ -159,25 +197,6 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 				blocksOnRayList.add(blockOnRayPair);
 			}
 		}
-
-		// find closest collision point
-		Pair<Float, Vector3f> closestPair = null;
-		if (blocksOnRayList.size() != 0) {
-			closestPair = blocksOnRayList.get(0);
-
-		}
-		for (Pair<Float, Vector3f> pair : blocksOnRayList) {
-			if (pair.first < closestPair.first) {
-				closestPair = pair;
-			}
-		}
-		BlockGameObj collidingBlock = null;
-		if (closestPair != null) {
-			collidingBlock = BlockManager.getInstance().getBlock(
-					closestPair.second);
-			smallDebugCube.getComponent(PositionComponent.class).pos = closestPair.second;
-		}
-		
 	}
 
 	/**
