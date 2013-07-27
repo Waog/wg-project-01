@@ -41,15 +41,16 @@ public class InputHandler extends AbstractAppState implements ActionListener,
 		super.initialize(stateManager, app);
 		this.inputManager = app.getInputManager();
 
-		//TODO remove the comment  initDigitalKeys();
-		initAnalogueKeys();
+		// TODO uncomment both lines
+		// initDigitalInputs(); // e.g. mouse motion
+		initAnalogueInputs(); // e.g. key strokes
 	}
 
 	/**
 	 * initializes the specific key for a command given as analogue input
 	 * signals and adds listeners to this command.
 	 */
-	private void initAnalogueKeys() {
+	private void initAnalogueInputs() {
 		// mouse movement in positive x-direction, i.e. to the right
 		inputManager.addMapping(PlayerControlSystem.MOUSE_RIGHT,
 				new MouseAxisTrigger(MouseInput.AXIS_X, false));
@@ -75,7 +76,7 @@ public class InputHandler extends AbstractAppState implements ActionListener,
 	 * initializes the specific key for a command given as digital input signals
 	 * and adds listeners to this command.
 	 */
-	private void initDigitalKeys() {
+	private void initDigitalInputs() {
 		// pressed 'A' on keyboard - shall correspond to moving left
 		inputManager.addMapping(PlayerControlSystem.LEFT, new KeyTrigger(
 				KeyInput.KEY_A));
@@ -111,6 +112,7 @@ public class InputHandler extends AbstractAppState implements ActionListener,
 	 */
 	@Override
 	public void onAnalog(String name, float value, float tpf) {
+		// TODO: add handling in x-z-plane
 		if (name.equals(PlayerControlSystem.MOUSE_LEFT)) {
 			PlayerControlSystem.turnHorizontal += value;
 		}
@@ -119,14 +121,14 @@ public class InputHandler extends AbstractAppState implements ActionListener,
 			PlayerControlSystem.turnHorizontal -= value;
 		}
 
-		// TODO 2 add handling in y-direction
-//		if (name.equals(PlayerControlSystem.MOUSE_UP)) {
-//			PlayerControlSystem.turnVertical += value*10;
-//		}
-//
-//		if (name.equals(PlayerControlSystem.MOUSE_DOWN)) {
-//			PlayerControlSystem.turnVertical -= value*10;
-//		}
+		 // add handling in y-direction
+		 if (name.equals(PlayerControlSystem.MOUSE_UP)) {
+		 PlayerControlSystem.turnVertical += value;
+		 }
+		
+		 if (name.equals(PlayerControlSystem.MOUSE_DOWN)) {
+		 PlayerControlSystem.turnVertical -= value;
+		 }
 
 	}
 

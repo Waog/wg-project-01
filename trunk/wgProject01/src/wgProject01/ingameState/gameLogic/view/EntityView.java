@@ -110,33 +110,40 @@ public class EntityView extends AbstractControl {
 		}
 		DirectionComponent directionComponent = entity
 				.getComponent((DirectionComponent.class));
-		PlayerControlComponent playerControlComponent = entity.getComponent(PlayerControlComponent.class);
-		
+		PlayerControlComponent playerControlComponent = entity
+				.getComponent(PlayerControlComponent.class);
+
 		// case that the entity is a npc
-		if (directionComponent != null && positionComponent != null && playerControlComponent == null) {
+		if (directionComponent != null && positionComponent != null
+				&& playerControlComponent == null) {
 			spatial.lookAt(positionComponent.pos.add(directionComponent
 					.getCatesianProjectedDirectionXZ()), new Vector3f(0, 1, 0));
 		}
-		//TODO 2 is this extra case neccesary
-		//case that the entity is a playable character
-		else if(directionComponent != null && positionComponent != null && playerControlComponent != null){
-			Vector3f direction = directionComponent.getCartesianDirection();
-			spatial.lookAt(positionComponent.pos.add(direction), new Vector3f(0, 1, 0));
-			
+		// TODO 2 is this extra case neccesary
+		// case that the entity is a playable character
+		// oli: possibly yes, since we dont want to display the player at all
+		// from ego perspective.
+		else if (directionComponent != null && positionComponent != null
+				&& playerControlComponent != null) {
+			Vector3f direction = directionComponent
+					.getSwitchedCartesianDirection();
+			spatial.lookAt(positionComponent.pos.add(direction), new Vector3f(
+					0, 1, 0));
+
 		}
-		
+
 		PointLightComponent pointLightComponent = entity
 				.getComponent((PointLightComponent.class));
 		if (pointLightComponent != null && positionComponent != null) {
 			if (this.pointLightSource == null) {
-				 // the point light
-				 this.pointLightSource = new PointLight();
-				 pointLightSource.setColor(pointLightComponent.color);
-				 pointLightSource.setRadius(pointLightComponent.radius);
-				 rootNode.addLight(pointLightSource);
-				 LightControl lightControl = new LightControl(pointLightSource);
-				 spatial.addControl(lightControl); // this spatial controls the
-				 // position of this light.
+				// the point light
+				this.pointLightSource = new PointLight();
+				pointLightSource.setColor(pointLightComponent.color);
+				pointLightSource.setRadius(pointLightComponent.radius);
+				rootNode.addLight(pointLightSource);
+				LightControl lightControl = new LightControl(pointLightSource);
+				spatial.addControl(lightControl); // this spatial controls the
+				// position of this light.
 			}
 			pointLightSource.setColor(pointLightComponent.color);
 			pointLightSource.setRadius(pointLightComponent.radius);

@@ -27,7 +27,7 @@ public class DirectionComponent extends Component {
 	 * phi in [-pi, pi]
 	 * </p>
 	 */
-	private Vector2f direction = new Vector2f(0, 0); // points in z-direction
+	private Vector2f direction = new Vector2f((float) Math.PI / 2f, 0); // points in z-direction
 
 	/**
 	 * returns the direction vector in spherical coordinates (theta, phi).
@@ -53,7 +53,8 @@ public class DirectionComponent extends Component {
 	 * </p>
 	 */
 	public void setSphericalDirection(Vector2f direction) {
-		this.direction = direction;
+		this.direction.set(direction);
+		normalize(this.direction);
 	}
 
 	/**
@@ -75,11 +76,9 @@ public class DirectionComponent extends Component {
 	 *         in cartesian coordinates with y and z axis switched.
 	 */
 	public Vector3f getSwitchedCartesianDirection() {
-		double[] cartesianArray = CoordinateMath.sphericalToCartesian(radius,
-				direction.x, direction.y);
-		Vector3f result = new Vector3f((float) cartesianArray[0],
-				(float) cartesianArray[2], (float) cartesianArray[1]);
-		return result;
+		Vector3f nonSwitchedDir = getCartesianDirection();
+		return new Vector3f(nonSwitchedDir.x, nonSwitchedDir.z,
+				nonSwitchedDir.y);
 	}
 
 	/**
@@ -87,12 +86,10 @@ public class DirectionComponent extends Component {
 	 * direction in cartesian coordinates with y and z coordinate switched and
 	 * normalizes it,
 	 */
-	public void setSwitchedCartesianDirection(Vector3f direction) {
-		double[] sphericalArray = CoordinateMath.cartesianToSpherical(
-				direction.x, direction.y, direction.z);
-		Vector2f result = new Vector2f((float) sphericalArray[2],
-				(float) sphericalArray[1]);
-		this.direction.set(result);
+	public void setSwitchedCartesianDirection(Vector3f switchedCartesianDir) {
+		Vector3f nonSwitchedCartesianDir = new Vector3f(switchedCartesianDir.x,
+				switchedCartesianDir.z, switchedCartesianDir.y);
+		setCartesianDirection(nonSwitchedCartesianDir);
 	}
 
 	/**
@@ -105,6 +102,7 @@ public class DirectionComponent extends Component {
 		Vector2f result = new Vector2f((float) sphericalArray[1],
 				(float) sphericalArray[2]);
 		this.direction.set(result);
+		normalize(this.direction);
 	}
 
 	/**
@@ -119,4 +117,52 @@ public class DirectionComponent extends Component {
 		return projectedDirectionXZ;
 	}
 
+	/**
+	 * Normalizes a given spherical coordinate (theta, phi) to match:
+	 * <p>
+	 * theta in [0, pi]
+	 * </p>
+	 * <p>
+	 * phi in [-pi, pi]
+	 * </p>
+	 */
+	private void normalize(Vector2f sphereCoord) {
+		// normalize the angles theta into [0, PI] and phi into [-PI, PI]
+		// normalize theta
+		while (sphereCoord.x < 0) {
+			if (sphereCoord.x > 2 * Math.PI) {
+				sphereCoord.x -= 2 * Math.PI;
+			} else if (sphereCoord.x > Math.PI) {
+				// mirror theta at PI and turn phi
+				float distToPi = sphereCoord.x - ((float) Math.PI);
+				sphereCoord.x = ((float) Math.PI) - distToPi;
+				sphereCoord.y += Math.PI;
+			} else {
+				System.out.println("this shouldn't happen, check "
+						+ this.getClass().getName());
+			}
+		}
+		while (sphereCoord.x > Math.PI) {
+			if (sphereCoord.x < -2 * Math.PI) {
+				sphereCoord.x += 2 * Math.PI;
+			} else if (sphereCoord.x < Math.PI) {
+				sphereCoord.x += 2 * Math.PI;
+			} else if (sphereCoord.x < 0) {
+				// mirror theta at 0 and turn phi
+				sphereCoord.x = Math.abs(sphereCoord.x);
+				sphereCoord.y += Math.PI;
+			} else {
+				System.out.println("this shouldn't happen, check "
+						+ this.getClass().getName());
+			}
+		}
+
+		// normalize phi
+		while (sphereCoord.y < -Math.PI) {
+			sphereCoord.y += 2 * Math.PI;
+		}
+		while (sphereCoord.y > Math.PI) {
+			sphereCoord.y -= 2 * Math.PI;
+		}
+	}
 }
