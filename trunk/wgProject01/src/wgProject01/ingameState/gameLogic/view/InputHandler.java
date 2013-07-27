@@ -30,6 +30,12 @@ public class InputHandler extends AbstractAppState implements ActionListener,
 		AnalogListener {
 
 	/**
+	 * The mouse sensitivity. currently only used for speed of the player
+	 * rotation.
+	 */
+	private static float mouseSensitivity = 3;
+
+	/**
 	 * datafields given by the {@link GameApplication} and the
 	 * {@link AssetManager} itself
 	 */
@@ -114,21 +120,21 @@ public class InputHandler extends AbstractAppState implements ActionListener,
 	public void onAnalog(String name, float value, float tpf) {
 		// TODO: add handling in x-z-plane
 		if (name.equals(PlayerControlSystem.MOUSE_LEFT)) {
-			PlayerControlSystem.turnHorizontal += value;
+			PlayerControlSystem.turnHorizontal += value * mouseSensitivity;
 		}
 
 		if (name.equals(PlayerControlSystem.MOUSE_RIGHT)) {
-			PlayerControlSystem.turnHorizontal -= value;
+			PlayerControlSystem.turnHorizontal -= value * mouseSensitivity;
 		}
 
-		 // add handling in y-direction
-		 if (name.equals(PlayerControlSystem.MOUSE_UP)) {
-		 PlayerControlSystem.turnVertical += value;
-		 }
-		
-		 if (name.equals(PlayerControlSystem.MOUSE_DOWN)) {
-		 PlayerControlSystem.turnVertical -= value;
-		 }
+		// add handling in y-direction
+		if (name.equals(PlayerControlSystem.MOUSE_UP)) {
+			PlayerControlSystem.turnVertical += value * mouseSensitivity;
+		}
+
+		if (name.equals(PlayerControlSystem.MOUSE_DOWN)) {
+			PlayerControlSystem.turnVertical -= value * mouseSensitivity;
+		}
 
 	}
 
