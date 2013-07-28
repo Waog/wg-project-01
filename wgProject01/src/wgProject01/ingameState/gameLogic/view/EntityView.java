@@ -127,16 +127,21 @@ public class EntityView extends AbstractControl {
 		if (directionComponent != null && positionComponent != null
 				&& playerControlComponent == null
 				&& spatial.getName().equals("block face highlight")) {
-			spatial.rotateUpTo(directionComponent.getSwitchedCartesianDirection());
-//			spatial.lookAt(positionComponent.pos.add(directionComponent
-//					.getSwitchedCartesianDirection()), new Vector3f(0, 1, 0));
+
+			Vector3f highlightDir = directionComponent
+					.getSwitchedCartesianDirection();
+
+			Vector3f yDirection = new Vector3f(highlightDir.z, highlightDir.x,
+					highlightDir.y);
+			spatial.lookAt(positionComponent.pos.add(highlightDir),
+					yDirection);
 		}
 
 		// case that the entity is a npc
 		if (directionComponent != null && positionComponent != null
 				&& playerControlComponent == null) {
 			spatial.lookAt(positionComponent.pos.add(directionComponent
-					.getCatesianProjectedDirectionXZ()), new Vector3f(0, 1, 0));
+					.getSwitchedCatesianProjectedDirectionXZ()), new Vector3f(0, 1, 0));
 		}
 		// TODO 2 is this extra case neccesary
 		// case that the entity is a playable character
