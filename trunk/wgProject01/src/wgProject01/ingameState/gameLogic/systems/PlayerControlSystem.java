@@ -324,7 +324,6 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 		DirectionComponent highlightDirComp = hightlightEntity
 				.getComponent(DirectionComponent.class);
 		if (closestCollisionPair == null) {
-
 			highlightPosComp.visible = false;
 			return;
 		} else {
@@ -347,6 +346,8 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 		highlightPosComp.pos = hitBlockPos.add(vectorFromBlockPosToFacePos);
 		highlightDirComp
 				.setSwitchedCartesianDirection(vectorFromBlockPosToFacePos);
+//		System.out.println("highlight pos: " + highlightPosComp.pos);
+//		System.out.println("highlight dir: " + highlightDirComp.getSwitchedCartesianDirection());
 	}
 
 	/**

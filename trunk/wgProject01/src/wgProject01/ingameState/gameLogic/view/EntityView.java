@@ -106,18 +106,31 @@ public class EntityView extends AbstractControl {
 		PositionComponent positionComponent = entity
 				.getComponent(PositionComponent.class);
 		if (positionComponent != null) {
-			if (positionComponent.visible) {
-				this.entityNode.attachChild(spatial);
-			} else {
-				spatial.removeFromParent();
-			}
-			
 			spatial.setLocalTranslation(positionComponent.pos);
+
+			if (!positionComponent.visible) {
+				// TODO: find a better architectural solution
+				// removing spatial from the scene graph causes this control to
+				// not receive update-calls anymore.
+				// make an entity invisible by moving it far away.
+				spatial.setLocalTranslation(Float.MAX_VALUE / 2,
+						Float.MAX_VALUE / 2, Float.MAX_VALUE / 2);
+			}
 		}
 		DirectionComponent directionComponent = entity
 				.getComponent((DirectionComponent.class));
 		PlayerControlComponent playerControlComponent = entity
 				.getComponent(PlayerControlComponent.class);
+
+		// TODO: better architecture!!!
+		// case that the entity is a block face highlight
+		if (directionComponent != null && positionComponent != null
+				&& playerControlComponent == null
+				&& spatial.getName().equals("block face highlight")) {
+			spatial.rotateUpTo(directionComponent.getSwitchedCartesianDirection());
+//			spatial.lookAt(positionComponent.pos.add(directionComponent
+//					.getSwitchedCartesianDirection()), new Vector3f(0, 1, 0));
+		}
 
 		// case that the entity is a npc
 		if (directionComponent != null && positionComponent != null
@@ -133,8 +146,8 @@ public class EntityView extends AbstractControl {
 				&& playerControlComponent != null) {
 			Vector3f spatialDirection = directionComponent
 					.getSwitchedCatesianProjectedDirectionXZ();
-			spatial.lookAt(positionComponent.pos.add(spatialDirection), new Vector3f(
-					0, 1, 0));
+			spatial.lookAt(positionComponent.pos.add(spatialDirection),
+					new Vector3f(0, 1, 0));
 
 		}
 
