@@ -70,7 +70,7 @@ public class GameLogic {
 		world.setSystem(new BlockCollisionSystem());
 
 		EntityFactory.createEnemy(world, new Vector3f(0, 5, 0));
-		EntityFactory.createPlayer(world, new Vector3f(1,10,1));
+		EntityFactory.createPlayer(world, new Vector3f(1,3,1));
 		// create more suns for higher debug modes.
 		for (int i = 0; i <= Settings.debugMode; i++) {
 			EntityFactory.createSun(world);
@@ -137,7 +137,7 @@ public class GameLogic {
 			for (int z = -FLOOR_RADIUS; z <= FLOOR_RADIUS; z++) {
 				addBlockAt(x, -2, z);
 				addBlockAt(x, -3, z);
-				// addBlockAt(x, -2, z);
+				addBlockAt(x, 5, z);
 
 				if (Math.abs(x) >= FLOOR_RADIUS - 2
 						|| Math.abs(z) >= FLOOR_RADIUS - 1) {

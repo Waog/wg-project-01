@@ -141,33 +141,33 @@ public class DirectionComponent extends Component {
 	 * </p>
 	 */
 	private void normalizeToSphericalParams(Vector2f sphereCoord) {
-		// normalize the angles theta into [0, PI] and phi into [-PI, PI]
+		// normalize the angles theta = x into [0, PI] and phi = y into [-PI, PI]
 		// normalize theta
-		while (sphereCoord.x < 0) {
+		while (sphereCoord.x > Math.PI) {
 			if (sphereCoord.x > 2 * Math.PI) {
 				sphereCoord.x -= 2 * Math.PI;
 			} else if (sphereCoord.x > Math.PI) {
 				// mirror theta at PI and turn phi
-				float distToPi = sphereCoord.x - ((float) Math.PI);
+				float distToPi = sphereCoord.x - ((float) Math.PI) + 0.00001f;
 				sphereCoord.x = ((float) Math.PI) - distToPi;
 				sphereCoord.y += Math.PI;
 			} else {
-				System.out.println("this shouldn't happen, check "
+				System.out.println("A this shouldn't happen, check "
 						+ this.getClass().getName());
 			}
 		}
-		while (sphereCoord.x > Math.PI) {
-			if (sphereCoord.x < -2 * Math.PI) {
-				sphereCoord.x += 2 * Math.PI;
-			} else if (sphereCoord.x < Math.PI) {
+		while (sphereCoord.x < 0) {
+			if (sphereCoord.x < - Math.PI) {
 				sphereCoord.x += 2 * Math.PI;
 			} else if (sphereCoord.x < 0) {
 				// mirror theta at 0 and turn phi
-				sphereCoord.x = Math.abs(sphereCoord.x);
+				sphereCoord.x = Math.abs(sphereCoord.x) + 0.00001f;
 				sphereCoord.y += Math.PI;
 			} else {
-				System.out.println("this shouldn't happen, check "
+				System.out.println("B this shouldn't happen, check "
 						+ this.getClass().getName());
+				System.out.println("x = " + sphereCoord.x);
+				System.out.println("y = " + sphereCoord.y);
 			}
 		}
 
