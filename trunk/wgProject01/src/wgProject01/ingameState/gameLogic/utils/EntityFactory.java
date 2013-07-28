@@ -227,9 +227,9 @@ public class EntityFactory {
 		e.addToWorld();
 
 		// creates a spatial for the entity
-		Geometry geometry = Jme3Utils.getCuboid(new Vector3f(.5f, .1f, .5f), assetManager);
+		Geometry geometry = Jme3Utils.getCuboid(new Vector3f(.5f, .5f, .1f), assetManager);
 		geometry.setName("block face highlight");
-//		geometry.getMaterial().getAdditionalRenderState().setWireframe(true);
+		geometry.getMaterial().getAdditionalRenderState().setWireframe(true);
 		entityNode.attachChild(geometry);
 		
 		System.out.println("factory entityNode: " + entityNode);
