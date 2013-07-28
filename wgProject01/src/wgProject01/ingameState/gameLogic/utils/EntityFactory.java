@@ -105,9 +105,9 @@ public class EntityFactory {
 	 */
 	public static Entity createSun(World world) {
 		// some properties which determine the suns appearance and behavior.
-		float geometryRadius = 20;
-		float geometryRadius2 = 30;
-		float rotationRadius = GameLogic.FLOOR_RADIUS + 2 * geometryRadius2;
+		float innerRadius = 20;
+		float outerRadius = 30;
+		float rotationRadius = GameLogic.FLOOR_RADIUS + 2 * outerRadius;
 		ColorRGBA innerColor = ColorRGBA.randomColor();
 		ColorRGBA outerColor = innerColor.clone();
 		outerColor.a = .5f;
@@ -137,27 +137,30 @@ public class EntityFactory {
 
 		// create the spatials and attach them to each other
 		Node sunNode = new Node();
+		sunNode.setName("sun");
 		entityNode.attachChild(sunNode);
 
 		// inner non-transparent sphere
-		Mesh sphereMesh = new Sphere(20, 20, geometryRadius);
-		Spatial sphereSpacial = new Geometry("Sphere", sphereMesh);
-		Material sphereMat = new Material(assetManager,
+		Mesh sphereMesh = new Sphere(20, 20, innerRadius);
+		Spatial innerSpacial = new Geometry("Sphere", sphereMesh);
+		innerSpacial.setName("suns inner sphere");
+		Material innerMat = new Material(assetManager,
 				"Common/MatDefs/Misc/Unshaded.j3md");
-		sphereMat.setColor("Color", innerColor);
-		sphereSpacial.setMaterial(sphereMat);
-		sunNode.attachChild(sphereSpacial);
+		innerMat.setColor("Color", innerColor);
+		innerSpacial.setMaterial(innerMat);
+		sunNode.attachChild(innerSpacial);
 
 		// outer semi transparent sphere
-		Sphere sphereMesh2 = new Sphere(20, 20, geometryRadius2);
-		Spatial sphereSpacial2 = new Geometry("Sphere", sphereMesh2);
-		sphereSpacial2.setQueueBucket(Bucket.Transparent);
-		Material mat_aSun2 = new Material(assetManager,
+		Sphere sphereMesh2 = new Sphere(20, 20, outerRadius);
+		Spatial outerSpacial = new Geometry("Sphere", sphereMesh2);
+		innerSpacial.setName("suns outer sphere");
+		outerSpacial.setQueueBucket(Bucket.Transparent);
+		Material outerMat = new Material(assetManager,
 				"Common/MatDefs/Misc/Unshaded.j3md");
-		mat_aSun2.setColor("Color", outerColor);
-		mat_aSun2.getAdditionalRenderState().setBlendMode(BlendMode.Alpha); // !
-		sphereSpacial2.setMaterial(mat_aSun2);
-		sunNode.attachChild(sphereSpacial2);
+		outerMat.setColor("Color", outerColor);
+		outerMat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha); // !
+		outerSpacial.setMaterial(outerMat);
+		sunNode.attachChild(outerSpacial);
 
 		// make it visible (connect model and view)
 		EntityView entityView = new EntityView(e, lightNode);
@@ -197,15 +200,16 @@ public class EntityFactory {
 		e.addToWorld();
 
 		// creates the view for this enemy and attaches the entity to it.
-		Spatial golem = assetManager
+		Spatial spatial = assetManager
 				.loadModel("./assets/Models/Oto/Oto.mesh.xml");
-		golem.scale(0.5f);
-		entityNode.attachChild(golem);
+		spatial.setName("enemy");
+		spatial.scale(0.5f);
+		entityNode.attachChild(spatial);
 
 		// make it visible (connect model and view)
 		EntityView entityView = new EntityView(e, lightNode);
 		entityView.init(assetManager, entityNode);
-		golem.addControl(entityView);
+		spatial.addControl(entityView);
 
 		return e;
 	}
@@ -223,9 +227,13 @@ public class EntityFactory {
 		e.addToWorld();
 
 		// creates a spatial for the entity
-		Geometry geometry = Jme3Utils.getCuboid(new Vector3f(.5f, .5f, .5f), assetManager);
+		Geometry geometry = Jme3Utils.getCuboid(new Vector3f(.5f, .1f, .5f), assetManager);
+		geometry.setName("block face highlight");
 //		geometry.getMaterial().getAdditionalRenderState().setWireframe(true);
 		entityNode.attachChild(geometry);
+		
+		System.out.println("factory entityNode: " + entityNode);
+		System.out.println("factory spatial: " + geometry);
 
 		// make it visible (connect model and view)
 		EntityView entityView = new EntityView(e, lightNode);
@@ -250,6 +258,7 @@ public class EntityFactory {
 		e.addToWorld();
 
 		Spatial spatial = Jme3Utils.getCubeGeom(0.1f, assetManager);
+		spatial.setName("small cube");
 		entityNode.attachChild(spatial);
 
 		// make it visible (connect model and view)
@@ -292,14 +301,15 @@ public class EntityFactory {
 
 		e.addToWorld();
 
-		Spatial golem = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-		golem.scale(0.5f);
-		entityNode.attachChild(golem);
+		Spatial spatial = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+		spatial.setName("player");
+		spatial.scale(0.5f);
+		entityNode.attachChild(spatial);
 
 		// make it visible (connect model and view)
 		EntityView entityView = new EntityView(e, lightNode);
 		entityView.init(assetManager, entityNode);
-		golem.addControl(entityView);
+		spatial.addControl(entityView);
 
 		return e;
 	}

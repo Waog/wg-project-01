@@ -14,7 +14,7 @@ import com.jme3.math.Vector3f;
  * 
  */
 public class DirectionComponent extends Component {
-
+	
 	private static final float radius = 1f;
 
 	/**
