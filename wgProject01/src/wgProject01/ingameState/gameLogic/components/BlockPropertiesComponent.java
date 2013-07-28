@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.artemis.Component;
+import com.jme3.math.Vector3f;
 
 /**
  * A {@link Component} (pure data structure) to describe a position of a block.
@@ -59,7 +60,7 @@ public class BlockPropertiesComponent extends Component {
 	public String getType() {
 		return type;
 	}
-	
+
 	/**
 	 * Returns a random block type.
 	 * 
@@ -70,9 +71,15 @@ public class BlockPropertiesComponent extends Component {
 		List<String> allTypes = new ArrayList<String>();
 		allTypes.add(TYPE_STONE);
 		allTypes.add(TYPE_WOOD);
-		
-		
+
 		Collections.shuffle(allTypes);
 		return allTypes.get(0);
+	}
+
+	/**
+	 * Returns the block position as a Vector3f object.
+	 */
+	public Vector3f getPosVec3f() {
+		return new Vector3f(x, y, z);
 	}
 }

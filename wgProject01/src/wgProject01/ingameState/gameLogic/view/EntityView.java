@@ -106,6 +106,12 @@ public class EntityView extends AbstractControl {
 		PositionComponent positionComponent = entity
 				.getComponent(PositionComponent.class);
 		if (positionComponent != null) {
+			if (positionComponent.visible) {
+				this.entityNode.attachChild(spatial);
+			} else {
+				spatial.removeFromParent();
+			}
+			
 			spatial.setLocalTranslation(positionComponent.pos);
 		}
 		DirectionComponent directionComponent = entity

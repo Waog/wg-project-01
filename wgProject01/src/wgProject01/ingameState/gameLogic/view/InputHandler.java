@@ -33,7 +33,7 @@ public class InputHandler extends AbstractAppState implements ActionListener,
 	 * The mouse sensitivity. currently only used for speed of the player
 	 * rotation.
 	 */
-	private static float mouseSensitivity = 3;
+	private static float mouseSensitivity = 10;
 
 	/**
 	 * datafields given by the {@link GameApplication} and the

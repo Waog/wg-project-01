@@ -2,10 +2,8 @@ package wgProject01.ingameState.gameLogic.systems;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import utils.Pair;
 import wgProject01.ingameState.gameLogic.BlockGameObj;
@@ -21,7 +19,6 @@ import com.artemis.Entity;
 import com.artemis.World;
 import com.artemis.annotations.Mapper;
 import com.artemis.systems.EntityProcessingSystem;
-import com.bulletphysics.collision.dispatch.PairCachingGhostObject;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 
@@ -94,6 +91,11 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	private Entity smallDebugCube;
 
 	/**
+	 * The entity which is attached to the currently focused face of a block.
+	 */
+	private Entity hightlightEntity;
+
+	/**
 	 * constructs a new PlayerControlSystem for all Entities that have a
 	 * InputReactionComponent and a PositionComponent
 	 */
@@ -109,6 +111,8 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 		super.initialize();
 		this.smallDebugCube = EntityFactory.createSmallCube(world,
 				new Vector3f());
+
+		this.hightlightEntity = EntityFactory.createBlockFaceHighlight(world);
 	}
 
 	/**
@@ -136,7 +140,9 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 		doHandleRotation(directionComponent);
 
 		// determine blocks on player ray
-		doCalculateRayCollision(positionComponent, directionComponent);
+		Pair<Float, Vector3f> closestRayCollisionPair = getClosestRayCollision(
+				positionComponent, directionComponent);
+		doHighlightBlockFace(closestRayCollisionPair);
 
 	}
 
@@ -146,7 +152,8 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	 * @param positionComponent
 	 * @param directionComponent
 	 */
-	private void doCalculateRayCollision(PositionComponent positionComponent,
+	private Pair<Float, Vector3f> getClosestRayCollision(
+			PositionComponent positionComponent,
 			DirectionComponent directionComponent) {
 		// pairs of lengthes of dir'n and collision points with blocks
 		List<Pair<Float, Vector3f>> collisionPointList = new ArrayList<Pair<Float, Vector3f>>();
@@ -170,12 +177,13 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 				closestPair = pair;
 			}
 		}
-		BlockGameObj collidingBlock = null;
+
+		// TODO: for debugging
 		if (closestPair != null) {
-			collidingBlock = BlockManager.getInstance().getBlock(
-					closestPair.second);
 			smallDebugCube.getComponent(PositionComponent.class).pos = closestPair.second;
 		}
+
+		return closestPair;
 	}
 
 	/**
@@ -302,5 +310,83 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	 */
 	private boolean getMappedValue(String key) {
 		return (mapper.get(key) != null && mapper.get(key));
+	}
+
+	/**
+	 * TODO: rewrite comment.
+	 * 
+	 * Highlights the block face the player views at if the face is in the range
+	 * of {@link #RAY_LIMIT} meters
+	 */
+	private void doHighlightBlockFace(Pair<Float, Vector3f> closestCollisionPair) {
+		PositionComponent highlightPosComp = hightlightEntity
+				.getComponent(PositionComponent.class);
+		DirectionComponent highlightDirComp = hightlightEntity
+				.getComponent(DirectionComponent.class);
+		if (closestCollisionPair == null) {
+
+			highlightPosComp.visible = false;
+			return;
+		} else {
+			highlightPosComp.visible = true;
+		}
+
+		Vector3f collisionPoint = closestCollisionPair.second;
+
+		// get the geometry of the hit spatial that is closest to the player
+		BlockGameObj hitBlock = BlockManager.getInstance().getBlock(
+				collisionPoint);
+		Vector3f hitBlockPos = hitBlock.blockPositionComponent.getPosVec3f();
+
+		// CollisionResult closest = results.getClosestCollision();
+		// Geometry geom = closest.getGeometry();
+		// Vector3f selectedBlockPos = geom.getWorldTranslation();
+		Vector3f vectorFromBlockPosToFacePos = getVectorFromBlockPosToFacePos(
+				hitBlockPos, collisionPoint);
+
+		highlightPosComp.pos = hitBlockPos.add(vectorFromBlockPosToFacePos);
+		highlightDirComp
+				.setSwitchedCartesianDirection(vectorFromBlockPosToFacePos);
+	}
+
+	/**
+	 * TODO: rewrite comment
+	 * 
+	 * calculates which of the six faces of a block was hit by projecting it to
+	 * the axes and
+	 * 
+	 * @param geom
+	 *            the geometry of the hitted block
+	 * @param contactPoint
+	 *            the closest intersection point of the ray with the block
+	 * @return a signed unit coordinate vector corresponding to the face of the
+	 *         hit block
+	 */
+	private Vector3f getVectorFromBlockPosToFacePos(Vector3f hitBlockPos,
+			Vector3f collisionPoint) {
+		// calculate unit vectors manually, because the
+		// JME3s are not constant for some reason...
+		Vector3f UNIT_X = new Vector3f(1, 0, 0);
+		Vector3f UNIT_Y = new Vector3f(0, 1, 0);
+		Vector3f UNIT_Z = new Vector3f(0, 0, 1);
+
+		// calculate the vector pointing from the middle of the block to
+		// the contactPoint
+		Vector3f centerToHitPointVec = collisionPoint.subtract(hitBlockPos);
+
+		Vector3f projectedX = centerToHitPointVec.project(UNIT_X);
+		Vector3f projectedY = centerToHitPointVec.project(UNIT_Y);
+		Vector3f projectedZ = centerToHitPointVec.project(UNIT_Z);
+
+		// get longest of the three projections
+		if (projectedX.length() > projectedY.length()
+				&& projectedX.length() > projectedZ.length()) {
+			return projectedX;
+		} else if (projectedY.length() > projectedX.length()
+				&& projectedY.length() > projectedZ.length()) {
+			return projectedY;
+		} else {
+			return projectedZ;
+		}
 	}
 }

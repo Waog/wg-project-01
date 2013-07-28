@@ -211,6 +211,31 @@ public class EntityFactory {
 	}
 	
 	/**
+	 * TODO: write comment
+	 */
+	public static Entity createBlockFaceHighlight(World world) {
+		// Creates the entity + components, adds it to the world.
+		Entity e = world.createEntity();
+		PositionComponent position = new PositionComponent();
+		e.addComponent(position);
+		DirectionComponent direction = new DirectionComponent();
+		e.addComponent(direction);
+		e.addToWorld();
+
+		// creates a spatial for the entity
+		Geometry geometry = Jme3Utils.getCuboid(new Vector3f(.5f, .5f, .5f), assetManager);
+//		geometry.getMaterial().getAdditionalRenderState().setWireframe(true);
+		entityNode.attachChild(geometry);
+
+		// make it visible (connect model and view)
+		EntityView entityView = new EntityView(e, lightNode);
+		entityView.init(assetManager, entityNode);
+		geometry.addControl(entityView);
+
+		return e;
+	}
+	
+	/**
 	 * Creates a small visible cubic entity at the given position.
 	 */
 	public static Entity createSmallCube(World world, Vector3f pos) {
