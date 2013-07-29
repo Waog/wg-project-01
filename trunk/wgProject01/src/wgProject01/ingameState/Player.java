@@ -277,8 +277,9 @@ public class Player extends AbstractAppState implements ActionListener {
 				MouseInput.BUTTON_RIGHT));
 		inputManager.addMapping(MINE_BLOCK, new MouseButtonTrigger(
 				MouseInput.BUTTON_LEFT));
-		inputManager.addListener(this, PLACE_BLOCK);
-		inputManager.addListener(this, MINE_BLOCK);
+		// TODO uncomment 
+		//inputManager.addListener(this, PLACE_BLOCK);
+		//inputManager.addListener(this, MINE_BLOCK);
 	}
 
 	/**
