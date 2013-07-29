@@ -88,7 +88,6 @@ public class IngameState extends AbstractAppState {
 		gameLogic = new GameLogic();
 		gameLogic.doInit(mineables, assetManager);
 		
-		stateManager.attach(new Player());
 		stateManager.attach(new InputHandler());
 
 		initGeneralLights();
