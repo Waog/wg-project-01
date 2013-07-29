@@ -31,32 +31,23 @@ import com.jme3.math.Vector3f;
  */
 public class PlayerControlSystem extends EntityProcessingSystem {
 
-	// TODO proper commenting
-	/** names for commands */
-	/** the digital commands */
-	/** for moving left */
+	/** The reach of the player in meters. */
+	private static final float PLAYER_RANGE = 7f;
+
+	// names for commands
+	// the digital commands
+	/** command for moving left */
 	public static final String LEFT = "LEFT";
-	/** for moving right */
+	/** command for moving right */
 	public static final String RIGHT = "RIGHT";
-	/** for moving down */
+	/** command for moving down */
 	public static final String BACK = "BACK";
-	/** for moving up */
+	/** command for moving up */
 	public static final String FORWARD = "FORWARD";
 	/** command to pick focused block */
 	public static final String PICK_BLOCK = "PICK_BLOCK";
-
 	/** command to place a block onto the focused block's face */
 	public static final String PLACE_BLOCK = "PLACE_BLOCK";
-
-	/** the analogue commands */
-	/** mouse movement in negative x-direction, i.e. to the left */
-	public static final String MOUSE_LEFT = "MOUSE_LEFT";
-	/** mouse movement in positive x-direction, i.e. to the right */
-	public static final String MOUSE_RIGHT = "MOUSE_RIGHT";
-	/** mouse movement in positive y-direction, i.e. upwards */
-	public static final String MOUSE_UP = "MOUSE_UP";
-	/** mouse movement in negative x-direction, i.e. downwards */
-	public static final String MOUSE_DOWN = "MOUSE_DOWN";
 
 	/**
 	 * command for turning players direction horizontally - negative values
@@ -69,7 +60,12 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	 */
 	public static float turnVertical = 0;
 
-	/** the {@link Map} mapping the keys given as Strings to boolean values */
+	/**
+	 * the {@link Map} mapping the keys given as Strings to boolean values. This
+	 * class should use the method
+	 * {@link PlayerControlSystem#getMappedValue(String)} to access the values
+	 * of the Map.
+	 */
 	public static Map<String, Boolean> mapper = new HashMap<String, Boolean>();
 
 	/**
@@ -93,9 +89,6 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	@Mapper
 	ComponentMapper<DirectionComponent> directionComponentManager;
 
-	// TODO 2 remove debug crab
-	private Entity smallDebugCube;
-
 	/**
 	 * The entity which is attached to the currently focused face of a block.
 	 */
@@ -103,7 +96,8 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 
 	/**
 	 * constructs a new PlayerControlSystem for all Entities that have a
-	 * InputReactionComponent and a PositionComponent
+	 * {@link PlayerControlComponent}, a {@link PositionComponent} and a
+	 * {@link DirectionComponent}.
 	 */
 	@SuppressWarnings("unchecked")
 	public PlayerControlSystem() {
@@ -111,13 +105,12 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 				PositionComponent.class, DirectionComponent.class));
 	}
 
-	/** TODO 2 does only debug crab, remove */
+	/**
+	 * Creates the highlighter of focused blocks as an entity.
+	 */
 	@Override
 	protected void initialize() {
 		super.initialize();
-		this.smallDebugCube = EntityFactory.createSmallCube(world,
-				new Vector3f());
-
 		this.hightlightEntity = EntityFactory.createBlockFaceHighlight(world);
 	}
 
@@ -128,7 +121,7 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	 * </p>
 	 * 
 	 * <p>
-	 * Works off the Commands given to the entity
+	 * Works off the Commands given to this system.
 	 * </p>
 	 */
 	@Override
@@ -146,20 +139,23 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 		doHandleRotation(directionComponent);
 
 		// pick block if command is set
-		if (getMappedValue(PICK_BLOCK)) {
-			// determine blocks on player ray
-			Pair<Float, Vector3f> closestRayCollisionPair = getClosestRayCollision(
-					positionComponent, directionComponent);
-			if (closestRayCollisionPair != null) {
-				BlockGameObj focusedBlock = BlockManager.getInstance()
-						.getBlock(closestRayCollisionPair.second);
-				playerComponent.inventoryStack.push(focusedBlock);
-				BlockManager.getInstance().removeBlockFrom(
-						closestRayCollisionPair.second);
-			}
-		}
-		mapper.put(PICK_BLOCK, false);
+		doPickBlock(positionComponent, directionComponent, playerComponent);
+
 		// place block from inventory stack (if possible) if command is set
+		doPlaceBlock(positionComponent, directionComponent, playerComponent);
+
+		// highlight focused block face
+		doHighlightBlockFace(positionComponent, directionComponent);
+	}
+
+	/**
+	 * checks if the key of the {@link #PLACE_BLOCK} command in the
+	 * {@link mapper} is true and if there is a block in the inventory, places a
+	 * block at the focused block face if within reach.
+	 */
+	private void doPlaceBlock(PositionComponent positionComponent,
+			DirectionComponent directionComponent,
+			PlayerControlComponent playerComponent) {
 		if (getMappedValue(PLACE_BLOCK)
 				&& playerComponent.inventoryStack.size() > 0) {
 			Pair<Float, Vector3f> closestRayCollisionPair = getClosestRayCollision(
@@ -179,19 +175,33 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 			}
 		}
 		mapper.put(PLACE_BLOCK, false);
-
-		// highlight focused block face
-		Pair<Float, Vector3f> closestRayHighlightPair = getClosestRayCollision(
-				positionComponent, directionComponent);
-		doHighlightBlockFace(closestRayHighlightPair);
-
 	}
 
 	/**
-	 * TODO comment correctly and possibly change method signature
+	 * checks if the key of the {@link #PICK_BLOCK} command in the
+	 * {@link mapper} is true and picks the focused block to the inventory if
+	 * there is one within reach.
 	 * 
-	 * @param positionComponent
-	 * @param directionComponent
+	 */
+	private void doPickBlock(PositionComponent positionComponent,
+			DirectionComponent directionComponent,
+			PlayerControlComponent playerComponent) {
+		if (getMappedValue(PICK_BLOCK)) {
+			// determine blocks on player ray
+			Pair<Float, Vector3f> closestRayCollisionPair = getClosestRayCollision(
+					positionComponent, directionComponent);
+			if (closestRayCollisionPair != null) {
+				BlockGameObj focusedBlock = BlockManager.getInstance()
+						.getBlock(closestRayCollisionPair.second);
+				playerComponent.inventoryStack.push(focusedBlock);
+				BlockManager.getInstance().removeBlockFrom(
+						closestRayCollisionPair.second);
+			}
+		}
+		mapper.put(PICK_BLOCK, false);
+	}
+
+	/**
 	 * @return First value of the pair is the exact distances of the player to
 	 *         the real collision points. The second value of the pair is the
 	 *         collision point vector slightly moved into the block the ray is
@@ -223,29 +233,25 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 			}
 		}
 
-		// TODO: for debugging
-		if (closestPair != null) {
-			smallDebugCube.getComponent(PositionComponent.class).pos = closestPair.second;
-		}
-
 		return closestPair;
 	}
 
 	/**
-	 * calculates the collision points with blocks (only those in the
-	 * perpendicular plane to given axis) and the distance of it to the player
-	 * and adds the corresponding pair to the given list.
+	 * Calculates the collision points with blocks (only those in the
+	 * perpendicular plane to the given axis) and the distance of it to the
+	 * player and adds the corresponding pair to the given list (see return
+	 * value).
 	 * 
 	 * @param collisionPointList
-	 *            the list to be filled with pairs of the distance to collision
+	 *            The list to be filled with pairs of the distance to collision
 	 *            point and the collision point with block.
 	 * @param axis
-	 *            one of the three standard basis vectors ((1,0,0) , (0,1,0) or
+	 *            One of the three standard basis vectors ((1,0,0) , (0,1,0) or
 	 *            (0,0,1)).
 	 * @param positionComponent
-	 *            the position component of the entity.
+	 *            The position component of the entity.
 	 * @param directionComponent
-	 *            the direction component of the entity.
+	 *            The direction component of the entity.
 	 * @return First value of the pairs are the exact distances of the player to
 	 *         the real collision points. The second value of the pairs are the
 	 *         collision point vectors slightly moved into the block the ray is
@@ -257,9 +263,8 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 			PositionComponent positionComponent,
 			DirectionComponent directionComponent) {
 		Vector3f dir = directionComponent.getSwitchedCartesianDirection();
-		float lengthOfRay = 6;
 
-		Vector3f endOfRay = positionComponent.pos.add(dir.mult(lengthOfRay));
+		Vector3f endOfRay = positionComponent.pos.add(dir.mult(PLAYER_RANGE));
 
 		float minCoord = Math.min(positionComponent.pos.dot(axis),
 				endOfRay.dot(axis));
@@ -293,7 +298,7 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	}
 
 	/**
-	 * changes the direction according to the corresponding turning commands.
+	 * Changes the direction according to the corresponding turning commands.
 	 */
 	private void doHandleRotation(DirectionComponent directionComponent) {
 		if (turnHorizontal != 0) {
@@ -315,7 +320,7 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	}
 
 	/**
-	 * changes position according to the corresponding command flags.
+	 * Changes position according to the corresponding command flags.
 	 */
 	private void doHandleTranslation(float delta,
 			PositionComponent positionComponent,
@@ -355,20 +360,22 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	}
 
 	/**
-	 * returns the mapped value for the given key from the mapper variable or
-	 * false if the given key is not defined
+	 * Returns the mapped value for the given key from the {@link mapper} or
+	 * false if the given key is not defined.
 	 */
 	private boolean getMappedValue(String key) {
 		return (mapper.get(key) != null && mapper.get(key));
 	}
 
 	/**
-	 * TODO: rewrite comment.
-	 * 
-	 * Highlights the block face the player views at if the face is in the range
-	 * of {@link #RAY_LIMIT} meters
+	 * Highlights the focused block face if the face is within
+	 * {@link #PLAYER_RANGE} by translating and turning and making (in-)visible
+	 * the highlight entity.
 	 */
-	private void doHighlightBlockFace(Pair<Float, Vector3f> closestCollisionPair) {
+	private void doHighlightBlockFace(PositionComponent positionComponent,
+			DirectionComponent directionComponent) {
+		Pair<Float, Vector3f> closestCollisionPair = getClosestRayCollision(
+				positionComponent, directionComponent);
 		PositionComponent highlightPosComp = hightlightEntity
 				.getComponent(PositionComponent.class);
 		DirectionComponent highlightDirComp = hightlightEntity
@@ -387,32 +394,24 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 				collisionPoint);
 		Vector3f hitBlockPos = hitBlock.blockPositionComponent.getPosVec3f();
 
-		// CollisionResult closest = results.getClosestCollision();
-		// Geometry geom = closest.getGeometry();
-		// Vector3f selectedBlockPos = geom.getWorldTranslation();
 		Vector3f vectorFromBlockPosToFacePos = getVectorFromBlockPosToFacePos(
 				hitBlockPos, collisionPoint);
 
 		highlightPosComp.pos = hitBlockPos.add(vectorFromBlockPosToFacePos);
 		highlightDirComp
 				.setSwitchedCartesianDirection(vectorFromBlockPosToFacePos);
-		// System.out.println("highlight pos: " + highlightPosComp.pos);
-		// System.out.println("highlight dir: " +
-		// highlightDirComp.getSwitchedCartesianDirection());
 	}
 
 	/**
-	 * TODO: rewrite comment
+	 * Returns the vector pointing from the center of the block at the given
+	 * position to the center of the block's face containing the given collision
+	 * point.
 	 * 
-	 * calculates which of the six faces of a block was hit by projecting it to
-	 * the axes and
-	 * 
-	 * @param geom
-	 *            the geometry of the hitted block
-	 * @param contactPoint
-	 *            the closest intersection point of the ray with the block
-	 * @return a signed unit coordinate vector corresponding to the face of the
-	 *         hit block
+	 * @param hitBlockPos
+	 *            Center of the focused block.
+	 * @param collisionPoint
+	 *            First intersection point of the ray with the focused block's
+	 *            face.
 	 */
 	private Vector3f getVectorFromBlockPosToFacePos(Vector3f hitBlockPos,
 			Vector3f collisionPoint) {

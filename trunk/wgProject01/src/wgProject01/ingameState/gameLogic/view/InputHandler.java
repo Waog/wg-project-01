@@ -34,7 +34,18 @@ public class InputHandler extends AbstractAppState implements ActionListener,
 	 * The mouse sensitivity. currently only used for speed of the player
 	 * rotation.
 	 */
-	private static float mouseSensitivity = 10;
+	private static float mouseSensitivity = 5;
+
+
+	// the analog input mappings
+	/** mouse movement in negative x-direction, i.e. to the left */
+	public static final String MOUSE_LEFT = "MOUSE_LEFT";
+	/** mouse movement in positive x-direction, i.e. to the right */
+	public static final String MOUSE_RIGHT = "MOUSE_RIGHT";
+	/** mouse movement in positive y-direction, i.e. upwards */
+	public static final String MOUSE_UPWARDS = "MOUSE_UPWARDS";
+	/** mouse movement in negative x-direction, i.e. downwards */
+	public static final String MOUSE_DOWNWARDS = "MOUSE_DOWNWARDS";
 
 	/**
 	 * datafields given by the {@link GameApplication} and the
@@ -58,24 +69,24 @@ public class InputHandler extends AbstractAppState implements ActionListener,
 	 */
 	private void initAnalogueInputs() {
 		// mouse movement in positive x-direction, i.e. to the right
-		inputManager.addMapping(PlayerControlSystem.MOUSE_RIGHT,
-				new MouseAxisTrigger(MouseInput.AXIS_X, false));
-		inputManager.addListener(this, PlayerControlSystem.MOUSE_RIGHT);
+		inputManager.addMapping(MOUSE_RIGHT, new MouseAxisTrigger(
+				MouseInput.AXIS_X, false));
+		inputManager.addListener(this, MOUSE_RIGHT);
 
 		// mouse movement in negative x-direction, i.e. to the left
-		inputManager.addMapping(PlayerControlSystem.MOUSE_LEFT,
-				new MouseAxisTrigger(MouseInput.AXIS_X, true));
-		inputManager.addListener(this, PlayerControlSystem.MOUSE_LEFT);
+		inputManager.addMapping(MOUSE_LEFT, new MouseAxisTrigger(
+				MouseInput.AXIS_X, true));
+		inputManager.addListener(this, MOUSE_LEFT);
 
 		// mouse movement in positive y-direction, i.e. upwards
-		inputManager.addMapping(PlayerControlSystem.MOUSE_UP,
-				new MouseAxisTrigger(MouseInput.AXIS_Y, false));
-		inputManager.addListener(this, PlayerControlSystem.MOUSE_UP);
+		inputManager.addMapping(MOUSE_UPWARDS, new MouseAxisTrigger(
+				MouseInput.AXIS_Y, false));
+		inputManager.addListener(this, MOUSE_UPWARDS);
 
 		// mouse movement in negative y-direction, i.e. upwards
-		inputManager.addMapping(PlayerControlSystem.MOUSE_DOWN,
-				new MouseAxisTrigger(MouseInput.AXIS_Y, true));
-		inputManager.addListener(this, PlayerControlSystem.MOUSE_DOWN);
+		inputManager.addMapping(MOUSE_DOWNWARDS, new MouseAxisTrigger(
+				MouseInput.AXIS_Y, true));
+		inputManager.addListener(this, MOUSE_DOWNWARDS);
 	}
 
 	/**
@@ -102,13 +113,15 @@ public class InputHandler extends AbstractAppState implements ActionListener,
 		inputManager.addMapping(PlayerControlSystem.FORWARD, new KeyTrigger(
 				KeyInput.KEY_W));
 		inputManager.addListener(this, PlayerControlSystem.FORWARD);
-		
+
 		// pressed left mouse button triggered - shall correspond to picking
-		inputManager.addMapping(PlayerControlSystem.PICK_BLOCK, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
-		inputManager.addListener(this, PlayerControlSystem.PICK_BLOCK);	
-		
+		inputManager.addMapping(PlayerControlSystem.PICK_BLOCK,
+				new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+		inputManager.addListener(this, PlayerControlSystem.PICK_BLOCK);
+
 		// pressed right mouse button triggered - shall correspond to placing
-		inputManager.addMapping(PlayerControlSystem.PLACE_BLOCK, new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
+		inputManager.addMapping(PlayerControlSystem.PLACE_BLOCK,
+				new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
 		inputManager.addListener(this, PlayerControlSystem.PLACE_BLOCK);
 	}
 
@@ -126,21 +139,20 @@ public class InputHandler extends AbstractAppState implements ActionListener,
 	 */
 	@Override
 	public void onAnalog(String name, float value, float tpf) {
-		// TODO: add handling in x-z-plane
-		if (name.equals(PlayerControlSystem.MOUSE_LEFT)) {
+		if (name.equals(MOUSE_LEFT)) {
 			PlayerControlSystem.turnHorizontal += value * mouseSensitivity;
 		}
 
-		if (name.equals(PlayerControlSystem.MOUSE_RIGHT)) {
+		if (name.equals(MOUSE_RIGHT)) {
 			PlayerControlSystem.turnHorizontal -= value * mouseSensitivity;
 		}
 
 		// add handling in y-direction
-		if (name.equals(PlayerControlSystem.MOUSE_UP)) {
+		if (name.equals(MOUSE_UPWARDS)) {
 			PlayerControlSystem.turnVertical += value * mouseSensitivity;
 		}
 
-		if (name.equals(PlayerControlSystem.MOUSE_DOWN)) {
+		if (name.equals(MOUSE_DOWNWARDS)) {
 			PlayerControlSystem.turnVertical -= value * mouseSensitivity;
 		}
 
