@@ -143,12 +143,12 @@ public class EntityView extends AbstractControl {
 		}
 
 		// ------ DIRECTION of entities ------
-		if (directionComponent != null && positionComponent != null) {
-			// TODO: make direction independent of position, with
-			// Quaternion.lookAt();
-			spatial.lookAt(positionComponent.pos.add(directionComponent
-					.getSwitchedCatesianProjectedDirectionXZ()), new Vector3f(
-					0, 1, 0));
+		if (directionComponent != null) {
+			Quaternion rotQuaternion = new Quaternion();
+			rotQuaternion.lookAt(directionComponent
+					.getSwitchedCatesianProjectedDirectionXZ(), new Vector3f(0,
+					1, 0));
+			spatial.setLocalRotation(rotQuaternion);
 		}
 
 		// ------ DIRECTION & CAMERA of player-entity ------
