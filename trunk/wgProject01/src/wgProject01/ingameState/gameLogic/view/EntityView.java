@@ -11,7 +11,9 @@ import wgProject01.ingameState.gameLogic.components.PositionComponent;
 import com.artemis.Entity;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.PointLight;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
@@ -36,6 +38,9 @@ public class EntityView extends AbstractControl {
 
 	/** the AssetManager of the simpleApplication */
 	AssetManager assetManager;
+	
+	/** the jme3 camera object */
+	public static Camera cam;
 
 	/**
 	 * the Node containing mostly the entities, but now also the component box
@@ -88,6 +93,7 @@ public class EntityView extends AbstractControl {
 						new Vector3f(0, 0, 3), entityNode, assetManager);
 			}
 		}
+		
 	}
 
 	/**
@@ -138,6 +144,11 @@ public class EntityView extends AbstractControl {
 					.getSwitchedCatesianProjectedDirectionXZ();
 			spatial.lookAt(positionComponent.pos.add(spatialDirection),
 					new Vector3f(0, 1, 0));
+			cam.setLocation(positionComponent.pos);
+			Quaternion rotQuaternion = new Quaternion();
+			rotQuaternion.lookAt(positionComponent.pos.add(spatialDirection),
+					new Vector3f(0, 1, 0));
+			cam.setRotation(rotQuaternion);
 
 		}
 		
