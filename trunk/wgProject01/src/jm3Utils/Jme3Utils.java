@@ -33,10 +33,7 @@ public class Jme3Utils {
 		Node result = new Node();
 		node.attachChild(result);
 		Line line = new Line(start, end);
-//		Geometry geometry = new Geometry("Line", line);
-		// TODO: draw a line instead of a box again
-		Box mesh = new Box(.5f, .5f, .1f);
-		Geometry geometry = new Geometry("Block", mesh);
+		Geometry geometry = new Geometry("Line", line);
 		Material mat = new Material(assetManager,
 				"Common/MatDefs/Misc/Unshaded.j3md");
 		mat.setColor("Color", ColorRGBA.White);

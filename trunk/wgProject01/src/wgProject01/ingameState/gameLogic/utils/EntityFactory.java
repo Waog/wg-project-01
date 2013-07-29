@@ -89,7 +89,8 @@ public class EntityFactory {
 	 *            the Node to which all blocks of the BlockManager shall be
 	 *            attached.
 	 */
-	public static void initData(Node entityNode, AssetManager assetManager, Node lightNode) {
+	public static void initData(Node entityNode, AssetManager assetManager,
+			Node lightNode) {
 		EntityFactory.entityNode = entityNode;
 		EntityFactory.assetManager = assetManager;
 		EntityFactory.lightNode = lightNode;
@@ -213,7 +214,7 @@ public class EntityFactory {
 
 		return e;
 	}
-	
+
 	/**
 	 * TODO: write comment
 	 */
@@ -227,11 +228,12 @@ public class EntityFactory {
 		e.addToWorld();
 
 		// creates a spatial for the entity
-		Geometry geometry = Jme3Utils.getCuboid(new Vector3f(.5f, .5f, .1f), assetManager);
+		Geometry geometry = Jme3Utils.getCuboid(new Vector3f(.5f, .5f, 0.01f),
+				assetManager);
 		geometry.setName("block face highlight");
 		geometry.getMaterial().getAdditionalRenderState().setWireframe(true);
 		entityNode.attachChild(geometry);
-		
+
 		System.out.println("factory entityNode: " + entityNode);
 		System.out.println("factory spatial: " + geometry);
 
@@ -242,7 +244,7 @@ public class EntityFactory {
 
 		return e;
 	}
-	
+
 	/**
 	 * Creates a small visible cubic entity at the given position.
 	 */
@@ -254,7 +256,7 @@ public class EntityFactory {
 		PositionComponent position = new PositionComponent();
 		position.pos.set(pos);
 		e.addComponent(position);
-		
+
 		e.addToWorld();
 
 		Spatial spatial = Jme3Utils.getCubeGeom(0.1f, assetManager);
