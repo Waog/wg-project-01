@@ -31,26 +31,32 @@ import com.jme3.math.Vector3f;
  */
 public class PlayerControlSystem extends EntityProcessingSystem {
 
+	// TODO proper commenting
 	/** names for commands */
 	/** the digital commands */
 	/** for moving left */
-	public static final String LEFT = "Left";
+	public static final String LEFT = "LEFT";
 	/** for moving right */
-	public static final String RIGHT = "Right";
+	public static final String RIGHT = "RIGHT";
 	/** for moving down */
-	public static final String BACK = "Back";
+	public static final String BACK = "BACK";
 	/** for moving up */
-	public static final String FORWARD = "Forward";
+	public static final String FORWARD = "FORWARD";
+	/** command to pick focused block */
+	public static final String PICK_BLOCK = "PICK_BLOCK";
+
+	/** command to place a block onto the focused block's face */
+	public static final String PLACE_BLOCK = "PLACE_BLOCK";
 
 	/** the analogue commands */
 	/** mouse movement in negative x-direction, i.e. to the left */
-	public static final String MOUSE_LEFT = "MouseLeft";
+	public static final String MOUSE_LEFT = "MOUSE_LEFT";
 	/** mouse movement in positive x-direction, i.e. to the right */
-	public static final String MOUSE_RIGHT = "MouseRight";
+	public static final String MOUSE_RIGHT = "MOUSE_RIGHT";
 	/** mouse movement in positive y-direction, i.e. upwards */
-	public static final String MOUSE_UP = "MouseUp";
+	public static final String MOUSE_UP = "MOUSE_UP";
 	/** mouse movement in negative x-direction, i.e. downwards */
-	public static final String MOUSE_DOWN = "MouseDown";
+	public static final String MOUSE_DOWN = "MOUSE_DOWN";
 
 	/**
 	 * command for turning players direction horizontally - negative values
@@ -140,9 +146,23 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 		doHandleRotation(directionComponent);
 
 		// determine blocks on player ray
-		Pair<Float, Vector3f> closestRayCollisionPair = getClosestRayCollision(
+		if (getMappedValue(PICK_BLOCK)) {
+			Pair<Float, Vector3f> closestRayCollisionPair = getClosestRayCollision(
+					positionComponent, directionComponent);
+			if (closestRayCollisionPair != null) {
+				BlockGameObj focusedBlock = BlockManager.getInstance()
+						.getBlock(closestRayCollisionPair.second);
+				playerComponent.inventoryStack.push(focusedBlock);
+				BlockManager.getInstance().removeBlockFrom(
+						closestRayCollisionPair.second);
+			}
+			mapper.put(PICK_BLOCK, false);
+		}
+
+		// highlight focused block face
+		Pair<Float, Vector3f> closestRayHighlightPair = getClosestRayCollision(
 				positionComponent, directionComponent);
-		doHighlightBlockFace(closestRayCollisionPair);
+		doHighlightBlockFace(closestRayHighlightPair);
 
 	}
 
@@ -346,8 +366,9 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 		highlightPosComp.pos = hitBlockPos.add(vectorFromBlockPosToFacePos);
 		highlightDirComp
 				.setSwitchedCartesianDirection(vectorFromBlockPosToFacePos);
-//		System.out.println("highlight pos: " + highlightPosComp.pos);
-//		System.out.println("highlight dir: " + highlightDirComp.getSwitchedCartesianDirection());
+		// System.out.println("highlight pos: " + highlightPosComp.pos);
+		// System.out.println("highlight dir: " +
+		// highlightDirComp.getSwitchedCartesianDirection());
 	}
 
 	/**

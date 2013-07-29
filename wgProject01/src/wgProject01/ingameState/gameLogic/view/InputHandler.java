@@ -16,6 +16,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseAxisTrigger;
+import com.jme3.input.controls.MouseButtonTrigger;
 
 /**
  * the Listener for user inputs. Informs the {@link PlayerControlSystem} by
@@ -101,6 +102,14 @@ public class InputHandler extends AbstractAppState implements ActionListener,
 		inputManager.addMapping(PlayerControlSystem.FORWARD, new KeyTrigger(
 				KeyInput.KEY_W));
 		inputManager.addListener(this, PlayerControlSystem.FORWARD);
+		
+		// pressed left mouse button triggered - shall correspond to picking
+		inputManager.addMapping(PlayerControlSystem.PICK_BLOCK, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+		inputManager.addListener(this, PlayerControlSystem.PICK_BLOCK);	
+		
+		// pressed right mouse button triggered - shall correspond to placing
+		inputManager.addMapping(PlayerControlSystem.PLACE_BLOCK, new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
+		inputManager.addListener(this, PlayerControlSystem.PLACE_BLOCK);
 	}
 
 	/**
