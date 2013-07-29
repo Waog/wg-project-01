@@ -4,6 +4,7 @@ import jm3Utils.Jme3Utils;
 import wgProject01.Settings;
 import wgProject01.ingameState.gameLogic.components.CollisionBoxComponent;
 import wgProject01.ingameState.gameLogic.components.DirectionComponent;
+import wgProject01.ingameState.gameLogic.components.HighlightComponent;
 import wgProject01.ingameState.gameLogic.components.PlayerControlComponent;
 import wgProject01.ingameState.gameLogic.components.PointLightComponent;
 import wgProject01.ingameState.gameLogic.components.PositionComponent;
@@ -36,43 +37,48 @@ public class EntityView extends AbstractControl {
 	 */
 	private Entity entity;
 
-	/** the AssetManager of the simpleApplication */
-	AssetManager assetManager;
+	/** The AssetManager of the simpleApplication. */
+	public static AssetManager assetManager;
 
-	/** the jme3 camera object */
+	/** The jme3 camera object. */
 	public static Camera cam;
 
 	/**
-	 * the Node containing mostly the entities, but now also the component box
-	 * of it
+	 * The parent node containing a spatial of each entity.
 	 */
 	Node entityNode;
 
-	/** for testing: geometry representing the collision box */
+	/** For viewing in debug mode: geometry representing the collision box */
 	private Geometry collisionBoxGeometry;
 
-	/** for testing: line representing the direction of the entity */
+	/** For viewing in debug mode: line representing the direction of the entity */
 	private Spatial directionLineSpatial;
 
-	private PointLight pointLightSource;
+	/**
+	 * The JME3 {@link PointLight} which is moves with the wrapped entity, if it
+	 * has a {@link PointLightComponent}, or just null for all other entities.
+	 */
+	private PointLight pointLightView;
 
-	private Node rootNode;
+	/**
+	 * The JME3 root node. Currently only used to attach a
+	 * {@link #pointLightView} to it.
+	 */
+	public static Node rootNode;
 
 	/**
 	 * Constructs a new View for the given entity.
 	 */
-	public EntityView(Entity entity, Node rootNode) {
+	public EntityView(Entity entity, Node entityNode) {
 		this.entity = entity;
-		this.rootNode = rootNode;
+		this.entityNode = entityNode;
+		initDebugVisuals();
 	}
 
-	/** initializes the entity viewers datafields */
-	public void init(AssetManager assetManager, Node entityNode) {
-		this.assetManager = assetManager;
-		this.entityNode = entityNode;
-
-		// TODO 2 set the right debug mode
+	/** Initializes debug visuals (collision box and direction line). */
+	public void initDebugVisuals() {
 		if (Settings.debugMode >= 2) {
+			// init the collision box
 			PositionComponent positionComponent = entity
 					.getComponent(PositionComponent.class);
 
@@ -86,6 +92,8 @@ public class EntityView extends AbstractControl {
 				collisionBoxGeometry.setLocalTranslation(positionComponent.pos);
 				entityNode.attachChild(collisionBoxGeometry);
 			}
+
+			// init the direction line
 			DirectionComponent directionComponent = entity
 					.getComponent((DirectionComponent.class));
 			if (directionComponent != null && positionComponent != null) {
@@ -108,9 +116,19 @@ public class EntityView extends AbstractControl {
 	 */
 	@Override
 	protected void controlUpdate(float tpf) {
-		// set the position according to the entities position if it has one.
+		// extract the components from the entity (may be null)
 		PositionComponent positionComponent = entity
 				.getComponent(PositionComponent.class);
+		DirectionComponent directionComponent = entity
+				.getComponent((DirectionComponent.class));
+		PlayerControlComponent playerControlComponent = entity
+				.getComponent(PlayerControlComponent.class);
+		HighlightComponent highlightComponent = entity
+				.getComponent(HighlightComponent.class);
+		PointLightComponent pointLightComponent = entity
+				.getComponent((PointLightComponent.class));
+
+		// ---- POSITION ----
 		if (positionComponent != null) {
 			spatial.setLocalTranslation(positionComponent.pos);
 
@@ -123,20 +141,18 @@ public class EntityView extends AbstractControl {
 						Float.MAX_VALUE / 2, Float.MAX_VALUE / 2);
 			}
 		}
-		DirectionComponent directionComponent = entity
-				.getComponent((DirectionComponent.class));
-		PlayerControlComponent playerControlComponent = entity
-				.getComponent(PlayerControlComponent.class);
 
-		// case that the entity is a a non-player-entity
-		if (directionComponent != null && positionComponent != null
-				&& playerControlComponent == null) {
+		// ------ DIRECTION of entities ------
+		if (directionComponent != null && positionComponent != null) {
+			// TODO: make direction independent of position, with
+			// Quaternion.lookAt();
 			spatial.lookAt(positionComponent.pos.add(directionComponent
 					.getSwitchedCatesianProjectedDirectionXZ()), new Vector3f(
 					0, 1, 0));
 		}
-		// case that the entity is a playable character
-		else if (directionComponent != null && positionComponent != null
+
+		// ------ DIRECTION & CAMERA of player-entity ------
+		if (directionComponent != null && positionComponent != null
 				&& playerControlComponent != null) {
 			Vector3f spatialDirection = directionComponent
 					.getSwitchedCatesianProjectedDirectionXZ();
@@ -151,37 +167,30 @@ public class EntityView extends AbstractControl {
 			cam.setRotation(rotQuaternion);
 		}
 
-		// TODO: better architecture!!!, escpecially the string!!
-		// case that the entity is a block face highlight
+		// ------ DIRECTION of highlight entity ------
 		if (directionComponent != null && positionComponent != null
-				&& spatial.getName().equals("block face highlight")) {
-
+				&& highlightComponent != null) {
 			Vector3f highlightDir = directionComponent
 					.getSwitchedCartesianDirection();
-
 			Vector3f yDirection = new Vector3f(highlightDir.z, highlightDir.x,
 					highlightDir.y);
 			spatial.lookAt(positionComponent.pos.add(highlightDir), yDirection);
 		}
 
-		PointLightComponent pointLightComponent = entity
-				.getComponent((PointLightComponent.class));
+		// ------ POINT LIGHT ------
 		if (pointLightComponent != null && positionComponent != null) {
-			if (this.pointLightSource == null) {
-				// the point light
-				this.pointLightSource = new PointLight();
-				pointLightSource.setColor(pointLightComponent.color);
-				pointLightSource.setRadius(pointLightComponent.radius);
-				rootNode.addLight(pointLightSource);
-				LightControl lightControl = new LightControl(pointLightSource);
+			if (this.pointLightView == null) {
+				this.pointLightView = new PointLight();
+				rootNode.addLight(pointLightView);
+				LightControl lightControl = new LightControl(pointLightView);
 				spatial.addControl(lightControl); // this spatial controls the
 				// position of this light.
 			}
-			pointLightSource.setColor(pointLightComponent.color);
-			pointLightSource.setRadius(pointLightComponent.radius);
+			pointLightView.setColor(pointLightComponent.color);
+			pointLightView.setRadius(pointLightComponent.radius);
 		}
 
-		// TODO 2 set the right debug mode
+		// ------- COLLISION BOX (for debugging) -----
 		if (Settings.debugMode >= 2) {
 			// show the collision box
 			CollisionBoxComponent collisionBoxComponent = entity
@@ -193,15 +202,14 @@ public class EntityView extends AbstractControl {
 			}
 		}
 
+		// ------- DIRECTION LINE (for debugging) -----
 		if (Settings.debugMode >= 2) {
 			if (directionComponent != null && positionComponent != null) {
 				directionLineSpatial.setLocalTranslation(positionComponent.pos);
-
 				Vector3f direction = directionComponent
 						.getSwitchedCartesianDirection();
 				directionLineSpatial.lookAt(positionComponent.pos
 						.add(direction), new Vector3f(0, 1, 0));
-
 			}
 		}
 	}

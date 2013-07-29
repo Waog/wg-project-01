@@ -66,6 +66,8 @@ public class IngameState extends AbstractAppState {
 		this.guiNode = this.app.getGuiNode();
 
 		EntityView.cam = this.cam;
+		EntityView.rootNode = this.rootNode;
+		EntityView.assetManager = this.assetManager;
 		flyCam.setEnabled(false);
 		this.app.getInputManager().setCursorVisible(false);
 		

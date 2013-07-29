@@ -7,6 +7,7 @@ import wgProject01.ingameState.gameLogic.GameLogic;
 import wgProject01.ingameState.gameLogic.components.CollisionBoxComponent;
 import wgProject01.ingameState.gameLogic.components.DirectionComponent;
 import wgProject01.ingameState.gameLogic.components.GravitationComponent;
+import wgProject01.ingameState.gameLogic.components.HighlightComponent;
 import wgProject01.ingameState.gameLogic.components.PlayerControlComponent;
 import wgProject01.ingameState.gameLogic.components.PointLightComponent;
 import wgProject01.ingameState.gameLogic.components.PositionComponent;
@@ -57,11 +58,6 @@ public class EntityFactory {
 	private static AssetManager assetManager;
 
 	/**
-	 * The node to which light sources are attached.
-	 */
-	private static Node lightNode;
-
-	/**
 	 * Private constructor to enforce the use of the {@link #getInstance()}
 	 * method.
 	 */
@@ -93,7 +89,6 @@ public class EntityFactory {
 			Node lightNode) {
 		EntityFactory.entityNode = entityNode;
 		EntityFactory.assetManager = assetManager;
-		EntityFactory.lightNode = lightNode;
 	}
 
 	/**
@@ -164,8 +159,7 @@ public class EntityFactory {
 		sunNode.attachChild(outerSpacial);
 
 		// make it visible (connect model and view)
-		EntityView entityView = new EntityView(e, lightNode);
-		entityView.init(assetManager, entityNode);
+		EntityView entityView = new EntityView(e, entityNode);
 		sunNode.addControl(entityView);
 
 		return e;
@@ -208,8 +202,7 @@ public class EntityFactory {
 		entityNode.attachChild(spatial);
 
 		// make it visible (connect model and view)
-		EntityView entityView = new EntityView(e, lightNode);
-		entityView.init(assetManager, entityNode);
+		EntityView entityView = new EntityView(e, entityNode);
 		spatial.addControl(entityView);
 
 		return e;
@@ -225,6 +218,8 @@ public class EntityFactory {
 		e.addComponent(position);
 		DirectionComponent direction = new DirectionComponent();
 		e.addComponent(direction);
+		HighlightComponent highlight = new HighlightComponent();
+		e.addComponent(highlight);
 		e.addToWorld();
 
 		// creates a spatial for the entity
@@ -238,8 +233,7 @@ public class EntityFactory {
 		System.out.println("factory spatial: " + geometry);
 
 		// make it visible (connect model and view)
-		EntityView entityView = new EntityView(e, lightNode);
-		entityView.init(assetManager, entityNode);
+		EntityView entityView = new EntityView(e, entityNode);
 		geometry.addControl(entityView);
 
 		return e;
@@ -264,8 +258,7 @@ public class EntityFactory {
 		entityNode.attachChild(spatial);
 
 		// make it visible (connect model and view)
-		EntityView entityView = new EntityView(e, lightNode);
-		entityView.init(assetManager, entityNode);
+		EntityView entityView = new EntityView(e, entityNode);
 		spatial.addControl(entityView);
 
 		return e;
@@ -309,8 +302,7 @@ public class EntityFactory {
 		entityNode.attachChild(spatial);
 
 		// make it visible (connect model and view)
-		EntityView entityView = new EntityView(e, lightNode);
-		entityView.init(assetManager, entityNode);
+		EntityView entityView = new EntityView(e, entityNode);
 		spatial.addControl(entityView);
 
 		return e;
