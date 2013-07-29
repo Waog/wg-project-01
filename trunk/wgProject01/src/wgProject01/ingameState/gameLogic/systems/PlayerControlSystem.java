@@ -145,8 +145,9 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 				playerComponent);
 		doHandleRotation(directionComponent);
 
-		// determine blocks on player ray
+		// pick block if command is set
 		if (getMappedValue(PICK_BLOCK)) {
+			// determine blocks on player ray
 			Pair<Float, Vector3f> closestRayCollisionPair = getClosestRayCollision(
 					positionComponent, directionComponent);
 			if (closestRayCollisionPair != null) {
@@ -156,8 +157,28 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 				BlockManager.getInstance().removeBlockFrom(
 						closestRayCollisionPair.second);
 			}
-			mapper.put(PICK_BLOCK, false);
 		}
+		mapper.put(PICK_BLOCK, false);
+		// place block from inventory stack (if possible) if command is set
+		if (getMappedValue(PLACE_BLOCK)
+				&& playerComponent.inventoryStack.size() > 0) {
+			Pair<Float, Vector3f> closestRayCollisionPair = getClosestRayCollision(
+					positionComponent, directionComponent);
+			if (closestRayCollisionPair != null) {
+				Vector3f collisionPointDirectionFromPlayer = directionComponent
+						.getSwitchedCartesianDirection().mult(
+								closestRayCollisionPair.first - 0.0001f);
+				Vector3f newBlockPositionNonRounded = positionComponent.pos
+						.add(collisionPointDirectionFromPlayer);
+				if (BlockManager.getInstance().getBlock(
+						newBlockPositionNonRounded) == null) {
+					BlockManager.getInstance().setBlock(
+							newBlockPositionNonRounded,
+							playerComponent.inventoryStack.pop());
+				}
+			}
+		}
+		mapper.put(PLACE_BLOCK, false);
 
 		// highlight focused block face
 		Pair<Float, Vector3f> closestRayHighlightPair = getClosestRayCollision(
@@ -171,6 +192,10 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	 * 
 	 * @param positionComponent
 	 * @param directionComponent
+	 * @return First value of the pair is the exact distances of the player to
+	 *         the real collision points. The second value of the pair is the
+	 *         collision point vector slightly moved into the block the ray is
+	 *         colliding with.
 	 */
 	private Pair<Float, Vector3f> getClosestRayCollision(
 			PositionComponent positionComponent,
@@ -221,6 +246,11 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	 *            the position component of the entity.
 	 * @param directionComponent
 	 *            the direction component of the entity.
+	 * @return First value of the pairs are the exact distances of the player to
+	 *         the real collision points. The second value of the pairs are the
+	 *         collision point vectors slightly moved into the block the ray is
+	 *         colliding with.
+	 * 
 	 */
 	private void doFillCollisionPointList(
 			List<Pair<Float, Vector3f>> collisionPointList, Vector3f axis,
