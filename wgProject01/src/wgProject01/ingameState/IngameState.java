@@ -4,6 +4,7 @@ import jm3Utils.Jme3Utils;
 import wgProject01.GameApplication;
 import wgProject01.ingameState.gameLogic.GameLogic;
 import wgProject01.ingameState.gameLogic.utils.EntityFactory;
+import wgProject01.ingameState.gameLogic.view.EntityView;
 import wgProject01.ingameState.gameLogic.view.InputHandler;
 
 import com.jme3.app.Application;
@@ -64,6 +65,10 @@ public class IngameState extends AbstractAppState {
 		this.flyCam = this.app.getFlyByCamera();
 		this.guiNode = this.app.getGuiNode();
 
+		EntityView.cam = this.cam;
+		flyCam.setEnabled(false);
+		this.app.getInputManager().setCursorVisible(false);
+		
 		// TODO 1: remove debug code:
 		// draw the coordinate system:
 		Jme3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(1, 0, 0),
