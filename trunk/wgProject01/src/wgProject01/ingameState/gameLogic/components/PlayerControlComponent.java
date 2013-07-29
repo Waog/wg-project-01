@@ -1,5 +1,9 @@
 package wgProject01.ingameState.gameLogic.components;
 
+import java.util.Stack;
+
+import wgProject01.ingameState.gameLogic.BlockGameObj;
+
 import com.artemis.Component;
 
 /**
@@ -12,5 +16,7 @@ public class PlayerControlComponent extends Component {
 
 	/** the meters an entity moves */
 	public float speed = 20;
-	
+
+	/** inventory block stack */
+	public Stack<BlockGameObj> inventoryStack = new Stack<BlockGameObj>();
 }
