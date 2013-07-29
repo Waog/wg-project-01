@@ -1,5 +1,6 @@
 package wgProject01.ingameState.gameLogic.view;
 
+import jme3tools.optimize.GeometryBatchFactory;
 import wgProject01.ingameState.gameLogic.BlockGameObj;
 import wgProject01.ingameState.gameLogic.BlockManager;
 
@@ -77,12 +78,17 @@ public class BlockView {
 		}
 
 		// update each face depending on the blocks neighbor
+		
+		this.blockNode.detachAllChildren();
+		
 		checkNeighbor(1, 0, 0, facePositiveX);
 		checkNeighbor(0, 1, 0, facePositiveY);
 		checkNeighbor(0, 0, 1, facePositiveZ);
 		checkNeighbor(-1, 0, 0, faceNegativeX);
 		checkNeighbor(0, -1, 0, faceNegativeY);
 		checkNeighbor(0, 0, -1, faceNegativeZ);
+
+		GeometryBatchFactory.optimize(blockNode);
 	}
 
 	/**
@@ -108,35 +114,41 @@ public class BlockView {
 	 */
 	private void initFaceSpatials(AssetManager assetManager) {
 		float blockRadius = .5f;
-		
+
 		String blockType = block.blockPositionComponent.getType();
 
-		facePositiveX = BlockFaceFactory.getFaceForType(blockType, assetManager);
+		facePositiveX = BlockFaceFactory
+				.getFaceForType(blockType, assetManager);
 		facePositiveX.rotate(0, (float) Math.PI / 2f, 0);
 		facePositiveX.setLocalTranslation(blockRadius, -blockRadius,
 				blockRadius);
 
-		facePositiveY = BlockFaceFactory.getFaceForType(blockType, assetManager);
+		facePositiveY = BlockFaceFactory
+				.getFaceForType(blockType, assetManager);
 		facePositiveY.rotate((float) -Math.PI / 2f, 0, 0);
 		facePositiveY.setLocalTranslation(-blockRadius, blockRadius,
 				blockRadius);
 
-		facePositiveZ = BlockFaceFactory.getFaceForType(blockType, assetManager);
+		facePositiveZ = BlockFaceFactory
+				.getFaceForType(blockType, assetManager);
 		facePositiveZ.rotate(0, 0, 0);
 		facePositiveZ.setLocalTranslation(-blockRadius, -blockRadius,
 				blockRadius);
 
-		faceNegativeX = BlockFaceFactory.getFaceForType(blockType, assetManager);
+		faceNegativeX = BlockFaceFactory
+				.getFaceForType(blockType, assetManager);
 		faceNegativeX.rotate(0, (float) -Math.PI / 2f, 0);
 		faceNegativeX.setLocalTranslation(-blockRadius, -blockRadius,
 				-blockRadius);
 
-		faceNegativeY = BlockFaceFactory.getFaceForType(blockType, assetManager);
+		faceNegativeY = BlockFaceFactory
+				.getFaceForType(blockType, assetManager);
 		faceNegativeY.rotate((float) Math.PI / 2f, 0, 0);
 		faceNegativeY.setLocalTranslation(-blockRadius, -blockRadius,
 				-blockRadius);
 
-		faceNegativeZ = BlockFaceFactory.getFaceForType(blockType, assetManager);
+		faceNegativeZ = BlockFaceFactory
+				.getFaceForType(blockType, assetManager);
 		faceNegativeZ.rotate((float) Math.PI, 0, 0);
 		faceNegativeZ.setLocalTranslation(-blockRadius, blockRadius,
 				-blockRadius);
