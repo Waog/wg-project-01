@@ -122,22 +122,7 @@ public class EntityView extends AbstractControl {
 		PlayerControlComponent playerControlComponent = entity
 				.getComponent(PlayerControlComponent.class);
 
-		// TODO: better architecture!!!
-		// case that the entity is a block face highlight
-		if (directionComponent != null && positionComponent != null
-				&& playerControlComponent == null
-				&& spatial.getName().equals("block face highlight")) {
-
-			Vector3f highlightDir = directionComponent
-					.getSwitchedCartesianDirection();
-
-			Vector3f yDirection = new Vector3f(highlightDir.z, highlightDir.x,
-					highlightDir.y);
-			spatial.lookAt(positionComponent.pos.add(highlightDir),
-					yDirection);
-		}
-
-		// case that the entity is a npc
+		// case that the entity is a a non-player-entity
 		if (directionComponent != null && positionComponent != null
 				&& playerControlComponent == null) {
 			spatial.lookAt(positionComponent.pos.add(directionComponent
@@ -154,6 +139,20 @@ public class EntityView extends AbstractControl {
 			spatial.lookAt(positionComponent.pos.add(spatialDirection),
 					new Vector3f(0, 1, 0));
 
+		}
+		
+		// TODO: better architecture!!!, escpecially the string!!
+		// case that the entity is a block face highlight
+		if (directionComponent != null && positionComponent != null
+				&& spatial.getName().equals("block face highlight")) {
+
+			Vector3f highlightDir = directionComponent
+					.getSwitchedCartesianDirection();
+
+			Vector3f yDirection = new Vector3f(highlightDir.z, highlightDir.x,
+					highlightDir.y);
+			spatial.lookAt(positionComponent.pos.add(highlightDir),
+					yDirection);
 		}
 
 		PointLightComponent pointLightComponent = entity
