@@ -38,7 +38,7 @@ public class EntityView extends AbstractControl {
 
 	/** the AssetManager of the simpleApplication */
 	AssetManager assetManager;
-	
+
 	/** the jme3 camera object */
 	public static Camera cam;
 
@@ -93,7 +93,7 @@ public class EntityView extends AbstractControl {
 						new Vector3f(0, 0, 3), entityNode, assetManager);
 			}
 		}
-		
+
 	}
 
 	/**
@@ -132,26 +132,25 @@ public class EntityView extends AbstractControl {
 		if (directionComponent != null && positionComponent != null
 				&& playerControlComponent == null) {
 			spatial.lookAt(positionComponent.pos.add(directionComponent
-					.getSwitchedCatesianProjectedDirectionXZ()), new Vector3f(0, 1, 0));
+					.getSwitchedCatesianProjectedDirectionXZ()), new Vector3f(
+					0, 1, 0));
 		}
-		// TODO 2 is this extra case neccesary
 		// case that the entity is a playable character
-		// oli: possibly yes, since we dont want to display the player at all
-		// from ego perspective.
 		else if (directionComponent != null && positionComponent != null
 				&& playerControlComponent != null) {
 			Vector3f spatialDirection = directionComponent
 					.getSwitchedCatesianProjectedDirectionXZ();
 			spatial.lookAt(positionComponent.pos.add(spatialDirection),
 					new Vector3f(0, 1, 0));
+
 			cam.setLocation(positionComponent.pos);
 			Quaternion rotQuaternion = new Quaternion();
-			rotQuaternion.lookAt(positionComponent.pos.add(spatialDirection),
+			rotQuaternion.lookAt(
+					directionComponent.getSwitchedCartesianDirection(),
 					new Vector3f(0, 1, 0));
 			cam.setRotation(rotQuaternion);
-
 		}
-		
+
 		// TODO: better architecture!!!, escpecially the string!!
 		// case that the entity is a block face highlight
 		if (directionComponent != null && positionComponent != null
@@ -162,8 +161,7 @@ public class EntityView extends AbstractControl {
 
 			Vector3f yDirection = new Vector3f(highlightDir.z, highlightDir.x,
 					highlightDir.y);
-			spatial.lookAt(positionComponent.pos.add(highlightDir),
-					yDirection);
+			spatial.lookAt(positionComponent.pos.add(highlightDir), yDirection);
 		}
 
 		PointLightComponent pointLightComponent = entity
