@@ -32,7 +32,9 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Sphere;
 
 /**
- * Class which provies static methods, to generate new entities, generates their
+ * TODO: totally refactor this class...
+ * 
+ * Class which provides static methods, to generate new entities, generates their
  * views, attach them to the world and to the scene graph with a single call.
  * 
  * Uses the singleton pattern.
