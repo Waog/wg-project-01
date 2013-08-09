@@ -11,20 +11,25 @@ import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
+import com.jme3.audio.AudioRenderer;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.input.FlyByCamera;
+import com.jme3.input.InputManager;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import com.jme3.niftygui.NiftyJmeDisplay;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 
+import de.lessvoid.nifty.Nifty;
+
 public class IngameState extends AbstractAppState {
-	
+
 	/**
 	 * datafields given by the {@link GameApplication} and the
 	 * {@link AssetManager} itself
@@ -45,32 +50,35 @@ public class IngameState extends AbstractAppState {
 	protected Geometry player;
 
 	/** contains all spatials onto which a block can be set */
-	private Node shootables; 
+	private Node shootables;
 	/** contains all spatials that can be picked up by the player */
-	private Node mineables; 
+	private Node mineables;
 
 	/** object representing the game logic */
 	private GameLogic gameLogic;
+	private InputManager inputManager;
+	private AudioRenderer audioRenderer;
 
 	@Override
 	public void initialize(AppStateManager stateManager, Application app) {
 		super.initialize(stateManager, app);
-		
+
 		this.app = (GameApplication) app; // cast to a more specific class
 		this.rootNode = this.app.getRootNode();
 		this.assetManager = this.app.getAssetManager();
-		this.app.getInputManager();
+		this.inputManager = this.app.getInputManager();
 		this.viewPort = this.app.getViewPort();
 		this.cam = this.app.getCamera();
 		this.flyCam = this.app.getFlyByCamera();
 		this.guiNode = this.app.getGuiNode();
+		this.audioRenderer = this.app.getAudioRenderer();
 
 		EntityView.cam = this.cam;
 		EntityView.rootNode = this.rootNode;
 		EntityView.assetManager = this.assetManager;
 		flyCam.setEnabled(false);
 		this.app.getInputManager().setCursorVisible(false);
-		
+
 		// TODO 1: remove debug code:
 		// draw the coordinate system:
 		Jme3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(1, 0, 0),
@@ -82,14 +90,14 @@ public class IngameState extends AbstractAppState {
 
 		// init stuff that is independent of whether state is PAUSED or RUNNING
 		guiNode.addLight(new AmbientLight());
-		
+
 		initNodes();
-		initCrossHairs();		
+		initCrossHairs();
 		EntityFactory.initData(rootNode, assetManager, rootNode);
-		
+
 		gameLogic = new GameLogic();
 		gameLogic.doInit(mineables, assetManager);
-		
+
 		stateManager.attach(new InputHandler());
 
 		initGeneralLights();
@@ -100,6 +108,22 @@ public class IngameState extends AbstractAppState {
 																		// blue
 		// TODO 2 the movementspeed setting does not work at all
 		flyCam.setMoveSpeed(10);
+		
+		// initialize the hud
+		createHud();
+	}
+
+	private void createHud() {
+		NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay(assetManager,
+				inputManager, audioRenderer, viewPort);
+		/** Create a new NiftyGUI object */
+		Nifty nifty = niftyDisplay.getNifty();
+		/** Read your XML and initialize your custom ScreenController */
+		nifty.fromXml("Interface/hud.xml", "start");
+		// attach the Nifty display to the gui view port as a processor
+		viewPort.addProcessor(niftyDisplay);
+		// disable the fly cam
+//		flyCam.setDragToRotate(true);
 	}
 
 	@Override
