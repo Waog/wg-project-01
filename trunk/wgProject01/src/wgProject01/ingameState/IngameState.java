@@ -58,6 +58,7 @@ public class IngameState extends AbstractAppState {
 	private GameLogic gameLogic;
 	private InputManager inputManager;
 	private AudioRenderer audioRenderer;
+	private ViewPort guiViewPort;
 
 	@Override
 	public void initialize(AppStateManager stateManager, Application app) {
@@ -68,6 +69,7 @@ public class IngameState extends AbstractAppState {
 		this.assetManager = this.app.getAssetManager();
 		this.inputManager = this.app.getInputManager();
 		this.viewPort = this.app.getViewPort();
+		this.guiViewPort = this.app.getGuiViewPort();
 		this.cam = this.app.getCamera();
 		this.flyCam = this.app.getFlyByCamera();
 		this.guiNode = this.app.getGuiNode();
@@ -115,13 +117,13 @@ public class IngameState extends AbstractAppState {
 
 	private void createHud() {
 		NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay(assetManager,
-				inputManager, audioRenderer, viewPort);
+				inputManager, audioRenderer, guiViewPort);
 		/** Create a new NiftyGUI object */
 		Nifty nifty = niftyDisplay.getNifty();
 		/** Read your XML and initialize your custom ScreenController */
 		nifty.fromXml("Interface/hud.xml", "start");
 		// attach the Nifty display to the gui view port as a processor
-		viewPort.addProcessor(niftyDisplay);
+		guiViewPort.addProcessor(niftyDisplay);
 		// disable the fly cam
 //		flyCam.setDragToRotate(true);
 	}
