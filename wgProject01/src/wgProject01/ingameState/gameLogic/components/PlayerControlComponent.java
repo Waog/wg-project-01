@@ -2,7 +2,8 @@ package wgProject01.ingameState.gameLogic.components;
 
 import java.util.Stack;
 
-import utils.typeModels.IntegerModel;
+import utils.typeModels.IntModel;
+import wgProject01.ModelAccessor;
 import wgProject01.ingameState.gameLogic.BlockGameObj;
 
 import com.artemis.Component;
@@ -22,5 +23,5 @@ public class PlayerControlComponent extends Component {
 	public Stack<BlockGameObj> inventoryStack = new Stack<BlockGameObj>();
 	
 	/** count of inventory blocks */
-	public IntegerModel itemCount = new IntegerModel(0);
+	public IntModel itemCount = ModelAccessor.getInstance().itemCount;
 }

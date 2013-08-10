@@ -19,6 +19,7 @@ public class SimpleModel<T> extends Observable {
 
 	public void set(T internal) {
 		this.internal = internal;
+		super.setChanged();
 		super.notifyObservers();
 	}
 }

@@ -3,8 +3,8 @@ package utils.typeModels;
 /**
  * See {@link utils.typeModels package description} on how to use this class.
  */
-public class IntegerModel extends SimpleModel<Integer> {
-	public IntegerModel(int initialValue) {
+public class IntModel extends SimpleModel<Integer> {
+	public IntModel(int initialValue) {
 		super(initialValue);
 	}
 
