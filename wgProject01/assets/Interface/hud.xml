@@ -4,11 +4,15 @@
        xsi:schemaLocation="http://nifty-gui.lessvoid.com/nifty-gui ./nifty.xsd">
     <useStyles filename="nifty-default-styles.xml" />
     <useControls filename="nifty-default-controls.xml" />
-    <screen id="start">
-        <layer id="foreground" backgroundColor="#0000" childLayout="vertical">
-            <panel id="panel_top" height="25%" width="75%" align="center" childLayout="center">  
-                <text text="Our Cool Game" font="Interface/Fonts/Default.fnt" width="100%" height="100%" />
-            </panel>
-        </layer>
+    <screen id="start" controller="wgProject01.ingameState.IngameState">
+    	<layer id="foreground" backgroundColor="#0000"
+    		childLayout="vertical">
+    		<panel id="panel_top" height="25%" width="75%"
+    			align="center" childLayout="center">
+    			<text text='Our Cool Game: ${CALL.getSomeNumber()}'
+    				font="Interface/Fonts/Default.fnt" width="100%" height="100%"
+    				id="updatedText" />
+    		</panel>
+    	</layer>
     </screen>
 </nifty>
