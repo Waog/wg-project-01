@@ -599,7 +599,7 @@ get():int</string>
    <object class="com.horstmann.violet.ClassNode" id="ClassNode8">
     <void property="name">
      <void property="text">
-      <string>GlobalModelAccessor
+      <string>ModelAccessor
 &lt;&lt;Singleton&gt;&gt;</string>
      </void>
     </void>
