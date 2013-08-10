@@ -503,19 +503,19 @@ inputs to/from the GUI</string>
      <string>x</string>
      <void method="set">
       <object idref="Point2D$Double15"/>
-      <double>529.0</double>
+      <double>471.0</double>
      </void>
     </void>
     <void class="java.awt.geom.Point2D$Double" method="getField">
      <string>y</string>
      <void method="set">
       <object idref="Point2D$Double15"/>
-      <double>350.0000000000001</double>
+      <double>366.0000000000001</double>
      </void>
     </void>
     <void method="setLocation">
-     <double>529.0</double>
-     <double>350.0000000000001</double>
+     <double>471.0</double>
+     <double>366.0000000000001</double>
     </void>
    </object>
   </void>
@@ -539,19 +539,19 @@ blockInventoryCount:IntModel</string>
      <string>x</string>
      <void method="set">
       <object idref="Point2D$Double16"/>
-      <double>25.00000000000003</double>
+      <double>30.00000000000003</double>
      </void>
     </void>
     <void class="java.awt.geom.Point2D$Double" method="getField">
      <string>y</string>
      <void method="set">
       <object idref="Point2D$Double16"/>
-      <double>419.5000000000001</double>
+      <double>445.5000000000001</double>
      </void>
     </void>
     <void method="setLocation">
-     <double>25.00000000000003</double>
-     <double>419.5000000000001</double>
+     <double>30.00000000000003</double>
+     <double>445.5000000000001</double>
     </void>
    </object>
   </void>
@@ -758,6 +758,9 @@ get():int</string>
   </void>
   <void method="connect">
    <object class="com.horstmann.violet.ClassRelationshipEdge">
+    <void property="endArrowHead">
+     <object class="com.horstmann.violet.ArrowHead" field="V"/>
+    </void>
     <void property="startArrowHead">
      <object class="com.horstmann.violet.ArrowHead" field="BLACK_DIAMOND"/>
     </void>
