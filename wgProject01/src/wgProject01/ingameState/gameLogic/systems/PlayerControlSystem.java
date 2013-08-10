@@ -168,9 +168,11 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 						.add(collisionPointDirectionFromPlayer);
 				if (BlockManager.getInstance().getBlock(
 						newBlockPositionNonRounded) == null) {
+					BlockGameObj placedBlock = playerComponent.inventoryStack.pop();
+					playerComponent.itemCount.decrement();
 					BlockManager.getInstance().setBlock(
 							newBlockPositionNonRounded,
-							playerComponent.inventoryStack.pop());
+							placedBlock);
 				}
 			}
 		}
@@ -194,6 +196,7 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 				BlockGameObj focusedBlock = BlockManager.getInstance()
 						.getBlock(closestRayCollisionPair.second);
 				playerComponent.inventoryStack.push(focusedBlock);
+				playerComponent.itemCount.increment();
 				BlockManager.getInstance().removeBlockFrom(
 						closestRayCollisionPair.second);
 			}
