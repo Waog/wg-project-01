@@ -1,5 +1,8 @@
 package wgProject01.ingameState;
 
+import java.sql.Time;
+import java.util.Date;
+
 import jm3Utils.Jme3Utils;
 import wgProject01.GameApplication;
 import wgProject01.ingameState.gameLogic.GameLogic;
@@ -27,8 +30,12 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 
 import de.lessvoid.nifty.Nifty;
+import de.lessvoid.nifty.elements.Element;
+import de.lessvoid.nifty.elements.render.TextRenderer;
+import de.lessvoid.nifty.screen.Screen;
+import de.lessvoid.nifty.screen.ScreenController;
 
-public class IngameState extends AbstractAppState {
+public class IngameState extends AbstractAppState implements ScreenController {
 
 	/**
 	 * datafields given by the {@link GameApplication} and the
@@ -59,6 +66,10 @@ public class IngameState extends AbstractAppState {
 	private InputManager inputManager;
 	private AudioRenderer audioRenderer;
 	private ViewPort guiViewPort;
+	/** Some Nifty Gui variable... */
+	private Nifty nifty;
+	/** Some Nifty Gui variable... */
+	private Screen screen;
 
 	@Override
 	public void initialize(AppStateManager stateManager, Application app) {
@@ -110,7 +121,7 @@ public class IngameState extends AbstractAppState {
 																		// blue
 		// TODO 2 the movementspeed setting does not work at all
 		flyCam.setMoveSpeed(10);
-		
+
 		// initialize the hud
 		createHud();
 	}
@@ -121,11 +132,11 @@ public class IngameState extends AbstractAppState {
 		/** Create a new NiftyGUI object */
 		Nifty nifty = niftyDisplay.getNifty();
 		/** Read your XML and initialize your custom ScreenController */
-		nifty.fromXml("Interface/hud.xml", "start");
+		nifty.fromXml("Interface/hud.xml", "start", this);
 		// attach the Nifty display to the gui view port as a processor
 		guiViewPort.addProcessor(niftyDisplay);
 		// disable the fly cam
-//		flyCam.setDragToRotate(true);
+		// flyCam.setDragToRotate(true);
 	}
 
 	@Override
@@ -153,6 +164,11 @@ public class IngameState extends AbstractAppState {
 	@Override
 	public void update(float tpf) {
 		gameLogic.doUpdate(tpf);
+		
+		// find old text
+		Element niftyElement = nifty.getCurrentScreen().findElementByName("updatedText");
+		// swap old with new text
+		niftyElement.getRenderer(TextRenderer.class).setText("Second: " + getSomeNumber());
 	}
 
 	/**
@@ -213,6 +229,29 @@ public class IngameState extends AbstractAppState {
 				cam.getWidth() / 2 - ch.getLineWidth() / 2, cam.getHeight() / 2
 						+ ch.getLineHeight() / 2, 0);
 		guiNode.attachChild(ch);
+	}
+
+	@Override
+	public void bind(Nifty nifty, Screen screen) {
+		this.nifty = nifty;
+		this.screen = screen;
+	}
+
+	@Override
+	public void onEndScreen() {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void onStartScreen() {
+		// TODO Auto-generated method stub
+	}
+
+	/**
+	 * Returns a number for the nifty gui hud.
+	 */
+	public int getSomeNumber() {
+		return new Date().getSeconds();
 	}
 
 	// private void addBlockAt(Vector3f blockLocation) {
