@@ -25,6 +25,8 @@ public class HudController implements Observer {
 		this.itemCount.addObserver(this);
 
 		createHud();
+		
+		update(this.itemCount, null);
 	}
 
 	@Override
