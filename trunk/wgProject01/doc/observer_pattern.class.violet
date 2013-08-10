@@ -280,19 +280,19 @@ beobachter.aktualisiere()}</string>
      <string>x</string>
      <void method="set">
       <object idref="Point2D$Double8"/>
-      <double>472.5</double>
+      <double>474.5</double>
      </void>
     </void>
     <void class="java.awt.geom.Point2D$Double" method="getField">
      <string>y</string>
      <void method="set">
       <object idref="Point2D$Double8"/>
-      <double>470.5</double>
+      <double>459.5</double>
      </void>
     </void>
     <void method="setLocation">
-     <double>472.5</double>
-     <double>470.5</double>
+     <double>474.5</double>
+     <double>459.5</double>
     </void>
    </object>
   </void>
@@ -378,19 +378,19 @@ handleInput()</string>
      <string>x</string>
      <void method="set">
       <object idref="Point2D$Double11"/>
-      <double>468.0</double>
+      <double>469.0</double>
      </void>
     </void>
     <void class="java.awt.geom.Point2D$Double" method="getField">
      <string>y</string>
      <void method="set">
       <object idref="Point2D$Double11"/>
-      <double>594.0</double>
+      <double>575.0</double>
      </void>
     </void>
     <void method="setLocation">
-     <double>468.0</double>
-     <double>594.0</double>
+     <double>469.0</double>
+     <double>575.0</double>
     </void>
    </object>
   </void>
@@ -595,6 +595,36 @@ get():int</string>
     </void>
    </object>
   </void>
+  <void method="addNode">
+   <object class="com.horstmann.violet.ClassNode" id="ClassNode8">
+    <void property="name">
+     <void property="text">
+      <string>GlobalModelAccessor
+&lt;&lt;Singleton&gt;&gt;</string>
+     </void>
+    </void>
+   </object>
+   <object class="java.awt.geom.Point2D$Double" id="Point2D$Double18">
+    <void class="java.awt.geom.Point2D$Double" method="getField">
+     <string>x</string>
+     <void method="set">
+      <object idref="Point2D$Double18"/>
+      <double>67.0</double>
+     </void>
+    </void>
+    <void class="java.awt.geom.Point2D$Double" method="getField">
+     <string>y</string>
+     <void method="set">
+      <object idref="Point2D$Double18"/>
+      <double>579.0</double>
+     </void>
+    </void>
+    <void method="setLocation">
+     <double>67.0</double>
+     <double>579.0</double>
+    </void>
+   </object>
+  </void>
   <void method="connect">
    <object class="com.horstmann.violet.ClassRelationshipEdge">
     <void property="bentStyle">
@@ -752,6 +782,9 @@ get():int</string>
     <void property="endLabel">
      <string>hitPointModel</string>
     </void>
+    <void property="lineStyle">
+     <object class="com.horstmann.violet.LineStyle" field="DOTTED"/>
+    </void>
    </object>
    <object idref="ClassNode3"/>
    <object idref="ClassNode7"/>
@@ -787,6 +820,18 @@ get():int</string>
    <object class="com.horstmann.violet.NoteEdge"/>
    <object idref="ClassNode7"/>
    <object idref="NoteNode3"/>
+  </void>
+  <void method="connect">
+   <object class="com.horstmann.violet.ClassRelationshipEdge">
+    <void property="bentStyle">
+     <object class="com.horstmann.violet.BentStyle" field="HVH"/>
+    </void>
+    <void property="startArrowHead">
+     <object class="com.horstmann.violet.ArrowHead" field="BLACK_DIAMOND"/>
+    </void>
+   </object>
+   <object idref="ClassNode8"/>
+   <object idref="ClassNode7"/>
   </void>
  </object>
 </java>
