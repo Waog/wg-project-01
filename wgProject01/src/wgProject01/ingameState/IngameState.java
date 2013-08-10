@@ -2,6 +2,7 @@ package wgProject01.ingameState;
 
 import java.sql.Time;
 import java.util.Date;
+import java.util.Observable;
 
 import jm3Utils.Jme3Utils;
 import wgProject01.GameApplication;
@@ -70,6 +71,7 @@ public class IngameState extends AbstractAppState implements ScreenController {
 	private Nifty nifty;
 	/** Some Nifty Gui variable... */
 	private Screen screen;
+	private Nifty nifty2;
 
 	@Override
 	public void initialize(AppStateManager stateManager, Application app) {
@@ -130,9 +132,9 @@ public class IngameState extends AbstractAppState implements ScreenController {
 		NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay(assetManager,
 				inputManager, audioRenderer, guiViewPort);
 		/** Create a new NiftyGUI object */
-		Nifty nifty = niftyDisplay.getNifty();
+		this.nifty2 = niftyDisplay.getNifty();
 		/** Read your XML and initialize your custom ScreenController */
-		nifty.fromXml("Interface/hud.xml", "start", this);
+		nifty2.fromXml("Interface/hud.xml", "start", this);
 		// attach the Nifty display to the gui view port as a processor
 		guiViewPort.addProcessor(niftyDisplay);
 		// disable the fly cam
@@ -166,7 +168,7 @@ public class IngameState extends AbstractAppState implements ScreenController {
 		gameLogic.doUpdate(tpf);
 		
 		// find old text
-		Element niftyElement = nifty.getCurrentScreen().findElementByName("updatedText");
+		Element niftyElement = nifty2.getCurrentScreen().findElementByName("updatedText");
 		// swap old with new text
 		niftyElement.getRenderer(TextRenderer.class).setText("Second: " + getSomeNumber());
 	}
