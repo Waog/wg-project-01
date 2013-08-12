@@ -122,6 +122,8 @@ public class IngameState extends AbstractAppState {
 		// attach the Nifty display to the gui view port as a processor
 		guiViewPort.addProcessor(niftyDisplay);
 		new HudController(this.nifty);
+		// activate cursor
+		flyCam.setDragToRotate(true);
 	}
 
 	@Override
