@@ -59,7 +59,7 @@ public class BlockView {
 		this.block = block;
 		initFaceSpatials(assetManager);
 
-		this.blockNode = new Node();
+		this.blockNode = new Node("node for a single block");
 	}
 
 	/**

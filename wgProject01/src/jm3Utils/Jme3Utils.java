@@ -30,7 +30,7 @@ public class Jme3Utils {
 	 */
 	public static Spatial drawLine(Vector3f start, Vector3f end, Node node,
 			AssetManager assetManager) {
-		Node result = new Node();
+		Node result = new Node("line container");
 		node.attachChild(result);
 		Line line = new Line(start, end);
 		Geometry geometry = new Geometry("Line", line);
