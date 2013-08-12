@@ -3,12 +3,14 @@ package wgProject01.ingameState;
 import jm3Utils.Jme3Utils;
 import wgProject01.GameApplication;
 import wgProject01.ingameState.gameLogic.GameLogic;
+import wgProject01.ingameState.gameLogic.systems.PlayerControlSystem;
 import wgProject01.ingameState.gameLogic.utils.EntityFactory;
 import wgProject01.ingameState.gameLogic.view.EntityView;
 import wgProject01.ingameState.gameLogic.view.InputHandler;
 import wgProject01.ingameState.view.HudController;
 
 import com.jme3.app.Application;
+import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
@@ -17,6 +19,9 @@ import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.input.FlyByCamera;
 import com.jme3.input.InputManager;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
@@ -124,6 +129,21 @@ public class IngameState extends AbstractAppState {
 		new HudController(this.nifty);
 		// activate cursor
 		flyCam.setDragToRotate(true);
+		inputManager.deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
+		
+		final String SWITCH_TO_MAIN_MENU = "SwitchToMainMenu";
+		inputManager.addMapping(SWITCH_TO_MAIN_MENU, new KeyTrigger(
+				KeyInput.KEY_ESCAPE));
+		inputManager.addListener(new ActionListener() {
+			@Override
+			public void onAction(String name, boolean isPressed, float tpf) {
+				System.out.println("any action received");
+				if(name.equals(SWITCH_TO_MAIN_MENU) && ! isPressed) {
+					System.out.println("escape action received");
+					nifty.gotoScreen("start");
+				}
+			}
+		}, SWITCH_TO_MAIN_MENU);
 	}
 
 	@Override
