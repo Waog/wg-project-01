@@ -62,7 +62,7 @@ public class GameLogic {
 		initFloor();
 
 		world = new World();
-		
+
 		world.setSystem(new PlayerControlSystem());
 		world.setSystem(new SimpleWalkingAiSystem());
 		world.setSystem(new OrbitingSystem());
@@ -70,7 +70,7 @@ public class GameLogic {
 		world.setSystem(new BlockCollisionSystem());
 
 		EntityFactory.createEnemy(world, new Vector3f(0, 3, 0));
-		EntityFactory.createPlayer(world, new Vector3f(1,3,1));
+		EntityFactory.createPlayer(world, new Vector3f(1, 3, 1));
 		// create more suns for higher debug modes.
 		for (int i = 0; i <= Settings.debugMode; i++) {
 			EntityFactory.createSun(world);
@@ -100,7 +100,8 @@ public class GameLogic {
 	 */
 	public void doUpdate(float secondsDelta) {
 		long time = 0;
-		if(Settings.debugMode > 0 )  time = System.nanoTime();
+		if (Settings.debugMode >= 4)
+			time = System.nanoTime();
 		float leftDeltaToProcess = secondsDelta;
 
 		while (leftDeltaToProcess > 0) {
@@ -108,13 +109,16 @@ public class GameLogic {
 					MAX_SECONDS_PER_UPDATE);
 			leftDeltaToProcess -= curDeltaToProcess;
 
-			if (Settings.debugMode >= 1) {
+			if (Settings.debugMode >= 4) {
 				System.out.println("update with delta: " + curDeltaToProcess);
 			}
 			world.setDelta(curDeltaToProcess);
 			world.process();
 		}
-		if(Settings.debugMode > 0 ) System.out.println("GameLogic update total used time: " + (System.nanoTime() - time) * 0.000000001);
+		if (Settings.debugMode >= 4) {
+			System.out.println("GameLogic update total used time: "
+					+ (System.nanoTime() - time) * 0.000000001);
+		}
 	}
 
 	/**
@@ -137,7 +141,7 @@ public class GameLogic {
 			for (int z = -FLOOR_RADIUS; z <= FLOOR_RADIUS; z++) {
 				addBlockAt(x, -2, z);
 				addBlockAt(x, -3, z);
-//				addBlockAt(x, 5, z); // ceiling
+				// addBlockAt(x, 5, z); // ceiling
 
 				if (Math.abs(x) >= FLOOR_RADIUS - 2
 						|| Math.abs(z) >= FLOOR_RADIUS - 1) {
@@ -156,7 +160,7 @@ public class GameLogic {
 		if (Settings.debugMode < 2) {
 			return;
 		}
-		
+
 		// nothing
 	}
 

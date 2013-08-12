@@ -47,7 +47,9 @@ public class MainMenuState extends AbstractAppState implements ScreenController 
 
 		// initialize the menu
 		// Read your XML and initialize your custom ScreenController
-		nifty.fromXml("Interface/hud.xml", "start", this);
+		nifty.fromXml("Interface/start.xml", "start", this);
+		
+		nifty.gotoScreen("start");
 	}
 
 	// ============== Input handling methods ===========

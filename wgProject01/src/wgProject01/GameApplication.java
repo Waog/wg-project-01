@@ -50,7 +50,7 @@ public class GameApplication extends SimpleApplication {
 	@Override
 	public void simpleUpdate(float tpf) {
 		// print the TPF in debug mode:
-		if (Settings.debugMode >= 1) {
+		if (Settings.debugMode >= 4) {
 			System.out.println("DEBUG: tpf: " + tpf);
 		}
 	}

@@ -46,25 +46,8 @@ public class HudController implements Observer, ScreenController {
 
 	private void createHud() {
 		/** Read your XML and initialize your custom ScreenController */
-		nifty.fromXml("Interface/hud.xml", "start", this);
-	}
-
-	/**
-	 * Switches to the screen with the given ID.
-	 */
-	public void startGame(String nextScreen) {
-		System.out.println("startGame() called");
-		nifty.gotoScreen(nextScreen); // switch to another screen
-		// start the game and do some more stuff...
-	}
-
-	/**
-	 * Quits the game app.
-	 */
-	public void quitGame() {
-		// app.stop();
-		System.out.println("quitQame() called");
-		System.exit(0);
+		nifty.addXml("Interface/hud.xml");
+		nifty.registerScreenController(this);
 	}
 
 	@Override
@@ -74,7 +57,7 @@ public class HudController implements Observer, ScreenController {
 
 	@Override
 	public void onEndScreen() {
-		// TODO Auto-generated method stub
+		nifty.unregisterScreenController(this);
 	}
 
 	@Override
