@@ -232,9 +232,6 @@ public class EntityFactory {
 //		geometry.getMaterial().getAdditionalRenderState().setWireframe(true);
 		entityNode.attachChild(geometry);
 
-		System.out.println("factory entityNode: " + entityNode);
-		System.out.println("factory spatial: " + geometry);
-
 		// make it visible (connect model and view)
 		EntityView entityView = new EntityView(e, entityNode);
 		geometry.addControl(entityView);
