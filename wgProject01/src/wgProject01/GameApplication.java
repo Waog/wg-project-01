@@ -1,9 +1,12 @@
 package wgProject01;
 
-import wgProject01.ingameState.IngameState;
+import wgProject01.mainMenuState.MainMenuState;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.plugins.FileLocator;
+import com.jme3.niftygui.NiftyJmeDisplay;
+
+import de.lessvoid.nifty.Nifty;
 
 /**
  * The Game Application.
@@ -22,9 +25,21 @@ public class GameApplication extends SimpleApplication {
 	public void simpleInitApp() {
 		// make our own assets accessible
 		assetManager.registerLocator(".", FileLocator.class);
+		
+		// delete default input managing
+		inputManager.deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
 
+		// initialize strange nifty magic stuff
+		NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay(assetManager,
+				inputManager, audioRenderer, guiViewPort);
+		/** Create a new NiftyGUI object */
+		Nifty nifty = niftyDisplay.getNifty();
+		// attach the Nifty display to the gui view port as a processor
+		guiViewPort.addProcessor(niftyDisplay);
+		
 		// initialize the initial app states
-		stateManager.attach(new IngameState());
+		MainMenuState mainMenuState = new MainMenuState(nifty);
+		stateManager.attach(mainMenuState);
 	}
 
 	/**
