@@ -75,9 +75,8 @@ public class BlockManager {
 	 *            attached.
 	 */
 	public void initData(Node rootNode, AssetManager assetManager) {
-		Node blockNode = new Node();
+		this.blockNode = new Node("global block node");
 		rootNode.attachChild(blockNode);
-		this.blockNode = blockNode;
 		this.assetManager = assetManager;
 	}
 

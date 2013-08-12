@@ -93,7 +93,7 @@ public class IngameState extends AbstractAppState implements ActionListener{
 
 		// initialize an own root node, because detaching lights from the real
 		// root node is crap.
-		this.ourRootNode = new Node();
+		this.ourRootNode = new Node("our Root Node");
 		this.realRootNode.attachChild(ourRootNode);
 
 		// init own classes and give them access to necessary data fields

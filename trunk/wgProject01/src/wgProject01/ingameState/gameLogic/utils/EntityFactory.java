@@ -135,7 +135,7 @@ public class EntityFactory {
 		e.addToWorld();
 
 		// create the spatials and attach them to each other
-		Node sunNode = new Node();
+		Node sunNode = new Node("sun node");
 		sunNode.setName("sun");
 		entityNode.attachChild(sunNode);
 
