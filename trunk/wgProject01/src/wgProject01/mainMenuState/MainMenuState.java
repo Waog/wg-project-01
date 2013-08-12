@@ -1,23 +1,13 @@
 package wgProject01.mainMenuState;
 
-import java.util.Observer;
-
 import wgProject01.GameApplication;
 import wgProject01.ingameState.IngameState;
-import wgProject01.ingameState.view.HudController;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
-import com.jme3.audio.AudioRenderer;
 import com.jme3.input.FlyByCamera;
-import com.jme3.input.InputManager;
-import com.jme3.input.KeyInput;
-import com.jme3.input.controls.ActionListener;
-import com.jme3.input.controls.KeyTrigger;
-import com.jme3.niftygui.NiftyJmeDisplay;
-import com.jme3.renderer.ViewPort;
 
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.screen.Screen;
@@ -30,13 +20,6 @@ public class MainMenuState extends AbstractAppState implements ScreenController 
 	 * {@link AssetManager} itself
 	 */
 	private GameApplication app;
-	private AssetManager assetManager;
-	private FlyByCamera flyCam;
-
-	private InputManager inputManager;
-	private AudioRenderer audioRenderer;
-	private ViewPort guiViewPort;
-	/** Some Nifty Gui variable... */
 	private Nifty nifty;
 	private AppStateManager stateManager;
 
@@ -55,17 +38,11 @@ public class MainMenuState extends AbstractAppState implements ScreenController 
 	public void initialize(AppStateManager stateManager, Application app) {
 		super.initialize(stateManager, app);
 
-		// Sets all inherited data fields.
+		// Sets some variables.
 		this.app = (GameApplication) app; // cast to a more specific class
-		this.assetManager = this.app.getAssetManager();
-		this.inputManager = this.app.getInputManager();
-		this.guiViewPort = this.app.getGuiViewPort();
-		this.flyCam = this.app.getFlyByCamera();
-		this.audioRenderer = this.app.getAudioRenderer();
 		this.stateManager = stateManager;
 
 		// enable cursor
-		flyCam.setEnabled(false);
 		this.app.getInputManager().setCursorVisible(true);
 
 		// initialize the menu
@@ -73,6 +50,8 @@ public class MainMenuState extends AbstractAppState implements ScreenController 
 		nifty.fromXml("Interface/hud.xml", "start", this);
 	}
 
+	// ============== Input handling methods ===========
+	
 	/**
 	 * Switches to the screen with the given ID.
 	 */
@@ -88,6 +67,8 @@ public class MainMenuState extends AbstractAppState implements ScreenController 
 	public void quitGame() {
 		app.stop();
 	}
+	
+	// ================== unused JME state management methods ====================
 	
 	/**
 	 * Called by JME3 whenever this state is detached from it's state manager.
@@ -124,6 +105,8 @@ public class MainMenuState extends AbstractAppState implements ScreenController 
 		// nothing
 	}
 
+	// ================= unused nifty methods =================
+	
 	@Override
 	public void bind(Nifty arg0, Screen arg1) {
 		// nothing

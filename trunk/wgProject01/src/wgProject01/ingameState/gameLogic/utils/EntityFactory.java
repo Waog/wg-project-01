@@ -89,6 +89,7 @@ public class EntityFactory {
 	 */
 	public static void initData(Node entityNode, AssetManager assetManager,
 			Node lightNode) {
+		// TODO architecture: demand rootNode as parameter, instead of 2 subnodes.
 		EntityFactory.entityNode = entityNode;
 		EntityFactory.assetManager = assetManager;
 	}
