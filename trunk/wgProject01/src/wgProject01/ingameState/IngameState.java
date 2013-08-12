@@ -38,7 +38,7 @@ public class IngameState extends AbstractAppState {
 	 * {@link AssetManager} itself
 	 */
 	private GameApplication app;
-	private Node rootNode, guiNode;
+	private Node realRootNode, guiNode;
 	private AssetManager assetManager;
 	private ViewPort viewPort;
 	private Camera cam;
@@ -62,6 +62,7 @@ public class IngameState extends AbstractAppState {
 	private HudController hudController;
 	private AppStateManager stateManager;
 	private InputHandler inputHandlerSubState;
+	private Node ourRootNode;
 
 	public IngameState(Nifty nifty) {
 		this.nifty = nifty;
@@ -78,7 +79,7 @@ public class IngameState extends AbstractAppState {
 
 		// initialize variables
 		this.app = (GameApplication) app; // cast to a more specific class
-		this.rootNode = this.app.getRootNode();
+		this.realRootNode = this.app.getRootNode();
 		this.assetManager = this.app.getAssetManager();
 		this.inputManager = this.app.getInputManager();
 		this.viewPort = this.app.getViewPort();
@@ -89,13 +90,18 @@ public class IngameState extends AbstractAppState {
 		this.audioRenderer = this.app.getAudioRenderer();
 		this.stateManager = stateManager;
 
+		// initialize an own root node, because detaching lights from the real
+		// root node is crap.
+		this.ourRootNode = new Node();
+		this.realRootNode.attachChild(ourRootNode);
+
 		// init own classes and give them access to necessary data fields
 		EntityView.cam = this.cam;
-		EntityView.rootNode = this.rootNode;
+		EntityView.rootNode = this.ourRootNode;
 		EntityView.assetManager = this.assetManager;
-		EntityFactory.initData(rootNode, assetManager, rootNode);
+		EntityFactory.initData(ourRootNode, assetManager, ourRootNode);
 		gameLogic = new GameLogic();
-		gameLogic.doInit(rootNode, assetManager);
+		gameLogic.doInit(ourRootNode, assetManager);
 
 		// disable the cursor
 		this.app.getInputManager().setCursorVisible(false);
@@ -112,7 +118,7 @@ public class IngameState extends AbstractAppState {
 		// initialize the HUD
 		this.hudController = new HudController(this.nifty);
 		nifty.gotoScreen("hud");
-		
+
 		// initialize input handling for state changes
 		initStateSpecificInputHandling();
 
@@ -134,7 +140,7 @@ public class IngameState extends AbstractAppState {
 			}
 		}, SWITCH_TO_MAIN_MENU);
 	}
-	
+
 	/**
 	 * Switches to the main menu state.
 	 */
@@ -150,11 +156,11 @@ public class IngameState extends AbstractAppState {
 		}
 		// draw the coordinate system:
 		Jme3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(1, 0, 0),
-				rootNode, assetManager);
+				ourRootNode, assetManager);
 		Jme3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(0, 1, 0),
-				rootNode, assetManager);
+				ourRootNode, assetManager);
 		Jme3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(0, 0, 1),
-				rootNode, assetManager);
+				ourRootNode, assetManager);
 	}
 
 	@Override
@@ -162,7 +168,7 @@ public class IngameState extends AbstractAppState {
 		super.cleanup();
 		// unregister all my listeners, detach all my nodes, etc...
 		gameLogic.doCleanup();
-		rootNode.detachAllChildren();
+		realRootNode.detachAllChildren();
 		this.stateManager.detach(this.inputHandlerSubState);
 	}
 
@@ -186,8 +192,9 @@ public class IngameState extends AbstractAppState {
 		gameLogic.doUpdate(tpf);
 	}
 
-	/** A centered plus sign to help the player aim. 
-	 * TODO: move the cross hair code to another class (maybe {@link HudController}).
+	/**
+	 * A centered plus sign to help the player aim. TODO: move the cross hair
+	 * code to another class (maybe {@link HudController}).
 	 */
 	private void initCrossHairs() {
 		app.setDisplayStatView(false);
