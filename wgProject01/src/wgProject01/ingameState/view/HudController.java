@@ -67,6 +67,7 @@ public class HudController implements Observer, ScreenController {
 	@Override
 	public void onEndScreen() {
 		nifty.unregisterScreenController(this);
+		itemCount.deleteObserver(this);
 	}
 
 	@Override
