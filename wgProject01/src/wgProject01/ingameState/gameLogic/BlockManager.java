@@ -34,7 +34,7 @@ public class BlockManager {
 	/**
 	 * The Node to which all Blocks have to be attached.
 	 */
-	private Node node;
+	private Node blockNode;
 
 	/**
 	 * The asset manager of the application.
@@ -45,6 +45,9 @@ public class BlockManager {
 	 * Returns the singleton instance of the block manager. The
 	 * {@link #initData(Node, AssetManager)} method has to be called on this
 	 * instance once before using it.
+	 * 
+	 * Also see {@link #reset()}, because the Singleton pattern is slightly
+	 * differed there.
 	 */
 	public static BlockManager getInstance() {
 		if (singletonInstance == null) {
@@ -71,8 +74,10 @@ public class BlockManager {
 	 *            the Node to which all blocks of the BlockManager shall be
 	 *            attached.
 	 */
-	public void initData(Node blockNode, AssetManager assetManager) {
-		this.node = blockNode;
+	public void initData(Node rootNode, AssetManager assetManager) {
+		Node blockNode = new Node();
+		rootNode.attachChild(blockNode);
+		this.blockNode = blockNode;
 		this.assetManager = assetManager;
 	}
 
@@ -81,7 +86,7 @@ public class BlockManager {
 	 */
 	public BlockGameObj getBlockGameObj() {
 		String randomType = BlockPropertiesComponent.getRandomType();
-		return new BlockGameObj(this.node, this.assetManager, randomType);
+		return new BlockGameObj(this.blockNode, this.assetManager, randomType);
 	}
 
 	/**
@@ -171,5 +176,17 @@ public class BlockManager {
 	 */
 	public void removeBlockFrom(Vector3f pos) {
 		setBlock(pos, null);
+	}
+
+	/**
+	 * Resets the Block Manager to its initial state (without any blocks).
+	 * 
+	 * Deletes the singleton instance of this block manager. The next call to
+	 * {@link #getInstance()} will create a new BlockManager.
+	 */
+	public void reset() {
+		this.blockNode.removeFromParent();
+		singletonInstance = null; // this is a slight break of the singleton
+									// pattern.
 	}
 }
