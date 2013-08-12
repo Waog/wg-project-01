@@ -31,7 +31,7 @@ import com.jme3.scene.Node;
 
 import de.lessvoid.nifty.Nifty;
 
-public class IngameState extends AbstractAppState {
+public class IngameState extends AbstractAppState implements ActionListener{
 
 	/**
 	 * datafields given by the {@link GameApplication} and the
@@ -63,6 +63,7 @@ public class IngameState extends AbstractAppState {
 	private AppStateManager stateManager;
 	private InputHandler inputHandlerSubState;
 	private Node ourRootNode;
+	private final String SWITCH_TO_MAIN_MENU = "SwitchToMainMenu";;
 
 	public IngameState(Nifty nifty) {
 		this.nifty = nifty;
@@ -128,19 +129,18 @@ public class IngameState extends AbstractAppState {
 	}
 
 	private void initStateSpecificInputHandling() {
-		final String SWITCH_TO_MAIN_MENU = "SwitchToMainMenu";
 		inputManager.addMapping(SWITCH_TO_MAIN_MENU, new KeyTrigger(
 				KeyInput.KEY_ESCAPE));
-		inputManager.addListener(new ActionListener() {
-			@Override
-			public void onAction(String name, boolean isPressed, float tpf) {
-				if (name.equals(SWITCH_TO_MAIN_MENU) && !isPressed) {
-					gotoMainMenu();
-				}
-			}
-		}, SWITCH_TO_MAIN_MENU);
+		inputManager.addListener(this, SWITCH_TO_MAIN_MENU);
 	}
 
+	@Override
+	public void onAction(String name, boolean isPressed, float tpf) {
+		if (name.equals(SWITCH_TO_MAIN_MENU) && !isPressed) {
+			gotoMainMenu();
+		}
+	}
+	
 	/**
 	 * Switches to the main menu state.
 	 */
@@ -170,6 +170,8 @@ public class IngameState extends AbstractAppState {
 		gameLogic.doCleanup();
 		realRootNode.detachAllChildren();
 		this.stateManager.detach(this.inputHandlerSubState);
+		inputManager.deleteMapping(SWITCH_TO_MAIN_MENU);
+		inputManager.removeListener(this);
 	}
 
 	@Override
