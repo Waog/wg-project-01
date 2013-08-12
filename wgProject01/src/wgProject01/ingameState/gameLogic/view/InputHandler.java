@@ -36,7 +36,6 @@ public class InputHandler extends AbstractAppState implements ActionListener,
 	 */
 	private static float mouseSensitivity = 5;
 
-
 	// the analog input mappings
 	/** mouse movement in negative x-direction, i.e. to the left */
 	public static final String MOUSE_LEFT = "MOUSE_LEFT";
@@ -156,6 +155,30 @@ public class InputHandler extends AbstractAppState implements ActionListener,
 			PlayerControlSystem.turnVertical -= value * mouseSensitivity;
 		}
 
+	}
+
+	@Override
+	public void cleanup() {
+		super.cleanup();
+
+		// TODO: implement dynamic mechanism to add and remove any amount of
+		// input mappings and listeners.
+
+		inputManager.removeListener(this);
+		
+		// Analog inputs
+		inputManager.deleteMapping(MOUSE_RIGHT);
+		inputManager.deleteMapping(MOUSE_LEFT);
+		inputManager.deleteMapping(MOUSE_UPWARDS);
+		inputManager.deleteMapping(MOUSE_DOWNWARDS);
+
+		// digital inputs
+		inputManager.deleteMapping(PlayerControlSystem.LEFT);
+		inputManager.deleteMapping(PlayerControlSystem.RIGHT);
+		inputManager.deleteMapping(PlayerControlSystem.BACK);
+		inputManager.deleteMapping(PlayerControlSystem.FORWARD);
+		inputManager.deleteMapping(PlayerControlSystem.PICK_BLOCK);
+		inputManager.deleteMapping(PlayerControlSystem.PLACE_BLOCK);
 	}
 
 }
