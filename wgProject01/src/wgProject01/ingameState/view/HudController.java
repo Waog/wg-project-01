@@ -17,6 +17,11 @@ import de.lessvoid.nifty.screen.ScreenController;
  */
 public class HudController implements Observer, ScreenController {
 
+	/**
+	 * Flag: was the corresponding nifty GUI XML file already read?
+	 */
+	private static boolean readXmlOnce = false;
+	
 	private IntModel itemCount;
 	private Nifty nifty;
 
@@ -45,8 +50,11 @@ public class HudController implements Observer, ScreenController {
 	}
 
 	private void createHud() {
-		/** Read your XML and initialize your custom ScreenController */
-		nifty.addXml("Interface/hud.xml");
+		if (! readXmlOnce) {
+			/** Read your XML and initialize your custom ScreenController */
+			nifty.addXml("Interface/hud.xml");
+			readXmlOnce = true;
+		}
 		nifty.registerScreenController(this);
 	}
 

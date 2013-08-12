@@ -7,13 +7,17 @@ import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
-import com.jme3.input.FlyByCamera;
 
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.screen.Screen;
 import de.lessvoid.nifty.screen.ScreenController;
 
 public class MainMenuState extends AbstractAppState implements ScreenController {
+
+	/**
+	 * Flag: was the corresponding nifty GUI XML file already read?
+	 */
+	private static boolean readXmlOnce = false;
 
 	/**
 	 * datafields given by the {@link GameApplication} and the
@@ -45,15 +49,20 @@ public class MainMenuState extends AbstractAppState implements ScreenController 
 		// enable cursor
 		this.app.getInputManager().setCursorVisible(true);
 
-		// initialize the menu
-		// Read your XML and initialize your custom ScreenController
-		nifty.fromXml("Interface/start.xml", "start", this);
-		
+		if (!readXmlOnce) {
+			// initialize the menu
+			// Read your XML and initialize your custom ScreenController
+			nifty.fromXml("Interface/start.xml", "start", this);
+			readXmlOnce = true;
+		} else {
+			nifty.registerScreenController(this);
+		}
+
 		nifty.gotoScreen("start");
 	}
 
 	// ============== Input handling methods ===========
-	
+
 	/**
 	 * Switches to the screen with the given ID.
 	 */
@@ -69,9 +78,10 @@ public class MainMenuState extends AbstractAppState implements ScreenController 
 	public void quitGame() {
 		app.stop();
 	}
-	
-	// ================== unused JME state management methods ====================
-	
+
+	// ================== unused JME state management methods
+	// ====================
+
 	/**
 	 * Called by JME3 whenever this state is detached from it's state manager.
 	 */
@@ -107,8 +117,8 @@ public class MainMenuState extends AbstractAppState implements ScreenController 
 		// nothing
 	}
 
-	// ================= unused nifty methods =================
-	
+	// ================= nifty methods =================
+
 	@Override
 	public void bind(Nifty arg0, Screen arg1) {
 		// nothing
@@ -116,7 +126,7 @@ public class MainMenuState extends AbstractAppState implements ScreenController 
 
 	@Override
 	public void onEndScreen() {
-		// nothing
+		nifty.unregisterScreenController(this);
 	}
 
 	@Override
