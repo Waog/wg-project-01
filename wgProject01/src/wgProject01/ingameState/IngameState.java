@@ -2,13 +2,13 @@ package wgProject01.ingameState;
 
 import jm3Utils.Jme3Utils;
 import wgProject01.GameApplication;
+import wgProject01.Settings;
 import wgProject01.ingameState.gameLogic.GameLogic;
 import wgProject01.ingameState.gameLogic.utils.EntityFactory;
 import wgProject01.ingameState.gameLogic.view.EntityView;
 import wgProject01.ingameState.gameLogic.view.InputHandler;
 
 import com.jme3.app.Application;
-import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
@@ -53,11 +53,6 @@ public class IngameState extends AbstractAppState {
 	/** the geometry representing the players body */
 	protected Geometry player;
 
-	/** contains all spatials onto which a block can be set */
-	private Node shootables;
-	/** contains all spatials that can be picked up by the player */
-	private Node mineables;
-
 	/** object representing the game logic */
 	private GameLogic gameLogic;
 	private InputManager inputManager;
@@ -70,6 +65,11 @@ public class IngameState extends AbstractAppState {
 		this.nifty = nifty;
 	}
 
+	/**
+	 * Called by JME3 whenever this state is attached to a state manager.
+	 * 
+	 * Internal: Sets all data fields.
+	 */
 	@Override
 	public void initialize(AppStateManager stateManager, Application app) {
 		super.initialize(stateManager, app);
@@ -85,53 +85,31 @@ public class IngameState extends AbstractAppState {
 		this.guiNode = this.app.getGuiNode();
 		this.audioRenderer = this.app.getAudioRenderer();
 
+		// init own classes and give them access to necessary data fields
 		EntityView.cam = this.cam;
 		EntityView.rootNode = this.rootNode;
 		EntityView.assetManager = this.assetManager;
-		flyCam.setEnabled(false);
+		EntityFactory.initData(rootNode, assetManager, rootNode);
+		gameLogic = new GameLogic();
+		gameLogic.doInit(rootNode, assetManager);
+
+		// disable the cursor
 		this.app.getInputManager().setCursorVisible(false);
 
-		// TODO 1: remove debug code:
-		// draw the coordinate system:
-		Jme3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(1, 0, 0),
-				rootNode, assetManager);
-		Jme3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(0, 1, 0),
-				rootNode, assetManager);
-		Jme3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(0, 0, 1),
-				rootNode, assetManager);
+		// draw the coordinate system
+		drawCoordinateSystem();
 
-		// init stuff that is independent of whether state is PAUSED or RUNNING
-		guiNode.addLight(new AmbientLight());
-
-		initNodes();
+		// init the cross hair
 		initCrossHairs();
-		EntityFactory.initData(rootNode, assetManager, rootNode);
 
-		gameLogic = new GameLogic();
-		gameLogic.doInit(mineables, assetManager);
-
-		stateManager.attach(new InputHandler());
-
-		initGeneralLights();
-		viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f)); // makes
-																		// the
-																		// background
-																		// somewhat
-																		// blue
-		// TODO 2 the movementspeed setting does not work at all
-		flyCam.setMoveSpeed(10);
+		// makes the background somewhat blue
+		viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 
 		// initialize the hud
-		NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay(assetManager,
-				inputManager, audioRenderer, guiViewPort);
-		/** Create a new NiftyGUI object */
-		this.nifty = niftyDisplay.getNifty();
-		// attach the Nifty display to the gui view port as a processor
-		guiViewPort.addProcessor(niftyDisplay);
-//		new HudController(this.nifty);
+		// new HudController(this.nifty);
 		// activate cursor
 		flyCam.setDragToRotate(true);
-		
+
 		final String SWITCH_TO_MAIN_MENU = "SwitchToMainMenu";
 		inputManager.addMapping(SWITCH_TO_MAIN_MENU, new KeyTrigger(
 				KeyInput.KEY_ESCAPE));
@@ -139,14 +117,29 @@ public class IngameState extends AbstractAppState {
 			@Override
 			public void onAction(String name, boolean isPressed, float tpf) {
 				System.out.println("any action received");
-				if(name.equals(SWITCH_TO_MAIN_MENU) && ! isPressed) {
+				if (name.equals(SWITCH_TO_MAIN_MENU) && !isPressed) {
 					System.out.println("escape action received");
 					nifty.gotoScreen("start");
 				}
 			}
 		}, SWITCH_TO_MAIN_MENU);
-		
-		nifty.gotoScreen("hud"); 
+
+		nifty.gotoScreen("hud");
+
+		stateManager.attach(new InputHandler());
+	}
+
+	private void drawCoordinateSystem() {
+		if (Settings.debugMode < 2) {
+			return;
+		}
+		// draw the coordinate system:
+		Jme3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(1, 0, 0),
+				rootNode, assetManager);
+		Jme3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(0, 1, 0),
+				rootNode, assetManager);
+		Jme3Utils.drawLine(new Vector3f(0, 0, 0), new Vector3f(0, 0, 1),
+				rootNode, assetManager);
 	}
 
 	@Override
@@ -174,51 +167,6 @@ public class IngameState extends AbstractAppState {
 	@Override
 	public void update(float tpf) {
 		gameLogic.doUpdate(tpf);
-	}
-
-	/**
-	 * initializes the most important nodes and attaches them to their specific
-	 * position
-	 */
-	private void initNodes() {
-		// contains all nodes and geometries where player is able to put things
-		// at, or to mine it
-		shootables = new Node(SHOOTABLES);
-		rootNode.attachChild(shootables);
-
-		// the node containing the blocks that can be picked up
-		mineables = new Node(MINEABLES);
-		shootables.attachChild(mineables);
-	}
-
-	/**
-	 * initializes three lights to have a general enlightening setting any
-	 * materials visible
-	 */
-	private void initGeneralLights() {
-		// Add an ambient light to make everything visible.
-		AmbientLight ambientLight = new AmbientLight();
-		ambientLight.setColor(ColorRGBA.Pink);
-		rootNode.addLight(ambientLight);
-
-		/** Must add a light to make the lit object visible! */
-		DirectionalLight sun = new DirectionalLight();
-		sun.setDirection(new Vector3f(1, 0, -1).normalizeLocal());
-		sun.setColor(ColorRGBA.DarkGray);
-		rootNode.addLight(sun);
-
-		/** Must add a light to make the lit object visible! */
-		DirectionalLight sun2 = new DirectionalLight();
-		sun2.setDirection(new Vector3f(-1, 1, 0).normalizeLocal());
-		sun2.setColor(ColorRGBA.DarkGray);
-		rootNode.addLight(sun2);
-
-		/** Must add a light to make the lit object visible! */
-		DirectionalLight sun3 = new DirectionalLight();
-		sun3.setDirection(new Vector3f(0, -1, 1).normalizeLocal());
-		sun3.setColor(ColorRGBA.DarkGray);
-		rootNode.addLight(sun3);
-
 	}
 
 	/** A centered plus sign to help the player aim. */

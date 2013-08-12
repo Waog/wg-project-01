@@ -44,7 +44,7 @@ public class GameLogic {
 	/**
 	 * The JME3 {@link Node} to which blocks are attached.
 	 */
-	private Node blockNode;
+	private Node rootNode;
 
 	/**
 	 * The JME3 {@link AssetManager}.
@@ -54,8 +54,8 @@ public class GameLogic {
 	/**
 	 * Initializes the game logic and entity systems.
 	 */
-	public void doInit(Node blockNode, AssetManager assetManager) {
-		this.blockNode = blockNode;
+	public void doInit(Node rootNode, AssetManager assetManager) {
+		this.rootNode = rootNode;
 		this.assetManager = assetManager;
 
 		initBlockManager();
@@ -124,7 +124,7 @@ public class GameLogic {
 		// initialize the block manager
 		BlockManager blockManager = BlockManager.getInstance();
 		// rootNode.attachChild(blockNode);
-		blockManager.initData(blockNode, assetManager);
+		blockManager.initData(rootNode, assetManager);
 	}
 
 	/**

@@ -28,6 +28,7 @@ public class GameApplication extends SimpleApplication {
 		
 		// delete default input managing
 		inputManager.deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
+		flyCam.setEnabled(false);
 
 		// initialize strange nifty magic stuff
 		NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay(assetManager,
