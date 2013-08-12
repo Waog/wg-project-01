@@ -3,11 +3,9 @@ package wgProject01.ingameState;
 import jm3Utils.Jme3Utils;
 import wgProject01.GameApplication;
 import wgProject01.ingameState.gameLogic.GameLogic;
-import wgProject01.ingameState.gameLogic.systems.PlayerControlSystem;
 import wgProject01.ingameState.gameLogic.utils.EntityFactory;
 import wgProject01.ingameState.gameLogic.view.EntityView;
 import wgProject01.ingameState.gameLogic.view.InputHandler;
-import wgProject01.ingameState.view.HudController;
 
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
@@ -68,6 +66,10 @@ public class IngameState extends AbstractAppState {
 	/** Some Nifty Gui variable... */
 	private Nifty nifty;
 
+	public IngameState(Nifty nifty) {
+		this.nifty = nifty;
+	}
+
 	@Override
 	public void initialize(AppStateManager stateManager, Application app) {
 		super.initialize(stateManager, app);
@@ -126,10 +128,9 @@ public class IngameState extends AbstractAppState {
 		this.nifty = niftyDisplay.getNifty();
 		// attach the Nifty display to the gui view port as a processor
 		guiViewPort.addProcessor(niftyDisplay);
-		new HudController(this.nifty);
+//		new HudController(this.nifty);
 		// activate cursor
 		flyCam.setDragToRotate(true);
-		inputManager.deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
 		
 		final String SWITCH_TO_MAIN_MENU = "SwitchToMainMenu";
 		inputManager.addMapping(SWITCH_TO_MAIN_MENU, new KeyTrigger(
@@ -144,6 +145,8 @@ public class IngameState extends AbstractAppState {
 				}
 			}
 		}, SWITCH_TO_MAIN_MENU);
+		
+		nifty.gotoScreen("hud"); 
 	}
 
 	@Override
