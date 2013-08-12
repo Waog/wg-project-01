@@ -7,6 +7,8 @@ import wgProject01.ingameState.gameLogic.GameLogic;
 import wgProject01.ingameState.gameLogic.utils.EntityFactory;
 import wgProject01.ingameState.gameLogic.view.EntityView;
 import wgProject01.ingameState.gameLogic.view.InputHandler;
+import wgProject01.ingameState.view.HudController;
+import wgProject01.mainMenuState.MainMenuState;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
@@ -20,11 +22,8 @@ import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
-import com.jme3.light.AmbientLight;
-import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.jme3.niftygui.NiftyJmeDisplay;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
@@ -60,6 +59,9 @@ public class IngameState extends AbstractAppState {
 	private ViewPort guiViewPort;
 	/** Some Nifty Gui variable... */
 	private Nifty nifty;
+	private HudController hudController;
+	private AppStateManager stateManager;
+	private InputHandler inputHandlerSubState;
 
 	public IngameState(Nifty nifty) {
 		this.nifty = nifty;
@@ -74,6 +76,7 @@ public class IngameState extends AbstractAppState {
 	public void initialize(AppStateManager stateManager, Application app) {
 		super.initialize(stateManager, app);
 
+		// initialize variables
 		this.app = (GameApplication) app; // cast to a more specific class
 		this.rootNode = this.app.getRootNode();
 		this.assetManager = this.app.getAssetManager();
@@ -84,6 +87,7 @@ public class IngameState extends AbstractAppState {
 		this.flyCam = this.app.getFlyByCamera();
 		this.guiNode = this.app.getGuiNode();
 		this.audioRenderer = this.app.getAudioRenderer();
+		this.stateManager = stateManager;
 
 		// init own classes and give them access to necessary data fields
 		EntityView.cam = this.cam;
@@ -105,28 +109,39 @@ public class IngameState extends AbstractAppState {
 		// makes the background somewhat blue
 		viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 
-		// initialize the hud
-		// new HudController(this.nifty);
-		// activate cursor
-		flyCam.setDragToRotate(true);
+		// initialize the HUD
+		this.hudController = new HudController(this.nifty);
+		nifty.gotoScreen("hud");
+		
+		// initialize input handling for state changes
+		initStateSpecificInputHandling();
 
+		// initialize sub states
+		this.inputHandlerSubState = new InputHandler();
+		stateManager.attach(inputHandlerSubState);
+	}
+
+	private void initStateSpecificInputHandling() {
 		final String SWITCH_TO_MAIN_MENU = "SwitchToMainMenu";
 		inputManager.addMapping(SWITCH_TO_MAIN_MENU, new KeyTrigger(
 				KeyInput.KEY_ESCAPE));
 		inputManager.addListener(new ActionListener() {
 			@Override
 			public void onAction(String name, boolean isPressed, float tpf) {
-				System.out.println("any action received");
 				if (name.equals(SWITCH_TO_MAIN_MENU) && !isPressed) {
-					System.out.println("escape action received");
-					nifty.gotoScreen("start");
+					gotoMainMenu();
 				}
 			}
 		}, SWITCH_TO_MAIN_MENU);
-
-		nifty.gotoScreen("hud");
-
-		stateManager.attach(new InputHandler());
+	}
+	
+	/**
+	 * Switches to the main menu state.
+	 */
+	public void gotoMainMenu() {
+		MainMenuState mainMenuState = new MainMenuState(nifty);
+		this.stateManager.attach(mainMenuState);
+		this.stateManager.detach(this);
 	}
 
 	private void drawCoordinateSystem() {
@@ -147,6 +162,7 @@ public class IngameState extends AbstractAppState {
 		super.cleanup();
 		// unregister all my listeners, detach all my nodes, etc...
 		gameLogic.doCleanup();
+		this.stateManager.detach(this.inputHandlerSubState);
 	}
 
 	@Override
@@ -169,7 +185,9 @@ public class IngameState extends AbstractAppState {
 		gameLogic.doUpdate(tpf);
 	}
 
-	/** A centered plus sign to help the player aim. */
+	/** A centered plus sign to help the player aim. 
+	 * TODO: move the cross hair code to another class (maybe {@link HudController}).
+	 */
 	private void initCrossHairs() {
 		app.setDisplayStatView(false);
 		BitmapFont guiFont = assetManager
