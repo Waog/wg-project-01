@@ -33,7 +33,7 @@ public class HudController implements Observer, ScreenController {
 
 		createHud();
 
-		update(this.itemCount, null);
+		//update(this.itemCount, null);
 	}
 
 	@Override
@@ -50,12 +50,13 @@ public class HudController implements Observer, ScreenController {
 	}
 
 	private void createHud() {
+		nifty.registerScreenController(this);
 		if (! readXmlOnce) {
 			/** Read your XML and initialize your custom ScreenController */
 			nifty.addXml("Interface/hud.xml");
 			readXmlOnce = true;
 		}
-		nifty.registerScreenController(this);
+	
 	}
 
 	@Override
