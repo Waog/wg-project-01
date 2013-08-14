@@ -178,7 +178,8 @@ public class IngameState extends AbstractAppState implements ActionListener,
 		super.cleanup();
 		// unregister all my listeners, detach all my nodes, etc...
 		gameLogic.doCleanup();
-		realRootNode.detachAllChildren();
+		this.ourRootNode.removeFromParent();
+		this.ourRootNode = null;
 		this.stateManager.detach(this.inputHandlerSubState);
 		inputManager.deleteMapping(SWITCH_TO_MAIN_MENU);
 		inputManager.removeListener(this);
