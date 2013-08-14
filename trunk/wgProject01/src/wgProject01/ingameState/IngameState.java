@@ -12,7 +12,6 @@ import wgProject01.ingameState.gameLogic.GameLogic;
 import wgProject01.ingameState.gameLogic.utils.EntityFactory;
 import wgProject01.ingameState.gameLogic.view.EntityView;
 import wgProject01.ingameState.gameLogic.view.InputHandler;
-import wgProject01.ingameState.view.HudController;
 import wgProject01.mainMenuState.MainMenuState;
 
 import com.jme3.app.Application;
@@ -68,7 +67,6 @@ public class IngameState extends AbstractAppState implements ActionListener,
 	private ViewPort guiViewPort;
 	/** Some Nifty Gui variable... */
 	private Nifty nifty;
-	private HudController hudController;
 	private AppStateManager stateManager;
 	private InputHandler inputHandlerSubState;
 	private Node ourRootNode;
@@ -186,13 +184,36 @@ public class IngameState extends AbstractAppState implements ActionListener,
 			System.out.println("removed controls from " + spatial);
 		}
 		
+		
+		this.ourRootNode.detachAllChildren();
+		
 		// unregister all my listeners, detach all my nodes, etc...
 		gameLogic.doCleanup();
+		EntityFactory.resetData();
 		this.ourRootNode.removeFromParent();
 		this.ourRootNode = null;
+		EntityView.cam = null;
+		EntityView.rootNode = null;
+		EntityView.assetManager = null;
 		this.stateManager.detach(this.inputHandlerSubState);
 		inputManager.deleteMapping(SWITCH_TO_MAIN_MENU);
 		inputManager.removeListener(this);
+		
+		app = null;
+		realRootNode = null;
+		guiNode = null;
+		assetManager = null;
+		viewPort = null;
+		cam = null;
+		flyCam = null;
+		player = null;
+		gameLogic = null;
+		inputManager = null;
+		audioRenderer = null;
+		guiViewPort = null;
+		stateManager = null;
+		inputHandlerSubState = null;
+		ourRootNode = null;
 	}
 
 	@Override

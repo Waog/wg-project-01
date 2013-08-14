@@ -93,6 +93,11 @@ public class EntityFactory {
 		EntityFactory.entityNode = entityNode;
 		EntityFactory.assetManager = assetManager;
 	}
+	
+	public static void resetData() {
+		EntityFactory.entityNode = null;
+		EntityFactory.assetManager = null;
+	}
 
 	/**
 	 * Initializes a randomly colored sun, with a random rotation speed, which
