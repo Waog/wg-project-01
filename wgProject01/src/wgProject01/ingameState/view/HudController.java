@@ -27,8 +27,7 @@ public class HudController implements Observer, ScreenController {
 	public HudController(Nifty nifty) {
 		super();
 		this.nifty = nifty;
-		IntModel itemCount = ModelAccessor.getInstance().itemCount;
-		itemCount.addObserver(this);
+		ModelAccessor.getInstance().itemCount.addObserver(this);
 
 		createHud();
 
