@@ -1,7 +1,11 @@
 package wgProject01.ingameState;
 
+import java.util.Observable;
+import java.util.Observer;
+
 import jm3Utils.Jme3Utils;
 import wgProject01.GameApplication;
+import wgProject01.ModelAccessor;
 import wgProject01.Settings;
 import wgProject01.ingameState.gameLogic.GameLogic;
 import wgProject01.ingameState.gameLogic.utils.EntityFactory;
@@ -30,8 +34,11 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 
 import de.lessvoid.nifty.Nifty;
+import de.lessvoid.nifty.screen.Screen;
+import de.lessvoid.nifty.screen.ScreenController;
 
-public class IngameState extends AbstractAppState implements ActionListener{
+public class IngameState extends AbstractAppState implements ActionListener,
+		Observer, ScreenController {
 
 	/**
 	 * datafields given by the {@link GameApplication} and the
@@ -65,8 +72,7 @@ public class IngameState extends AbstractAppState implements ActionListener{
 	private Node ourRootNode;
 	private final String SWITCH_TO_MAIN_MENU = "SwitchToMainMenu";;
 
-	public IngameState(Nifty nifty) {
-		this.nifty = nifty;
+	public IngameState() {
 	}
 
 	/**
@@ -117,7 +123,7 @@ public class IngameState extends AbstractAppState implements ActionListener{
 		viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 
 		// initialize the HUD
-		this.hudController = new HudController(this.nifty);
+		ModelAccessor.getInstance().itemCount.addObserver(this);
 		nifty.gotoScreen("hud");
 
 		// initialize input handling for state changes
@@ -140,12 +146,16 @@ public class IngameState extends AbstractAppState implements ActionListener{
 			gotoMainMenu();
 		}
 	}
-	
+
 	/**
 	 * Switches to the main menu state.
 	 */
 	public void gotoMainMenu() {
-		MainMenuState mainMenuState = new MainMenuState(nifty);
+		// initialize and switch to the next state/screen
+		ScreenController startScreenController = nifty.getScreen("start")
+				.getScreenController();
+		MainMenuState mainMenuState = (MainMenuState) startScreenController;
+		this.nifty.gotoScreen("start");
 		this.stateManager.attach(mainMenuState);
 		this.stateManager.detach(this);
 	}
@@ -210,5 +220,28 @@ public class IngameState extends AbstractAppState implements ActionListener{
 				cam.getWidth() / 2 - ch.getLineWidth() / 2, cam.getHeight() / 2
 						+ ch.getLineHeight() / 2, 0);
 		guiNode.attachChild(ch);
+	}
+
+	@Override
+	public void bind(Nifty nifty, Screen screen) {
+		this.nifty = nifty;
+	}
+
+	@Override
+	public void onStartScreen() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onEndScreen() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -27,7 +27,15 @@ public class MainMenuState extends AbstractAppState implements ScreenController 
 	private Nifty nifty;
 	private AppStateManager stateManager;
 
-	public MainMenuState(Nifty nifty) {
+	/**
+	 * Hopefully automatically constructed once at the screen initialization
+	 * when reading the XML.
+	 */
+	public MainMenuState() {
+	}
+
+	@Override
+	public void bind(Nifty nifty, Screen screen) {
 		this.nifty = nifty;
 	}
 
@@ -49,15 +57,6 @@ public class MainMenuState extends AbstractAppState implements ScreenController 
 		// enable cursor
 		this.app.getInputManager().setCursorVisible(true);
 
-		if (!readXmlOnce) {
-			// initialize the menu
-			// Read your XML and initialize your custom ScreenController
-			nifty.fromXml("Interface/start.xml", "start", this);
-			readXmlOnce = true;
-		} else {
-			nifty.registerScreenController(this);
-		}
-
 		nifty.gotoScreen("start");
 	}
 
@@ -67,7 +66,11 @@ public class MainMenuState extends AbstractAppState implements ScreenController 
 	 * Switches to the screen with the given ID.
 	 */
 	public void startGame() {
-		IngameState ingameState = new IngameState(nifty);
+		// initialize and switch to the next state/screen
+		ScreenController ingameScreenController = nifty.getScreen("hud")
+				.getScreenController();
+		IngameState ingameState = (IngameState) ingameScreenController;
+		this.nifty.gotoScreen("hud");
 		this.stateManager.attach(ingameState);
 		this.stateManager.detach(this);
 	}
@@ -120,13 +123,8 @@ public class MainMenuState extends AbstractAppState implements ScreenController 
 	// ================= nifty methods =================
 
 	@Override
-	public void bind(Nifty arg0, Screen arg1) {
-		// nothing
-	}
-
-	@Override
 	public void onEndScreen() {
-		nifty.unregisterScreenController(this);
+		// nothing
 	}
 
 	@Override

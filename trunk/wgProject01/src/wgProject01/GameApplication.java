@@ -7,6 +7,8 @@ import com.jme3.asset.plugins.FileLocator;
 import com.jme3.niftygui.NiftyJmeDisplay;
 
 import de.lessvoid.nifty.Nifty;
+import de.lessvoid.nifty.screen.Screen;
+import de.lessvoid.nifty.screen.ScreenController;
 
 /**
  * The Game Application.
@@ -18,14 +20,14 @@ import de.lessvoid.nifty.Nifty;
 public class GameApplication extends SimpleApplication {
 
 	/**
-	 * JME3 calls this method automatically once.
-	 * Initializes the game application.
+	 * JME3 calls this method automatically once. Initializes the game
+	 * application.
 	 */
 	@Override
 	public void simpleInitApp() {
 		// make our own assets accessible
 		assetManager.registerLocator(".", FileLocator.class);
-		
+
 		// delete default input managing
 		inputManager.deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
 		flyCam.setEnabled(false);
@@ -37,15 +39,21 @@ public class GameApplication extends SimpleApplication {
 		Nifty nifty = niftyDisplay.getNifty();
 		// attach the Nifty display to the gui view port as a processor
 		guiViewPort.addProcessor(niftyDisplay);
+
+		// construct all app states / screen controllers from the XMLs
+		nifty.fromXml("Interface/start.xml", "start");
+		nifty.addXml("Interface/hud.xml");
 		
-		// initialize the initial app states
-		MainMenuState mainMenuState = new MainMenuState(nifty);
+		// initialize the initial state/screen
+		ScreenController startScreenController = nifty.getScreen("start")
+				.getScreenController();
+		MainMenuState mainMenuState = (MainMenuState) startScreenController;
 		stateManager.attach(mainMenuState);
 	}
 
 	/**
-	 * JME3 calls this method automatically every Frame.
-	 * Does nothing (except debug stuff).
+	 * JME3 calls this method automatically every Frame. Does nothing (except
+	 * debug stuff).
 	 */
 	@Override
 	public void simpleUpdate(float tpf) {

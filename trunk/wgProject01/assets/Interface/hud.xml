@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://nifty-gui.lessvoid.com/nifty-gui ./nifty.xsd">
 	<useStyles filename="nifty-default-styles.xml" />
 	<useControls filename="nifty-default-controls.xml" />
-	<screen id="hud" controller="wgProject01.ingameState.view.HudController">
+	<screen id="hud" controller="wgProject01.ingameState.IngameState">
 		<layer id="foreground" backgroundColor="#0000"
 			childLayout="vertical">
 			<panel id="panel_top" height="5%" width="25%" align="right"
