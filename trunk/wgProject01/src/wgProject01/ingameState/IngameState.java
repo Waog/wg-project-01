@@ -1,5 +1,6 @@
 package wgProject01.ingameState;
 
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -32,6 +33,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.screen.Screen;
@@ -176,6 +178,14 @@ public class IngameState extends AbstractAppState implements ActionListener,
 	@Override
 	public void cleanup() {
 		super.cleanup();
+		// iterate over the spatials and remove controls manually
+		// TODO find a better method (or: do it recursively to remove all controls)
+		List<Spatial> spatialList = this.ourRootNode.getChildren();
+		for(Spatial spatial: spatialList){
+			spatial.removeControl(EntityView.class);
+			System.out.println("removed controls from " + spatial);
+		}
+		
 		// unregister all my listeners, detach all my nodes, etc...
 		gameLogic.doCleanup();
 		this.ourRootNode.removeFromParent();
