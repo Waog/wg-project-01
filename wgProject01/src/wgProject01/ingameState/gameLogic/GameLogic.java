@@ -90,6 +90,8 @@ public class GameLogic {
 		world.deleteSystem(world.getSystem(OrbitingSystem.class));
 		world.deleteSystem(world.getSystem(PlayerControlSystem.class));
 		BlockManager.getInstance().reset();
+		this.rootNode = null;
+		this.assetManager = null;
 	}
 
 	/**
