@@ -22,14 +22,13 @@ public class HudController implements Observer, ScreenController {
 	 */
 	private static boolean readXmlOnce = false;
 	
-	private IntModel itemCount;
 	private Nifty nifty;
 
 	public HudController(Nifty nifty) {
 		super();
 		this.nifty = nifty;
-		this.itemCount = ModelAccessor.getInstance().itemCount;
-		this.itemCount.addObserver(this);
+		IntModel itemCount = ModelAccessor.getInstance().itemCount;
+		itemCount.addObserver(this);
 
 		createHud();
 
@@ -38,6 +37,7 @@ public class HudController implements Observer, ScreenController {
 
 	@Override
 	public void update(Observable o, Object arg) {
+		IntModel itemCount = ModelAccessor.getInstance().itemCount;
 		if (o == itemCount) {
 			String newText = "itemCount: " + itemCount.get();
 
@@ -67,6 +67,7 @@ public class HudController implements Observer, ScreenController {
 	@Override
 	public void onEndScreen() {
 		nifty.unregisterScreenController(this);
+		IntModel itemCount = ModelAccessor.getInstance().itemCount;
 		itemCount.deleteObserver(this);
 	}
 
